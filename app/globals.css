@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ece9e3;
+  --ink: #0d0c0a;
+  --dark: #3a3730;        /* sıcak koyu — bg ile uyumlu */
+  --accent: #e8321f;
+  --accent-soft: rgba(232, 50, 31, 0.08);
+  --surface: rgba(255,255,255,0.55);
+  --border: rgba(13,12,10,0.09);
+}
+
+html,
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.scene-fixed {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.section-stack {
+  position: relative;
+  z-index: 10;
+}
+
+.section {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 8vw;
+}
+
+@media (max-width: 1024px) {
+  /* MOBILE + TABLET LAYOUT — text TOP, camera MIDDLE (canvas pinned
+     to 30-72vh band), text/CTA BOTTOM. Single vertical composition. */
+
+  .scene-fixed {
+    top: 30vh;
+    bottom: auto;
+    height: 42vh;
+  }
+
+  .section {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 14vh 6vw 4vh 6vw;
+  }
+
+  /* Headlines get a 42vh margin-bottom that acts as the canvas spacer:
+     eyebrow + headline sit above, paragraph + CTA fall below, and the
+     fixed canvas overlays the gap in between. */
+  .section :is(h1, h2) {
+    margin-bottom: 42vh;
+  }
+
+  /* Final section override: no big spacer between headline and button
+     (section 6 has no paragraph; button must follow headline tightly). */
+  [data-section="final"] h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Push the final section's text block below the canvas zone. */
+  [data-section="final"] > div:first-child {
+    margin-top: 60vh;
+  }
+}
+
+.headline {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  font-size: clamp(64px, 12vw, 180px);
+}
+
+.headline-md {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-size: clamp(48px, 9vw, 140px);
+}
+
+.final-title {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  font-size: clamp(44px, 7.5vw, 112px);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Bölüm dekorasyon numarası */
+.section-num {
+  font-size: clamp(80px, 14vw, 200px);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: rgba(13,12,10,0.04);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Vurgu kelime — başlıklarda */
+.accent-word {
+  color: var(--accent);
+}
+
+/* Küçük dekoratif çizgi */
+.accent-rule {
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+/* Bilgi kartı — yüzen metin bloğu */
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 15px;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  background: #e0322a;
+}
+
+/* Loading screen */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.loading-screen--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-screen__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-screen__logo {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.loading-screen__caption {
+  margin-top: 14px;
+  font-size: 11px;
+  color: rgba(10, 10, 10, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
+
+.loading-screen__bar {
+  position: relative;
+  margin-top: 18px;
+  width: 180px;
+  height: 1px;
+  background: rgba(10, 10, 10, 0.08);
+  overflow: hidden;
+}
+
+.loading-screen__bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 35%;
+  background: var(--ink);
+  animation: loading-bar 1.6s cubic-bezier(0.65, 0.05, 0.36, 1) infinite;
+}
+
+@keyframes loading-bar {
+  0%   { left: -35%; }
+  100% { left: 100%; }
+}
+
+/* Galeri yaklaşınca büyüme efekti */
+.gallery-grid {
+  transform: scale(0.93);
+  opacity: 0.7;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   0.7s ease;
+}
+
+.gallery-section:hover .gallery-grid,
+.gallery-grid.in-view {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
