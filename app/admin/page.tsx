@@ -848,14 +848,14 @@ export default function AdminPage() {
                   type="text"
                   placeholder="SMTP Host"
                   value={emailConfig?.smtpHost || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpHost: e.target.value } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpHost: e.target.value } : { smtpHost: e.target.value, smtpPort: 587, smtpUser: "", smtpPassword: "", fromEmail: "", fromName: "", recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
                 <input
                   type="number"
                   placeholder="SMTP Port"
                   value={emailConfig?.smtpPort || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpPort: parseInt(e.target.value) } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpPort: parseInt(e.target.value) } : { smtpHost: "", smtpPort: parseInt(e.target.value) || 587, smtpUser: "", smtpPassword: "", fromEmail: "", fromName: "", recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
               </div>
@@ -865,14 +865,14 @@ export default function AdminPage() {
                   type="email"
                   placeholder="SMTP User"
                   value={emailConfig?.smtpUser || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpUser: e.target.value } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpUser: e.target.value } : { smtpHost: "", smtpPort: 587, smtpUser: e.target.value, smtpPassword: "", fromEmail: "", fromName: "", recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
                 <input
                   type="password"
                   placeholder="SMTP Password"
                   value={emailConfig?.smtpPassword || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpPassword: e.target.value } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, smtpPassword: e.target.value } : { smtpHost: "", smtpPort: 587, smtpUser: "", smtpPassword: e.target.value, fromEmail: "", fromName: "", recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
               </div>
@@ -882,14 +882,14 @@ export default function AdminPage() {
                   type="email"
                   placeholder="From Email"
                   value={emailConfig?.fromEmail || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, fromEmail: e.target.value } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, fromEmail: e.target.value } : { smtpHost: "", smtpPort: 587, smtpUser: "", smtpPassword: "", fromEmail: e.target.value, fromName: "", recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="From Name"
                   value={emailConfig?.fromName || ""}
-                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, fromName: e.target.value } : null)}
+                  onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, fromName: e.target.value } : { smtpHost: "", smtpPort: 587, smtpUser: "", smtpPassword: "", fromEmail: "", fromName: e.target.value, recipientEmails: [] })}
                   className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
                 />
               </div>
@@ -897,7 +897,7 @@ export default function AdminPage() {
               <textarea
                 placeholder="Alıcı E-postalar (virgülle ayrılmış)"
                 value={emailConfig?.recipientEmails?.join(",") || ""}
-                onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, recipientEmails: e.target.value.split(",").map(e => e.trim()) } : null)}
+                onChange={(e) => setEmailConfig(emailConfig ? { ...emailConfig, recipientEmails: e.target.value.split(",").map(e => e.trim()) } : { smtpHost: "", smtpPort: 587, smtpUser: "", smtpPassword: "", fromEmail: "", fromName: "", recipientEmails: e.target.value.split(",").map(e => e.trim()) })}
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 resize-none"
                 rows={2}
               />
@@ -918,7 +918,11 @@ export default function AdminPage() {
                   onClick={async () => {
                     setTestingEmail(true);
                     try {
-                      const res = await fetch("/api/email/test-send", { method: "POST" });
+                      const res = await fetch("/api/email/test-send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ emailConfig })
+                      });
                       const data = await res.json();
                       if (data.success) {
                         setToast({ msg: "Test e-postası gönderildi", type: "success" });
