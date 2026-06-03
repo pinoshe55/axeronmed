@@ -3,7 +3,7 @@ const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      colors: { canvas: "#f3f3f3", ink: "#0a0a0a", accent: "#ff3b30" },
+      colors: { canvas: "#f3f3f3", ink: "#0a0a0a", accent: "#4A7FD7" },
       fontFamily: {
         sans: ["-apple-system","BlinkMacSystemFont","'SF Pro Display'","'Inter'","system-ui","sans-serif"],
       },
