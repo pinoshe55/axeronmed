@@ -84,10 +84,7 @@ export default function ScrollSections() {
             g("frontStat3", s.frontStat3),
             g("frontStat4", s.frontStat4),
           ].map((label, i) => (
-            <div key={i} className="info-card px-6 py-5 flex items-start gap-5 w-[320px] lg:text-right lg:flex-row-reverse">
-              <span className="text-accent font-bold text-lg leading-none flex-shrink-0 mt-0.5">
-                {String(i + 1).padStart(2, "0")}
-              </span>
+            <div key={i} className="info-card px-6 py-5 w-[320px] lg:text-right">
               <p className="text-sm text-ink/55 leading-relaxed">{label}</p>
             </div>
           ))}
