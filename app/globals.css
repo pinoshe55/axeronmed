@@ -6,8 +6,8 @@
   --bg: #ece9e3;
   --ink: #0d0c0a;
   --dark: #3a3730;        /* sıcak koyu — bg ile uyumlu */
-  --accent: #e8321f;
-  --accent-soft: rgba(232, 50, 31, 0.08);
+  --accent: #4A7FD7;
+  --accent-soft: rgba(74, 127, 215, 0.08);
   --surface: rgba(255,255,255,0.55);
   --border: rgba(13,12,10,0.09);
 }
