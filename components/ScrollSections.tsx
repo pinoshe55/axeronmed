@@ -20,10 +20,6 @@ export default function ScrollSections() {
       {/* ── 1. HERO ───────────────────────────────────── */}
       <section id="hero" data-section="hero" className="section relative">
 
-        <div className="hidden lg:block absolute top-[12vh] left-[6vw] section-num select-none pointer-events-none leading-none">
-          01
-        </div>
-
         <div className={`${CARD} max-w-[520px] md:max-w-[46%] text-center lg:text-left mx-auto lg:mx-0`}>
           <div className="flex items-center gap-3 mb-5 justify-center lg:justify-start" data-hero-text>
             <span className="accent-rule" />
@@ -45,10 +41,6 @@ export default function ScrollSections() {
       {/* ── 2. LENS CLOSE-UP ──────────────────────────── */}
       <section id="features" data-section="closeup" className="section relative justify-end">
 
-        <div className="hidden lg:block absolute bottom-[10vh] right-[7vw] section-num select-none pointer-events-none">
-          02
-        </div>
-
         <div className={`${CARD} max-w-[420px] md:max-w-[38%] lg:mt-[6vh]`}>
           <div className="flex items-center gap-3 mb-5">
             <span className="accent-rule" />
@@ -62,10 +54,6 @@ export default function ScrollSections() {
 
       {/* ── 3. FRONT FACING + STATS ───────────────────── */}
       <section id="performance" data-section="front" className="section relative">
-
-        <div className="hidden lg:block absolute top-[8vh] left-[6vw] section-num select-none pointer-events-none">
-          03
-        </div>
 
         <div className={`${CARD} lg:absolute lg:bottom-[14vh] lg:left-[8vw] max-w-[420px]`}>
           <div className="flex items-center gap-3 mb-5">
@@ -84,10 +72,7 @@ export default function ScrollSections() {
             g("frontStat3", s.frontStat3),
             g("frontStat4", s.frontStat4),
           ].map((label, i) => (
-            <div key={i} className="info-card px-6 py-5 flex items-start gap-5 w-[320px] lg:text-right lg:flex-row-reverse">
-              <span className="text-accent font-bold text-lg leading-none flex-shrink-0 mt-0.5">
-                {String(i + 1).padStart(2, "0")}
-              </span>
+            <div key={i} className="info-card px-6 py-5 w-[320px] lg:text-right">
               <p className="text-sm text-ink/55 leading-relaxed">{label}</p>
             </div>
           ))}
@@ -96,10 +81,6 @@ export default function ScrollSections() {
 
       {/* ── 4. TOP / HORIZONTAL ───────────────────────── */}
       <section id="design" data-section="top" className="section relative">
-
-        <div className="hidden lg:block absolute bottom-[8vh] right-[6vw] section-num select-none pointer-events-none">
-          04
-        </div>
 
         <div className={`${CARD} max-w-[460px] md:max-w-[40%]`}>
           <div className="flex items-center gap-3 mb-5">
@@ -115,10 +96,6 @@ export default function ScrollSections() {
       {/* ── 5. BACK / DIAGONAL ────────────────────────── */}
       <section id="display" data-section="back" className="section relative">
 
-        <div className="hidden lg:block absolute top-[10vh] left-[6vw] section-num select-none pointer-events-none">
-          05
-        </div>
-
         <div className={`${CARD} max-w-[440px] md:max-w-[40%]`}>
           <div className="flex items-center gap-3 mb-5">
             <span className="accent-rule" />
@@ -132,10 +109,6 @@ export default function ScrollSections() {
 
       {/* ── 6. FINAL ──────────────────────────────────── */}
       <section id="experience" data-section="final" className="section relative">
-
-        <div className="hidden lg:block absolute top-[10vh] right-[6vw] section-num select-none pointer-events-none">
-          06
-        </div>
 
         <div className={`${CARD} max-w-[480px] md:max-w-[42%] lg:ml-auto`}>
           <div className="flex items-center gap-3 mb-5">
