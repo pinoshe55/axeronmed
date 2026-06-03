@@ -107,6 +107,26 @@ export default function StaticSections() {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
 
+  // Form state'leri
+  const [formData, setFormData] = useState({
+    company: "",
+    person: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+    kvkk: false,
+  });
+  const [formLoading, setFormLoading] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Toast otomatik kapanması
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   useEffect(() => {
     const el = galleryRef.current;
     if (!el) return;
@@ -117,6 +137,44 @@ export default function StaticSections() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  // Form submit handler
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.company || !formData.person || !formData.email || !formData.phone || !formData.subject || !formData.message) {
+      setToast({ type: "error", message: lang === "tr" ? "Lütfen tüm alanları doldurun" : "Please fill all fields" });
+      return;
+    }
+
+    if (!formData.kvkk) {
+      setToast({ type: "error", message: lang === "tr" ? "Lütfen KVKK'yı onaylayın" : "Please accept KVKK" });
+      return;
+    }
+
+    setFormLoading(true);
+    try {
+      const response = await fetch("/api/contact/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Form gönderilemedi");
+      }
+
+      setToast({ type: "success", message: lang === "tr" ? "Mesajınız başarıyla gönderildi!" : "Message sent successfully!" });
+      setFormData({ company: "", person: "", email: "", phone: "", subject: "", message: "", kvkk: false });
+    } catch (error: any) {
+      setToast({ type: "error", message: error.message || (lang === "tr" ? "Hata oluştu" : "Error occurred") });
+    } finally {
+      setFormLoading(false);
+    }
+  };
 
   const prev = () => setLightboxIdx(i => i !== null ? (i - 1 + IMGS.length) % IMGS.length : null);
   const next = () => setLightboxIdx(i => i !== null ? (i + 1) % IMGS.length : null);
@@ -366,6 +424,20 @@ export default function StaticSections() {
           {/* ── Sağ: form kartı ── */}
           <div className="bg-white/60 border border-ink/8 rounded-2xl overflow-hidden">
 
+            {/* Toast Notification */}
+            {toast && (
+              <div
+                className={`px-8 py-3 flex items-center gap-3 text-sm font-medium ${
+                  toast.type === "success"
+                    ? "bg-green-50 text-green-800 border-b border-green-200"
+                    : "bg-red-50 text-red-800 border-b border-red-200"
+                }`}
+              >
+                <span className="text-lg">{toast.type === "success" ? "✓" : "✕"}</span>
+                {toast.message}
+              </div>
+            )}
+
             {/* Form başlık bandı */}
             <div className="px-8 py-6 border-b border-ink/8 flex items-center justify-between">
               <div>
@@ -375,48 +447,94 @@ export default function StaticSections() {
               <span className="w-2.5 h-2.5 rounded-full bg-accent" />
             </div>
 
-            <form className="px-8 py-7 flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="px-8 py-7 flex flex-col gap-5" onSubmit={handleContactSubmit}>
 
               {/* Firma + Kişi */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label={s.formCompany} required>
-                  <input type="text" placeholder={s.formCompanyPlaceholder} className={inputCls} />
+                  <input
+                    type="text"
+                    placeholder={s.formCompanyPlaceholder}
+                    value={formData.company}
+                    onChange={(e) => setFormData({...formData, company: e.target.value})}
+                    disabled={formLoading}
+                    className={inputCls}
+                  />
                 </Field>
                 <Field label={s.formPerson} required>
-                  <input type="text" placeholder={s.formPersonPlaceholder} className={inputCls} />
+                  <input
+                    type="text"
+                    placeholder={s.formPersonPlaceholder}
+                    value={formData.person}
+                    onChange={(e) => setFormData({...formData, person: e.target.value})}
+                    disabled={formLoading}
+                    className={inputCls}
+                  />
                 </Field>
               </div>
 
               {/* E-posta + Telefon */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label={s.formEmail} required>
-                  <input type="email" placeholder={s.formEmailPlaceholder} className={inputCls} />
+                  <input
+                    type="email"
+                    placeholder={s.formEmailPlaceholder}
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    disabled={formLoading}
+                    className={inputCls}
+                  />
                 </Field>
                 <Field label={s.formPhone} required>
-                  <input type="tel" placeholder={s.formPhonePlaceholder} className={inputCls} />
+                  <input
+                    type="tel"
+                    placeholder={s.formPhonePlaceholder}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    disabled={formLoading}
+                    className={inputCls}
+                  />
                 </Field>
               </div>
 
               {/* Konu */}
               <Field label={s.formSubject} required>
-                <select className={inputCls}>
+                <select
+                  value={formData.subject}
+                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  disabled={formLoading}
+                  className={inputCls}
+                >
                   <option value="">{s.formSubjectPlaceholder}</option>
                   {s.formSubjectOptions.map((o) => (
-                    <option key={o}>{o}</option>
+                    <option key={o} value={o}>{o}</option>
                   ))}
                 </select>
               </Field>
 
               {/* Mesaj */}
               <Field label={s.formMessage} required>
-                <textarea rows={4} placeholder={s.formMessagePlaceholder} className={`${inputCls} resize-none`} />
+                <textarea
+                  rows={4}
+                  placeholder={s.formMessagePlaceholder}
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  disabled={formLoading}
+                  className={`${inputCls} resize-none`}
+                />
               </Field>
 
               {/* KVKK + Gönder */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-start gap-3">
-                  <input type="checkbox" id="kvkk"
-                    className="mt-0.5 w-3.5 h-3.5 flex-shrink-0 accent-[var(--accent)]" />
+                  <input
+                    type="checkbox"
+                    id="kvkk"
+                    checked={formData.kvkk}
+                    onChange={(e) => setFormData({...formData, kvkk: e.target.checked})}
+                    disabled={formLoading}
+                    className="mt-0.5 w-3.5 h-3.5 flex-shrink-0 accent-[var(--accent)]"
+                  />
                   <label htmlFor="kvkk" className="text-xs text-ink/40 leading-relaxed cursor-pointer">
                     <Link href="/kvkk" target="_blank"
                       className="text-accent underline hover:text-accent/70 transition-colors">
@@ -425,7 +543,13 @@ export default function StaticSections() {
                     {s.formKvkkSuffix}
                   </label>
                 </div>
-                <button type="submit" className="cta flex-shrink-0">{s.formSubmit}</button>
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  className="cta flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {formLoading ? (lang === "tr" ? "Gönderiliyor..." : "Sending...") : s.formSubmit}
+                </button>
               </div>
 
               <p className="text-[11px] text-ink/25">{s.formPrivacy}</p>
