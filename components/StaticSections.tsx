@@ -102,7 +102,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function StaticSections() {
   const { t, lang } = useLanguage();
   const s = t.static;
-  const { getGallery, getText, getStats } = useContent();
+  const { getGallery, getText, getStats, overrides } = useContent();
   const g = (key: string, fallback: string) => getText(lang, `static.${key}`, fallback);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -158,7 +158,10 @@ export default function StaticSections() {
       const response = await fetch("/api/contact/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          emailConfig: overrides?.emailConfig,
+        }),
       });
 
       const result = await response.json();

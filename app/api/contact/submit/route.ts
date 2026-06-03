@@ -30,9 +30,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Load email config
+    // Load email config (from body first, fallback to localStorage)
+    const emailConfigFromBody = body.emailConfig;
     const overrides = loadOverrides();
-    const emailConfig = overrides.emailConfig;
+    const emailConfig = emailConfigFromBody || overrides.emailConfig;
 
     if (!emailConfig || !emailConfig.recipientEmails?.length) {
       return NextResponse.json(
