@@ -98,6 +98,8 @@ export default function AdminPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [modelPath, setModelPath] = useState("/models/camera.glb");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [modelScale, setModelScale] = useState(1);
   const [lightIntensity, setLightIntensity] = useState(1);
   const [lightPositionX, setLightPositionX] = useState(5);
@@ -646,32 +648,43 @@ export default function AdminPage() {
               <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
                 <div>
                   <label className="text-sm text-slate-400 mb-2 block font-semibold">Yeni Model Yükle</label>
-                  <input
-                    type="file"
-                    accept=".glb,.gltf"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const formData = new FormData();
-                      formData.append("file", file);
-                      try {
-                        const res = await fetch("/api/models/upload", { method: "POST", body: formData });
-                        const data = await res.json();
-                        if (data.success) {
-                          setToast({ msg: `${file.name} yüklendi ✓`, type: "success" });
-                          const listRes = await fetch("/api/models/list");
-                          const listData = await listRes.json();
-                          setModelList(listData.models || []);
-                          e.target.value = "";
-                        } else {
-                          setToast({ msg: data.error, type: "error" });
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept=".glb,.gltf"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-600 file:text-white"
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!selectedFile) return;
+                        setUploading(true);
+                        const formData = new FormData();
+                        formData.append("file", selectedFile);
+                        try {
+                          const res = await fetch("/api/models/upload", { method: "POST", body: formData });
+                          const data = await res.json();
+                          if (data.success) {
+                            setToast({ msg: `${selectedFile.name} yüklendi ✓`, type: "success" });
+                            const listRes = await fetch("/api/models/list");
+                            const listData = await listRes.json();
+                            setModelList(listData.models || []);
+                            setSelectedFile(null);
+                          } else {
+                            setToast({ msg: data.error, type: "error" });
+                          }
+                        } catch {
+                          setToast({ msg: "Yükleme başarısız", type: "error" });
+                        } finally {
+                          setUploading(false);
                         }
-                      } catch {
-                        setToast({ msg: "Yükleme başarısız", type: "error" });
-                      }
-                    }}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-                  />
+                      }}
+                      disabled={!selectedFile || uploading}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
+                    >
+                      {uploading ? "Yükleniyor..." : "Yükle"}
+                    </button>
+                  </div>
                   <p className="text-xs text-slate-500 mt-2">Max 100 MB • .glb veya .gltf dosyası</p>
                 </div>
               </div>
