@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { IncomingForm } from "formidable";
 import fs from "fs/promises";
 import path from "path";
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(request: NextRequest) {
   try {
