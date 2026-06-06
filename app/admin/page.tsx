@@ -642,6 +642,38 @@ export default function AdminPage() {
             </div>
 
             <div className="space-y-6">
+              {/* Model Upload */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                <div>
+                  <label className="text-sm text-slate-400 mb-2 block font-semibold">Yeni Model Yükle</label>
+                  <input
+                    type="file"
+                    accept=".glb,.gltf"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      try {
+                        const res = await fetch("/api/models/upload", { method: "POST", body: formData });
+                        const data = await res.json();
+                        if (data.success) {
+                          setToast({ msg: `${file.name} yüklendi ✓`, type: "success" });
+                          fetchModelList();
+                          e.target.value = "";
+                        } else {
+                          setToast({ msg: data.error, type: "error" });
+                        }
+                      } catch {
+                        setToast({ msg: "Yükleme başarısız", type: "error" });
+                      }
+                    }}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                  />
+                  <p className="text-xs text-slate-500 mt-2">Max 100 MB • .glb veya .gltf dosyası</p>
+                </div>
+              </div>
+
               {/* Model Selection */}
               <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
                 <div>
@@ -654,23 +686,48 @@ export default function AdminPage() {
                         📁 /public/models/ klasöründe model bulunmuyor.
                       </p>
                       <p className="text-xs text-slate-500 mt-2">
-                        Yeni modeller eklemek için .glb veya .gltf dosyalarını /public/models/ klasörüne kopyalayın.
+                        Yukarıdaki forma .glb veya .gltf dosyası yükleyin.
                       </p>
                     </div>
                   ) : (
-                    <select
-                      value={modelPath}
-                      onChange={(e) => setModelPath(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                    >
-                      <option value="">Model Seç...</option>
+                    <div className="space-y-2">
                       {modelList.map((model) => (
-                        <option key={model.path} value={model.path}>
-                          {model.name} ({model.sizeFormatted})
-                          {model.size > 50 ? " ⚠️ Büyük" : ""}
-                        </option>
+                        <div key={model.path} className="flex items-center justify-between bg-slate-800 border border-slate-700 rounded-lg p-3">
+                          <button
+                            onClick={() => setModelPath(model.path)}
+                            className={`flex-1 text-left text-sm ${modelPath === model.path ? "text-blue-400 font-semibold" : "text-slate-300 hover:text-white"}`}
+                          >
+                            {model.name} ({model.sizeFormatted})
+                            {model.size > 50 ? " ⚠️" : ""}
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`${model.name} silinecek. Emin misin?`)) return;
+                              try {
+                                const res = await fetch("/api/models/delete", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ fileName: model.name + (model.path.endsWith(".glb") ? ".glb" : ".gltf") }),
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  setToast({ msg: `${model.name} silindi ✓`, type: "success" });
+                                  if (modelPath === model.path) setModelPath("");
+                                  fetchModelList();
+                                } else {
+                                  setToast({ msg: data.error, type: "error" });
+                                }
+                              } catch {
+                                setToast({ msg: "Silme başarısız", type: "error" });
+                              }
+                            }}
+                            className="ml-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-3 py-1 transition-colors"
+                          >
+                            Sil
+                          </button>
+                        </div>
                       ))}
-                    </select>
+                    </div>
                   )}
                 </div>
 
