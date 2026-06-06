@@ -50,13 +50,6 @@ export default function CameraModel() {
   const [lightIntensity, setLightIntensity] = useState(1);
   const [lightPosition, setLightPosition] = useState<[number, number, number]>([5, 3, 5]);
 
-  // Setup Draco decoder for compressed GLB files
-  useEffect(() => {
-    useGLTF.setDecoderConfig({
-      dracoDecoderPath: '/draco/',
-    });
-  }, []);
-
   // Load model path, scale, and lighting from localStorage
   useEffect(() => {
     const overrides = loadOverrides();
@@ -73,7 +66,8 @@ export default function CameraModel() {
   }, []);
 
   // Capture full GLTF (we need gltf.parser for spec-gloss texture rescue).
-  const gltf = useGLTF(modelPath) as unknown as {
+  // Pass Draco decoder path as second parameter
+  const gltf = useGLTF(modelPath, '/draco/') as unknown as {
     scene: THREE.Object3D;
     parser: {
       json: any;
@@ -332,4 +326,4 @@ export default function CameraModel() {
   );
 }
 
-useGLTF.preload("/models/camera.glb");
+useGLTF.preload("/models/camera.glb", '/draco/');
