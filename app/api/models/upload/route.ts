@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (100 MB max)
-    const MAX_SIZE = 100 * 1024 * 1024;
+    // Validate file size (50 MB max - Next.js default limit)
+    const MAX_SIZE = 50 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { success: false, error: "Dosya çok büyük (Max: 100 MB)" },
+        { success: false, error: "Dosya çok büyük (Max: 50 MB)" },
         { status: 400 }
       );
     }

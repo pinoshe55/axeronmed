@@ -652,7 +652,17 @@ export default function AdminPage() {
                     <input
                       type="file"
                       accept=".glb,.gltf"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+                        if (file.size > MAX_SIZE) {
+                          setToast({ msg: `Dosya çok büyük (Max: 50 MB)`, type: "error" });
+                          e.target.value = "";
+                          return;
+                        }
+                        setSelectedFile(file);
+                      }}
                       className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-600 file:text-white"
                     />
                     <button
