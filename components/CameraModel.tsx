@@ -7,11 +7,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { loadOverrides } from "@/lib/siteOverrides";
-
-// Setup Draco decoder for compressed GLB files
-useGLTF.setDecoderConfig({
-  dracoDecoderPath: '/draco/',
-});
 import {
   SCROLL_STATES,
   MOBILE_SCALE_FACTOR,
@@ -54,6 +49,13 @@ export default function CameraModel() {
   const [modelScale, setModelScale] = useState(1);
   const [lightIntensity, setLightIntensity] = useState(1);
   const [lightPosition, setLightPosition] = useState<[number, number, number]>([5, 3, 5]);
+
+  // Setup Draco decoder for compressed GLB files
+  useEffect(() => {
+    useGLTF.setDecoderConfig({
+      dracoDecoderPath: '/draco/',
+    });
+  }, []);
 
   // Load model path, scale, and lighting from localStorage
   useEffect(() => {
