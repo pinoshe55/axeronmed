@@ -659,7 +659,9 @@ export default function AdminPage() {
                         const data = await res.json();
                         if (data.success) {
                           setToast({ msg: `${file.name} yüklendi ✓`, type: "success" });
-                          fetchModelList();
+                          const listRes = await fetch("/api/models/list");
+                          const listData = await listRes.json();
+                          setModelList(listData.models || []);
                           e.target.value = "";
                         } else {
                           setToast({ msg: data.error, type: "error" });
@@ -713,7 +715,9 @@ export default function AdminPage() {
                                 if (data.success) {
                                   setToast({ msg: `${model.name} silindi ✓`, type: "success" });
                                   if (modelPath === model.path) setModelPath("");
-                                  fetchModelList();
+                                  const listRes = await fetch("/api/models/list");
+                                  const listData = await listRes.json();
+                                  setModelList(listData.models || []);
                                 } else {
                                   setToast({ msg: data.error, type: "error" });
                                 }
