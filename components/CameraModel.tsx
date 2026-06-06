@@ -325,5 +325,3 @@ export default function CameraModel() {
     </group>
   );
 }
-
-useGLTF.preload("/models/camera.glb", '/draco/');
