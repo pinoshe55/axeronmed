@@ -13,6 +13,14 @@ export default function LoadingScreen() {
   useEffect(() => { lockScroll(); }, []);
   useEffect(() => onTexturesReady(() => setTexturesReady(true)), []);
 
+  // Max 5 second timeout - auto hide loading screen even if model still loading
+  useEffect(() => {
+    const maxWaitTimer = window.setTimeout(() => {
+      if (!hidden) setTexturesReady(true);
+    }, 5000);
+    return () => window.clearTimeout(maxWaitTimer);
+  }, [hidden]);
+
   useEffect(() => {
     if (!texturesReady || hidden) return;
     const hold = window.setTimeout(() => {
