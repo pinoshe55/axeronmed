@@ -350,14 +350,58 @@ export default function StaticSections() {
           ))}
         </div>
 
-        {/* 3 sütun metin */}
+        {/* About description */}
+        {(overrides?.trAbout || overrides?.enAbout) && (
+          <div className="mt-12 pt-12 border-t border-ink/10">
+            <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
+              {lang === "tr" ? overrides.trAbout : overrides.enAbout}
+            </p>
+          </div>
+        )}
+
+        {/* 3 sütun metin — Misyon, Üretim Kalitesi, Sertifikasyon */}
         <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 pt-14 border-t border-ink/10">
-          {s.columns.map((b) => (
-            <div key={b.title}>
-              <p className="eyebrow mb-3">{b.title}</p>
-              <p className="text-sm text-ink/60 leading-relaxed">{b.body}</p>
+          {/* Misyon */}
+          {(overrides?.trMission || overrides?.enMission) && (
+            <div>
+              <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
+              <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
+                {lang === "tr" ? overrides.trMission : overrides.enMission}
+              </p>
             </div>
-          ))}
+          )}
+
+          {/* Üretim Kalitesi */}
+          {(overrides?.trProductionQuality || overrides?.enProductionQuality) && (
+            <div>
+              <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
+              <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
+                {lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality}
+              </p>
+            </div>
+          )}
+
+          {/* Sertifikasyon */}
+          {(overrides?.trCertification || overrides?.enCertification) && (
+            <div>
+              <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
+              <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
+                {lang === "tr" ? overrides.trCertification : overrides.enCertification}
+              </p>
+            </div>
+          )}
+
+          {/* Fallback: original columns eğer About verileri yoksa */}
+          {!overrides?.trMission && !overrides?.enMission && !overrides?.trProductionQuality && !overrides?.enProductionQuality && !overrides?.trCertification && !overrides?.enCertification && (
+            <>
+              {s.columns.map((b) => (
+                <div key={b.title}>
+                  <p className="eyebrow mb-3">{b.title}</p>
+                  <p className="text-sm text-ink/60 leading-relaxed">{b.body}</p>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
       </section>
