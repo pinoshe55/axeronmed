@@ -111,16 +111,18 @@ export default function AdminPage() {
   const addFileRef = useRef<HTMLInputElement>(null);
 
   // About section states
+  const [trAbout, setTrAbout] = useState("");
+  const [enAbout, setEnAbout] = useState("");
   const [trMission, setTrMission] = useState("");
   const [enMission, setEnMission] = useState("");
+  const [trVision, setTrVision] = useState("");
+  const [enVision, setEnVision] = useState("");
+  const [trQualityValues, setTrQualityValues] = useState("");
+  const [enQualityValues, setEnQualityValues] = useState("");
   const [trProductionQuality, setTrProductionQuality] = useState("");
   const [enProductionQuality, setEnProductionQuality] = useState("");
   const [trCertification, setTrCertification] = useState("");
   const [enCertification, setEnCertification] = useState("");
-  const [trAbout, setTrAbout] = useState("");
-  const [enAbout, setEnAbout] = useState("");
-  const [trQualityValues, setTrQualityValues] = useState("");
-  const [enQualityValues, setEnQualityValues] = useState("");
 
   useEffect(() => {
     const raw = loadOverrides();
@@ -163,16 +165,18 @@ export default function AdminPage() {
     setLightPositionZ(raw.lightPositionZ || 5);
 
     // Load About section fields
+    setTrAbout(raw.trAbout || "");
+    setEnAbout(raw.enAbout || "");
     setTrMission(raw.trMission || "");
     setEnMission(raw.enMission || "");
+    setTrVision(raw.trVision || "");
+    setEnVision(raw.enVision || "");
+    setTrQualityValues(raw.trQualityValues || "");
+    setEnQualityValues(raw.enQualityValues || "");
     setTrProductionQuality(raw.trProductionQuality || "");
     setEnProductionQuality(raw.enProductionQuality || "");
     setTrCertification(raw.trCertification || "");
     setEnCertification(raw.enCertification || "");
-    setTrAbout(raw.trAbout || "");
-    setEnAbout(raw.enAbout || "");
-    setTrQualityValues(raw.trQualityValues || "");
-    setEnQualityValues(raw.enQualityValues || "");
 
     // Load available models
     setLoadingModels(true);
@@ -1433,21 +1437,23 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-lg font-semibold">Hakkımızda Bölümü</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Misyon, Üretim Kalitesi, Sertifikasyon, Hakkımızda ve Kalite Değerlerimiz metinlerini yönetin.
+                  Hakkımızda, Misyon, Vizyon, Kalite Değerlerimiz, Üretim Kalitesi ve Sertifikasyon metinlerini yönetin.
                 </p>
               </div>
               <button onClick={() => {
                 const overrides = loadOverrides();
+                overrides.trAbout = trAbout;
+                overrides.enAbout = enAbout;
                 overrides.trMission = trMission;
                 overrides.enMission = enMission;
+                overrides.trVision = trVision;
+                overrides.enVision = enVision;
+                overrides.trQualityValues = trQualityValues;
+                overrides.enQualityValues = enQualityValues;
                 overrides.trProductionQuality = trProductionQuality;
                 overrides.enProductionQuality = enProductionQuality;
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
-                overrides.trAbout = trAbout;
-                overrides.enAbout = enAbout;
-                overrides.trQualityValues = trQualityValues;
-                overrides.enQualityValues = enQualityValues;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1460,16 +1466,53 @@ export default function AdminPage() {
 
             {/* TR ABOUT */}
             <SectionHeader>Türkçe</SectionHeader>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 mb-8">
+
+            {/* Hakkımızda (Ana Başlık) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
+                  Hakkımızda (Ana Açıklama)
+                </label>
+                <textarea value={trAbout} onChange={(e) => setTrAbout(e.target.value)}
+                  placeholder="Şirket hakkında genel bilgi yazın..."
+                  rows={3}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+              </div>
+            </div>
+
+            {/* Misyon - Vizyon - Kalite Değerleri (Bir Alanda) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 mb-6">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Misyon
                 </label>
                 <textarea value={trMission} onChange={(e) => setTrMission(e.target.value)}
                   placeholder="Axeron'un misyonunu yazın..."
-                  rows={3}
+                  rows={2}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
+                  Vizyon
+                </label>
+                <textarea value={trVision} onChange={(e) => setTrVision(e.target.value)}
+                  placeholder="Axeron'un vizyonunu yazın..."
+                  rows={2}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
+                  Kalite Değerlerimiz
+                </label>
+                <textarea value={trQualityValues} onChange={(e) => setTrQualityValues(e.target.value)}
+                  placeholder="Kalite değerlerini yazın..."
+                  rows={2}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+              </div>
+            </div>
+
+            {/* Üretim Kalitesi */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Üretim Kalitesi
@@ -1479,6 +1522,10 @@ export default function AdminPage() {
                   rows={3}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
+            </div>
+
+            {/* Sertifikasyon */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Sertifikasyon
@@ -1488,38 +1535,57 @@ export default function AdminPage() {
                   rows={3}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
+            </div>
+
+            {/* EN ABOUT */}
+            <SectionHeader>English</SectionHeader>
+
+            {/* About Us (Main Description) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
-                  Hakkımızda
+                  About Us (Main Description)
                 </label>
-                <textarea value={trAbout} onChange={(e) => setTrAbout(e.target.value)}
-                  placeholder="Şirket hakkında bilgi yazın..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
-              </div>
-              <div>
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
-                  Kalite Değerlerimiz
-                </label>
-                <textarea value={trQualityValues} onChange={(e) => setTrQualityValues(e.target.value)}
-                  placeholder="Kalite değerlerini yazın..."
+                <textarea value={enAbout} onChange={(e) => setEnAbout(e.target.value)}
+                  placeholder="Write general company information..."
                   rows={3}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
             </div>
 
-            {/* EN ABOUT */}
-            <SectionHeader>English</SectionHeader>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 mb-8">
+            {/* Mission - Vision - Quality Values (One Section) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 mb-6">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Mission
                 </label>
                 <textarea value={enMission} onChange={(e) => setEnMission(e.target.value)}
                   placeholder="Write Axeron's mission..."
-                  rows={3}
+                  rows={2}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
+                  Vision
+                </label>
+                <textarea value={enVision} onChange={(e) => setEnVision(e.target.value)}
+                  placeholder="Write Axeron's vision..."
+                  rows={2}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
+                  Our Quality Values
+                </label>
+                <textarea value={enQualityValues} onChange={(e) => setEnQualityValues(e.target.value)}
+                  placeholder="Write about quality values..."
+                  rows={2}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+              </div>
+            </div>
+
+            {/* Production Quality */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Production Quality
@@ -1529,6 +1595,10 @@ export default function AdminPage() {
                   rows={3}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
+            </div>
+
+            {/* Certification */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Certification
@@ -1538,39 +1608,23 @@ export default function AdminPage() {
                   rows={3}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
               </div>
-              <div>
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
-                  About Us
-                </label>
-                <textarea value={enAbout} onChange={(e) => setEnAbout(e.target.value)}
-                  placeholder="Write about the company..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
-              </div>
-              <div>
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
-                  Our Quality Values
-                </label>
-                <textarea value={enQualityValues} onChange={(e) => setEnQualityValues(e.target.value)}
-                  placeholder="Write about quality values..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
-              </div>
             </div>
 
             <div className="flex justify-end">
               <button onClick={() => {
                 const overrides = loadOverrides();
+                overrides.trAbout = trAbout;
+                overrides.enAbout = enAbout;
                 overrides.trMission = trMission;
                 overrides.enMission = enMission;
+                overrides.trVision = trVision;
+                overrides.enVision = enVision;
+                overrides.trQualityValues = trQualityValues;
+                overrides.enQualityValues = enQualityValues;
                 overrides.trProductionQuality = trProductionQuality;
                 overrides.enProductionQuality = enProductionQuality;
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
-                overrides.trAbout = trAbout;
-                overrides.enAbout = enAbout;
-                overrides.trQualityValues = trQualityValues;
-                overrides.enQualityValues = enQualityValues;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);

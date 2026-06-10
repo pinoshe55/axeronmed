@@ -8,30 +8,33 @@ import Link from "next/link";
 export default function AboutPage() {
   const { lang } = useLanguage();
   const [data, setData] = useState({
+    about: "",
     mission: "",
+    vision: "",
+    qualityValues: "",
     productionQuality: "",
     certification: "",
-    about: "",
-    qualityValues: "",
   });
 
   useEffect(() => {
     const overrides = loadOverrides();
     if (lang === "tr") {
       setData({
+        about: overrides.trAbout || "",
         mission: overrides.trMission || "",
+        vision: overrides.trVision || "",
+        qualityValues: overrides.trQualityValues || "",
         productionQuality: overrides.trProductionQuality || "",
         certification: overrides.trCertification || "",
-        about: overrides.trAbout || "",
-        qualityValues: overrides.trQualityValues || "",
       });
     } else {
       setData({
+        about: overrides.enAbout || "",
         mission: overrides.enMission || "",
+        vision: overrides.enVision || "",
+        qualityValues: overrides.enQualityValues || "",
         productionQuality: overrides.enProductionQuality || "",
         certification: overrides.enCertification || "",
-        about: overrides.enAbout || "",
-        qualityValues: overrides.enQualityValues || "",
       });
     }
   }, [lang]);
@@ -40,20 +43,22 @@ export default function AboutPage() {
     tr: {
       title: "Hakkımızda",
       breadcrumb: "Hakkımızda",
+      about: "Hakkımızda",
       mission: "Misyon",
+      vision: "Vizyon",
+      qualityValues: "Kalite Değerlerimiz",
       productionQuality: "Üretim Kalitesi",
       certification: "Sertifikasyon",
-      about: "Hakkımızda",
-      qualityValues: "Kalite Değerlerimiz",
     },
     en: {
       title: "About Us",
       breadcrumb: "About Us",
+      about: "About Us",
       mission: "Mission",
+      vision: "Vision",
+      qualityValues: "Our Quality Values",
       productionQuality: "Production Quality",
       certification: "Certification",
-      about: "About Us",
-      qualityValues: "Our Quality Values",
     },
   };
 
@@ -76,25 +81,90 @@ export default function AboutPage() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Mission */}
-        {data.mission && (
+        {/* About (Main) */}
+        {data.about && (
           <section className="mb-12">
             <div className="info-card px-8 py-9 rounded-2xl">
               <div className="flex items-center gap-3 mb-5">
                 <span className="accent-rule" />
                 <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
-                  {text.mission}
+                  {text.about}
                 </p>
               </div>
               <h2 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
-                {text.mission}
+                {text.about}
               </h2>
               <div className="w-full h-px bg-ink/8 mb-5" />
               <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
-                {data.mission}
+                {data.about}
               </p>
             </div>
           </section>
+        )}
+
+        {/* Mission - Vision - Quality Values (One Group) */}
+        {(data.mission || data.vision || data.qualityValues) && (
+          <div className="mb-12 space-y-6">
+            {data.mission && (
+              <section>
+                <div className="info-card px-8 py-9 rounded-2xl">
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="accent-rule" />
+                    <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
+                      {text.mission}
+                    </p>
+                  </div>
+                  <h3 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
+                    {text.mission}
+                  </h3>
+                  <div className="w-full h-px bg-ink/8 mb-5" />
+                  <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
+                    {data.mission}
+                  </p>
+                </div>
+              </section>
+            )}
+
+            {data.vision && (
+              <section>
+                <div className="info-card px-8 py-9 rounded-2xl">
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="accent-rule" />
+                    <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
+                      {text.vision}
+                    </p>
+                  </div>
+                  <h3 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
+                    {text.vision}
+                  </h3>
+                  <div className="w-full h-px bg-ink/8 mb-5" />
+                  <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
+                    {data.vision}
+                  </p>
+                </div>
+              </section>
+            )}
+
+            {data.qualityValues && (
+              <section>
+                <div className="info-card px-8 py-9 rounded-2xl">
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="accent-rule" />
+                    <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
+                      {text.qualityValues}
+                    </p>
+                  </div>
+                  <h3 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
+                    {text.qualityValues}
+                  </h3>
+                  <div className="w-full h-px bg-ink/8 mb-5" />
+                  <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
+                    {data.qualityValues}
+                  </p>
+                </div>
+              </section>
+            )}
+          </div>
         )}
 
         {/* Production Quality */}
@@ -139,54 +209,13 @@ export default function AboutPage() {
           </section>
         )}
 
-        {/* About */}
-        {data.about && (
-          <section className="mb-12">
-            <div className="info-card px-8 py-9 rounded-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="accent-rule" />
-                <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
-                  {text.about}
-                </p>
-              </div>
-              <h2 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
-                {text.about}
-              </h2>
-              <div className="w-full h-px bg-ink/8 mb-5" />
-              <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
-                {data.about}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* Quality Values */}
-        {data.qualityValues && (
-          <section className="mb-12">
-            <div className="info-card px-8 py-9 rounded-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="accent-rule" />
-                <p className="eyebrow uppercase tracking-widest text-xs font-semibold">
-                  {text.qualityValues}
-                </p>
-              </div>
-              <h2 className="text-2xl font-semibold leading-snug tracking-tight mb-5">
-                {text.qualityValues}
-              </h2>
-              <div className="w-full h-px bg-ink/8 mb-5" />
-              <p className="text-sm text-ink/55 leading-relaxed whitespace-pre-line">
-                {data.qualityValues}
-              </p>
-            </div>
-          </section>
-        )}
-
         {/* Empty State */}
-        {!data.mission &&
+        {!data.about &&
+          !data.mission &&
+          !data.vision &&
+          !data.qualityValues &&
           !data.productionQuality &&
-          !data.certification &&
-          !data.about &&
-          !data.qualityValues && (
+          !data.certification && (
             <div className="text-center py-16">
               <p className="text-slate-400 mb-4">
                 {lang === "tr"
