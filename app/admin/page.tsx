@@ -98,6 +98,7 @@ export default function AdminPage() {
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
   const [darkBgColor, setDarkBgColor] = useState("#3a3a3a");
+  const [accentColor, setAccentColor] = useState("#4a9eff");
   const [testingEmail, setTestingEmail] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -178,6 +179,7 @@ export default function AdminPage() {
     setLightPositionY(raw.lightPositionY || 3);
     setLightPositionZ(raw.lightPositionZ || 5);
     setDarkBgColor(raw.darkBgColor || "#3a3a3a");
+    setAccentColor(raw.accentColor || "#4a9eff");
 
     // Load About section fields
     setTrAbout(raw.trAbout || "");
@@ -1485,6 +1487,7 @@ export default function AdminPage() {
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
                 overrides.darkBgColor = darkBgColor;
+                overrides.accentColor = accentColor;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1887,6 +1890,7 @@ export default function AdminPage() {
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
                 overrides.darkBgColor = darkBgColor;
+                overrides.accentColor = accentColor;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1952,6 +1956,58 @@ export default function AdminPage() {
                   <p className="text-white/70 text-xs mt-1">Bu alanlar bu renkle gösterilecek</p>
                 </div>
               </div>
+            </div>
+
+            {/* Accent Color (Titles/Headings) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-3 block">
+                Başlık Rengi (Accent)
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="w-20 h-20 rounded-lg cursor-pointer border border-slate-700"
+                />
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-white">Seçilen renk: <span className="font-mono font-semibold">{accentColor.toUpperCase()}</span></p>
+                  <p className="text-xs text-slate-400">Başlıklar, "Hakkımızda" gibi başlıklar bu renkle gösterilir</p>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => setAccentColor("#4a9eff")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Mavi</button>
+                    <button onClick={() => setAccentColor("#10b981")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Yeşil</button>
+                    <button onClick={() => setAccentColor("#f59e0b")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Turuncu</button>
+                    <button onClick={() => setAccentColor("#ef4444")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Kırmızı</button>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
+                <p className="text-xs text-slate-400 mb-2">Önizleme:</p>
+                <div className="rounded-lg p-4">
+                  <p style={{ color: accentColor }} className="text-sm font-semibold">Sterilizasyon Konteynerları kullanıcı isteklerini</p>
+                  <p style={{ color: accentColor }} className="text-xs font-semibold mt-2">NEDEN AXERON</p>
+                  <p style={{ color: accentColor }} className="text-xs font-semibold mt-2">HAKKIMIZDAhakkı</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="flex justify-end gap-3 pt-4">
+              <button onClick={() => {
+                const overrides = loadOverrides();
+                overrides.darkBgColor = darkBgColor;
+                overrides.accentColor = accentColor;
+                saveOverrides(overrides);
+                // Update CSS variables immediately
+                document.documentElement.style.setProperty('--dark', darkBgColor);
+                document.documentElement.style.setProperty('--accent', accentColor);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+                setToast({ msg: "Tüm renkler kaydedildi", type: "success" });
+              }}
+                className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-6 py-3">
+                Tüm Renkleri Kaydet
+              </button>
             </div>
           </div>
         )}

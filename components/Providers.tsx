@@ -7,10 +7,13 @@ import { loadOverrides } from "@/lib/siteOverrides";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Load custom dark background color from localStorage and apply to CSS variable
+    // Load custom colors from localStorage and apply to CSS variables
     const overrides = loadOverrides();
     if (overrides.darkBgColor) {
       document.documentElement.style.setProperty('--dark', overrides.darkBgColor);
+    }
+    if (overrides.accentColor) {
+      document.documentElement.style.setProperty('--accent', overrides.accentColor);
     }
   }, []);
 
