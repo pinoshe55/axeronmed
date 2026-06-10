@@ -350,12 +350,11 @@ export default function StaticSections() {
           ))}
         </div>
 
-        {/* About description - Larger text */}
+        {/* About description - Larger text with HTML support */}
         {(overrides?.trAbout || overrides?.enAbout) && (
           <div className="mt-12 pt-12 border-t border-ink/10">
-            <p className="text-base text-ink/60 leading-relaxed whitespace-pre-line">
-              {lang === "tr" ? overrides.trAbout : overrides.enAbout}
-            </p>
+            <div className="text-base text-ink/60 leading-relaxed prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trAbout : overrides.enAbout }} />
           </div>
         )}
 
@@ -366,9 +365,8 @@ export default function StaticSections() {
             {(overrides?.trMission || overrides?.enMission) && (
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
-                <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
-                  {lang === "tr" ? overrides.trMission : overrides.enMission}
-                </p>
+                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trMission : overrides.enMission }} />
               </div>
             )}
 
@@ -376,9 +374,8 @@ export default function StaticSections() {
             {(overrides?.trVision || overrides?.enVision) && (
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Vizyon" : "Vision"}</p>
-                <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
-                  {lang === "tr" ? overrides.trVision : overrides.enVision}
-                </p>
+                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trVision : overrides.enVision }} />
               </div>
             )}
 
@@ -386,9 +383,8 @@ export default function StaticSections() {
             {(overrides?.trProductionQuality || overrides?.enProductionQuality) && (
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
-                <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
-                  {lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality}
-                </p>
+                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality }} />
               </div>
             )}
 
@@ -396,9 +392,8 @@ export default function StaticSections() {
             {(overrides?.trCertification || overrides?.enCertification) && (
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
-                <p className="text-sm text-ink/60 leading-relaxed whitespace-pre-line">
-                  {lang === "tr" ? overrides.trCertification : overrides.enCertification}
-                </p>
+                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trCertification : overrides.enCertification }} />
               </div>
             )}
           </div>

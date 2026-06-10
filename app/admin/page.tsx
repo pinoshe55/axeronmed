@@ -13,6 +13,9 @@ const ModelPreviewCanvas = dynamic(() => import("@/components/ModelPreviewCanvas
   loading: () => <div className="w-full h-64 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400">Model yükleniyor...</div>,
 });
 
+// Lazy load ReactQuill for rich text editing
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
 const ADMIN_PASSWORD = "axeron2024";
 
 // ─── Flattenler i18n objesini key→value çiftlerine ───────────────────────────
@@ -1473,10 +1476,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Hakkımızda (Ana Açıklama)
                 </label>
-                <textarea value={trAbout} onChange={(e) => setTrAbout(e.target.value)}
-                  placeholder="Şirket hakkında genel bilgi yazın..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trAbout}
+                    onChange={setTrAbout}
+                    placeholder="Şirket hakkında genel bilgi yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1486,28 +1502,67 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Misyon
                 </label>
-                <textarea value={trMission} onChange={(e) => setTrMission(e.target.value)}
-                  placeholder="Axeron'un misyonunu yazın..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trMission}
+                    onChange={setTrMission}
+                    placeholder="Axeron'un misyonunu yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Vizyon
                 </label>
-                <textarea value={trVision} onChange={(e) => setTrVision(e.target.value)}
-                  placeholder="Axeron'un vizyonunu yazın..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trVision}
+                    onChange={setTrVision}
+                    placeholder="Axeron'un vizyonunu yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Kalite Değerlerimiz
                 </label>
-                <textarea value={trQualityValues} onChange={(e) => setTrQualityValues(e.target.value)}
-                  placeholder="Kalite değerlerini yazın..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trQualityValues}
+                    onChange={setTrQualityValues}
+                    placeholder="Kalite değerlerini yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1517,10 +1572,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Üretim Kalitesi
                 </label>
-                <textarea value={trProductionQuality} onChange={(e) => setTrProductionQuality(e.target.value)}
-                  placeholder="Üretim kalitesi hakkında bilgi yazın..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trProductionQuality}
+                    onChange={setTrProductionQuality}
+                    placeholder="Üretim kalitesi hakkında bilgi yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1530,10 +1598,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Sertifikasyon
                 </label>
-                <textarea value={trCertification} onChange={(e) => setTrCertification(e.target.value)}
-                  placeholder="Sertifikaları yazın..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={trCertification}
+                    onChange={setTrCertification}
+                    placeholder="Sertifikaları yazın..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1546,10 +1627,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   About Us (Main Description)
                 </label>
-                <textarea value={enAbout} onChange={(e) => setEnAbout(e.target.value)}
-                  placeholder="Write general company information..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enAbout}
+                    onChange={setEnAbout}
+                    placeholder="Write general company information..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1559,28 +1653,67 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Mission
                 </label>
-                <textarea value={enMission} onChange={(e) => setEnMission(e.target.value)}
-                  placeholder="Write Axeron's mission..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enMission}
+                    onChange={setEnMission}
+                    placeholder="Write Axeron's mission..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Vision
                 </label>
-                <textarea value={enVision} onChange={(e) => setEnVision(e.target.value)}
-                  placeholder="Write Axeron's vision..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enVision}
+                    onChange={setEnVision}
+                    placeholder="Write Axeron's vision..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Our Quality Values
                 </label>
-                <textarea value={enQualityValues} onChange={(e) => setEnQualityValues(e.target.value)}
-                  placeholder="Write about quality values..."
-                  rows={2}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enQualityValues}
+                    onChange={setEnQualityValues}
+                    placeholder="Write about quality values..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1590,10 +1723,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Production Quality
                 </label>
-                <textarea value={enProductionQuality} onChange={(e) => setEnProductionQuality(e.target.value)}
-                  placeholder="Write about production quality..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enProductionQuality}
+                    onChange={setEnProductionQuality}
+                    placeholder="Write about production quality..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1603,10 +1749,23 @@ export default function AdminPage() {
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1.5 block">
                   Certification
                 </label>
-                <textarea value={enCertification} onChange={(e) => setEnCertification(e.target.value)}
-                  placeholder="Write about certifications..."
-                  rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
+                  <ReactQuill
+                    theme="dark"
+                    value={enCertification}
+                    onChange={setEnCertification}
+                    placeholder="Write about certifications..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link']
+                      ]
+                    }}
+                    style={{ height: '280px' }}
+                  />
+                </div>
               </div>
             </div>
 
