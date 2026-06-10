@@ -95,6 +95,7 @@ export interface SiteOverrides {
   enCertification?: string; // English: Certification
   darkBgColor?: string; // Dark background color (hex, e.g., "#2d2d2d")
   accentColor?: string; // Accent/heading color (hex, e.g., "#4a9eff")
+  whatsappNumber?: string; // WhatsApp number with country code (e.g., "+905551234567")
 }
 
 const KEY = "axeron_site_overrides";
@@ -137,6 +138,7 @@ export function loadOverrides(): SiteOverrides {
     if (!data.enCertification) data.enCertification = "";
     if (!data.darkBgColor) data.darkBgColor = "#3a3a3a"; // Default dark color
     if (!data.accentColor) data.accentColor = "#4a9eff"; // Default accent/blue color
+    if (!data.whatsappNumber) data.whatsappNumber = ""; // WhatsApp number (optional)
 
     // session: ile başlayan src'lerin boş olma ihtimaline karşı
     // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
@@ -205,6 +207,7 @@ export function saveOverrides(data: SiteOverrides) {
     enCertification: data.enCertification,
     darkBgColor: data.darkBgColor,
     accentColor: data.accentColor,
+    whatsappNumber: data.whatsappNumber,
   };
 
   const json = JSON.stringify(optimized);

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ContentProvider } from "@/context/ContentContext";
 import { loadOverrides } from "@/lib/siteOverrides";
+import WhatsAppButton from "./WhatsAppButton";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -23,7 +24,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageProvider>
-      <ContentProvider>{children}</ContentProvider>
+      <ContentProvider>
+        {children}
+        <WhatsAppButton />
+      </ContentProvider>
     </LanguageProvider>
   );
 }

@@ -99,6 +99,7 @@ export default function AdminPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [darkBgColor, setDarkBgColor] = useState("#3a3a3a");
   const [accentColor, setAccentColor] = useState("#4a9eff");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [testingEmail, setTestingEmail] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -180,6 +181,7 @@ export default function AdminPage() {
     setLightPositionZ(raw.lightPositionZ || 5);
     setDarkBgColor(raw.darkBgColor || "#3a3a3a");
     setAccentColor(raw.accentColor || "#4a9eff");
+    setWhatsappNumber(raw.whatsappNumber || "");
 
     // Load About section fields
     setTrAbout(raw.trAbout || "");
@@ -1488,6 +1490,7 @@ export default function AdminPage() {
                 overrides.enCertification = enCertification;
                 overrides.darkBgColor = darkBgColor;
                 overrides.accentColor = accentColor;
+                overrides.whatsappNumber = whatsappNumber;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1891,6 +1894,7 @@ export default function AdminPage() {
                 overrides.enCertification = enCertification;
                 overrides.darkBgColor = darkBgColor;
                 overrides.accentColor = accentColor;
+                overrides.whatsappNumber = whatsappNumber;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1991,22 +1995,49 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* WhatsApp Number */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-3 block">
+                WhatsApp Numarası
+              </label>
+              <input
+                type="tel"
+                placeholder="+90 555 123 4567 (Ülke kodu ile)"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500 placeholder-slate-600"
+              />
+              <p className="text-xs text-slate-400 mt-2">
+                Örnek: +905551234567 veya +90 (555) 123-4567
+              </p>
+              {whatsappNumber && (
+                <a
+                  href={`https://wa.me/${whatsappNumber.replace(/[^\d+]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 text-xs px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded text-white">
+                  Test: WhatsApp'ta Aç →
+                </a>
+              )}
+            </div>
+
             {/* Save Button */}
             <div className="flex justify-end gap-3 pt-4">
               <button onClick={() => {
                 const overrides = loadOverrides();
                 overrides.darkBgColor = darkBgColor;
                 overrides.accentColor = accentColor;
+                overrides.whatsappNumber = whatsappNumber;
                 saveOverrides(overrides);
                 // Update CSS variables immediately
                 document.documentElement.style.setProperty('--dark', darkBgColor);
                 document.documentElement.style.setProperty('--accent', accentColor);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
-                setToast({ msg: "Tüm renkler kaydedildi", type: "success" });
+                setToast({ msg: "Tüm ayarlar kaydedildi", type: "success" });
               }}
                 className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-6 py-3">
-                Tüm Renkleri Kaydet
+                Tüm Ayarları Kaydet
               </button>
             </div>
           </div>
