@@ -71,6 +71,18 @@ export interface SiteOverrides {
   lightPositionZ?: number; // Light Z coordinate
   trSEO?: SEOConfig; // Turkish SEO configuration
   enSEO?: SEOConfig; // English SEO configuration
+
+  // About section fields
+  trMission?: string; // Turkish: Misyon
+  enMission?: string; // English: Mission
+  trProductionQuality?: string; // Turkish: Üretim Kalitesi
+  enProductionQuality?: string; // English: Production Quality
+  trCertification?: string; // Turkish: Sertifikasyon
+  enCertification?: string; // English: Certification
+  trAbout?: string; // Turkish: Hakkımızda
+  enAbout?: string; // English: About Us
+  trQualityValues?: string; // Turkish: Kalite Değerlerimiz
+  enQualityValues?: string; // English: Our Quality Values
 }
 
 const KEY = "axeron_site_overrides";
@@ -89,6 +101,18 @@ export function loadOverrides(): SiteOverrides {
     if (!data.verificationTokens) data.verificationTokens = [];
     if (!data.trSEO) data.trSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
     if (!data.enSEO) data.enSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
+
+    // About section defaults
+    if (!data.trMission) data.trMission = "";
+    if (!data.enMission) data.enMission = "";
+    if (!data.trProductionQuality) data.trProductionQuality = "";
+    if (!data.enProductionQuality) data.enProductionQuality = "";
+    if (!data.trCertification) data.trCertification = "";
+    if (!data.enCertification) data.enCertification = "";
+    if (!data.trAbout) data.trAbout = "";
+    if (!data.enAbout) data.enAbout = "";
+    if (!data.trQualityValues) data.trQualityValues = "";
+    if (!data.enQualityValues) data.enQualityValues = "";
 
     // session: ile başlayan src'lerin boş olma ihtimaline karşı
     // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
@@ -137,6 +161,16 @@ export function saveOverrides(data: SiteOverrides) {
     lightPositionZ: data.lightPositionZ,
     trSEO: data.trSEO,
     enSEO: data.enSEO,
+    trMission: data.trMission,
+    enMission: data.enMission,
+    trProductionQuality: data.trProductionQuality,
+    enProductionQuality: data.enProductionQuality,
+    trCertification: data.trCertification,
+    enCertification: data.enCertification,
+    trAbout: data.trAbout,
+    enAbout: data.enAbout,
+    trQualityValues: data.trQualityValues,
+    enQualityValues: data.enQualityValues,
   };
 
   const json = JSON.stringify(optimized);
