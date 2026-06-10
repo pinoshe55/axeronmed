@@ -373,7 +373,7 @@ export default function StaticSections() {
               const gridClass = activeFields === 2 ? "lg:grid-cols-2" : activeFields === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4";
 
               return (
-                <div className={`mt-14 grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 pt-14 border-t border-ink/10`}>
+                <div className={`mt-14 grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 pt-14 border-t border-ink/10 justify-center`}>
                   {/* Misyon */}
                   {(overrides?.trMission || overrides?.enMission) && (
                     <div>
