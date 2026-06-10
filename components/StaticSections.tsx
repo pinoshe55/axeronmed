@@ -332,7 +332,7 @@ export default function StaticSections() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-12">
           <div>
             <p className="eyebrow mb-3">{g("aboutEyebrow", s.aboutEyebrow)}</p>
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--dark)" }}>
+            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
               {g("aboutTitle", s.aboutTitle)} <span className="text-accent">{g("aboutTitleAccent", s.aboutTitleAccent)}</span>
             </h2>
           </div>
@@ -486,7 +486,7 @@ export default function StaticSections() {
               <span className="accent-rule" />
               <p className="eyebrow">{g("contactEyebrow", s.contactEyebrow)}</p>
             </div>
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--dark)" }}>
+            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
               {g("contactTitle", s.contactTitle)} <span className="text-accent">{g("contactTitleAccent", s.contactTitleAccent)}</span>
             </h2>
           </div>

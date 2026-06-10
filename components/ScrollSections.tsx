@@ -25,7 +25,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("heroEyebrow", s.heroEyebrow)}</p>
           </div>
-          <h1 className={H} style={{ color: "var(--dark)" }} data-hero-text>
+          <h1 className={H} style={{ color: "var(--accent)" }} data-hero-text>
             {g("heroTitle", s.heroTitle)}
           </h1>
           <div className="mt-5 w-full h-px bg-ink/8" />
@@ -46,7 +46,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("closeupEyebrow", s.closeupEyebrow)}</p>
           </div>
-          <h2 className={H} style={{ color: "var(--dark)" }}>{g("closeupH2", s.closeupH2)}</h2>
+          <h2 className={H} style={{ color: "var(--accent)" }}>{g("closeupH2", s.closeupH2)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={P}>{g("closeupP", s.closeupP)}</p>
         </div>
@@ -60,7 +60,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("frontEyebrow", s.frontEyebrow)}</p>
           </div>
-          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--dark)" }}>{g("frontH2", s.frontH2)}</h2>
+          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--accent)" }}>{g("frontH2", s.frontH2)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={P}>{g("frontP", s.frontP)}</p>
         </div>
@@ -87,7 +87,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("topEyebrow", s.topEyebrow)}</p>
           </div>
-          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--dark)" }}>{g("topHeading", s.topHeading)}</h2>
+          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--accent)" }}>{g("topHeading", s.topHeading)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={P}>{g("topP", s.topP)}</p>
         </div>
@@ -101,7 +101,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("backEyebrow", s.backEyebrow)}</p>
           </div>
-          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--dark)" }}>{g("backHeading", s.backHeading)}</h2>
+          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--accent)" }}>{g("backHeading", s.backHeading)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={`${P} whitespace-pre-line`}>{g("backP", s.backP)}</p>
         </div>
@@ -115,7 +115,7 @@ export default function ScrollSections() {
             <span className="accent-rule" />
             <p className="eyebrow">{g("finalEyebrow", s.finalEyebrow)}</p>
           </div>
-          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--dark)" }}>{g("finalHeading", s.finalHeading)}</h2>
+          <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--accent)" }}>{g("finalHeading", s.finalHeading)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={P}>{g("finalP", s.finalP)}</p>
           <a
