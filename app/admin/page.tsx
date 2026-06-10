@@ -1480,7 +1480,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trAbout}
                     onChange={setTrAbout}
                     placeholder="Şirket hakkında genel bilgi yazın..."
@@ -1506,7 +1506,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trMission}
                     onChange={setTrMission}
                     placeholder="Axeron'un misyonunu yazın..."
@@ -1528,7 +1528,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trVision}
                     onChange={setTrVision}
                     placeholder="Axeron'un vizyonunu yazın..."
@@ -1550,7 +1550,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trQualityValues}
                     onChange={setTrQualityValues}
                     placeholder="Kalite değerlerini yazın..."
@@ -1576,7 +1576,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trProductionQuality}
                     onChange={setTrProductionQuality}
                     placeholder="Üretim kalitesi hakkında bilgi yazın..."
@@ -1602,7 +1602,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={trCertification}
                     onChange={setTrCertification}
                     placeholder="Sertifikaları yazın..."
@@ -1631,7 +1631,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enAbout}
                     onChange={setEnAbout}
                     placeholder="Write general company information..."
@@ -1657,7 +1657,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enMission}
                     onChange={setEnMission}
                     placeholder="Write Axeron's mission..."
@@ -1679,7 +1679,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enVision}
                     onChange={setEnVision}
                     placeholder="Write Axeron's vision..."
@@ -1701,7 +1701,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enQualityValues}
                     onChange={setEnQualityValues}
                     placeholder="Write about quality values..."
@@ -1727,7 +1727,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enProductionQuality}
                     onChange={setEnProductionQuality}
                     placeholder="Write about production quality..."
@@ -1753,7 +1753,7 @@ export default function AdminPage() {
                 </label>
                 <div className="quill-editor bg-slate-800 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-colors">
                   <ReactQuill
-                    theme="dark"
+                    theme="snow"
                     value={enCertification}
                     onChange={setEnCertification}
                     placeholder="Write about certifications..."
