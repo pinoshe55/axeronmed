@@ -1642,6 +1642,40 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Kalite Değerlerimiz — 3 Cards */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-5 block">Kalite Değerlerimiz (3 Kart)</p>
+              <div className="space-y-5">
+                {/* Card 1 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Başlık (örn: İnsan Sağlığına Odaklılık)" value={trQualityValue1.label}
+                    onChange={(e) => setTrQualityValue1({...trQualityValue1, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Açıklama" value={trQualityValue1.desc}
+                    onChange={(e) => setTrQualityValue1({...trQualityValue1, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                </div>
+                {/* Card 2 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Başlık (örn: Mükemmeliyetçilik ve Güven)" value={trQualityValue2.label}
+                    onChange={(e) => setTrQualityValue2({...trQualityValue2, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Açıklama" value={trQualityValue2.desc}
+                    onChange={(e) => setTrQualityValue2({...trQualityValue2, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                </div>
+                {/* Card 3 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Başlık (örn: Sürdürülebilirlik)" value={trQualityValue3.label}
+                    onChange={(e) => setTrQualityValue3({...trQualityValue3, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Açıklama" value={trQualityValue3.desc}
+                    onChange={(e) => setTrQualityValue3({...trQualityValue3, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                </div>
+              </div>
+            </div>
+
             {/* EN ABOUT */}
             <SectionHeader>English</SectionHeader>
 
@@ -1789,6 +1823,40 @@ export default function AdminPage() {
                     }}
                     style={{ height: '280px' }}
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Quality Values — 3 Cards */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-5 block">Our Quality Values (3 Cards)</p>
+              <div className="space-y-5">
+                {/* Card 1 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Title (e.g: Human Health Focus)" value={enQualityValue1.label}
+                    onChange={(e) => setEnQualityValue1({...enQualityValue1, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Description" value={enQualityValue1.desc}
+                    onChange={(e) => setEnQualityValue1({...enQualityValue1, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                </div>
+                {/* Card 2 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Title (e.g: Excellence & Trust)" value={enQualityValue2.label}
+                    onChange={(e) => setEnQualityValue2({...enQualityValue2, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Description" value={enQualityValue2.desc}
+                    onChange={(e) => setEnQualityValue2({...enQualityValue2, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                </div>
+                {/* Card 3 */}
+                <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+                  <input type="text" placeholder="Title (e.g: Sustainability)" value={enQualityValue3.label}
+                    onChange={(e) => setEnQualityValue3({...enQualityValue3, label: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
+                  <input type="text" placeholder="Description" value={enQualityValue3.desc}
+                    onChange={(e) => setEnQualityValue3({...enQualityValue3, desc: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500" />
                 </div>
               </div>
             </div>
