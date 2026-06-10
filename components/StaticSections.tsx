@@ -354,7 +354,7 @@ export default function StaticSections() {
         {(overrides?.trAbout || overrides?.enAbout) && (
           <div className="mt-12 pt-12 border-t border-ink/10">
             <div className="text-base text-ink/60 leading-relaxed prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trAbout : overrides.enAbout }} />
+              dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trAbout : overrides.enAbout) || "" }} />
           </div>
         )}
 
@@ -366,7 +366,7 @@ export default function StaticSections() {
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
                 <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trMission : overrides.enMission }} />
+                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trMission : overrides.enMission) || "" }} />
               </div>
             )}
 
@@ -375,7 +375,7 @@ export default function StaticSections() {
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Vizyon" : "Vision"}</p>
                 <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trVision : overrides.enVision }} />
+                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trVision : overrides.enVision) || "" }} />
               </div>
             )}
 
@@ -384,7 +384,7 @@ export default function StaticSections() {
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
                 <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality }} />
+                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality) || "" }} />
               </div>
             )}
 
@@ -393,7 +393,7 @@ export default function StaticSections() {
               <div>
                 <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
                 <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: lang === "tr" ? overrides.trCertification : overrides.enCertification }} />
+                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trCertification : overrides.enCertification) || "" }} />
               </div>
             )}
           </div>
