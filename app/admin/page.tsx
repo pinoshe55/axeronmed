@@ -122,6 +122,14 @@ export default function AdminPage() {
   const [enMission, setEnMission] = useState("");
   const [trVision, setTrVision] = useState("");
   const [enVision, setEnVision] = useState("");
+  // Quality Values - 3 cards
+  const [trQualityValue1, setTrQualityValue1] = useState({ value: "", label: "", desc: "" });
+  const [enQualityValue1, setEnQualityValue1] = useState({ value: "", label: "", desc: "" });
+  const [trQualityValue2, setTrQualityValue2] = useState({ value: "", label: "", desc: "" });
+  const [enQualityValue2, setEnQualityValue2] = useState({ value: "", label: "", desc: "" });
+  const [trQualityValue3, setTrQualityValue3] = useState({ value: "", label: "", desc: "" });
+  const [enQualityValue3, setEnQualityValue3] = useState({ value: "", label: "", desc: "" });
+  // Old format (backward compatibility)
   const [trQualityValues, setTrQualityValues] = useState("");
   const [enQualityValues, setEnQualityValues] = useState("");
   const [trProductionQuality, setTrProductionQuality] = useState("");
@@ -176,6 +184,14 @@ export default function AdminPage() {
     setEnMission(raw.enMission || "");
     setTrVision(raw.trVision || "");
     setEnVision(raw.enVision || "");
+    // Quality Values - 3 cards
+    setTrQualityValue1(raw.trQualityValue1 || { value: "", label: "", desc: "" });
+    setEnQualityValue1(raw.enQualityValue1 || { value: "", label: "", desc: "" });
+    setTrQualityValue2(raw.trQualityValue2 || { value: "", label: "", desc: "" });
+    setEnQualityValue2(raw.enQualityValue2 || { value: "", label: "", desc: "" });
+    setTrQualityValue3(raw.trQualityValue3 || { value: "", label: "", desc: "" });
+    setEnQualityValue3(raw.enQualityValue3 || { value: "", label: "", desc: "" });
+    // Old format
     setTrQualityValues(raw.trQualityValues || "");
     setEnQualityValues(raw.enQualityValues || "");
     setTrProductionQuality(raw.trProductionQuality || "");
@@ -1453,6 +1469,12 @@ export default function AdminPage() {
                 overrides.enMission = enMission;
                 overrides.trVision = trVision;
                 overrides.enVision = enVision;
+                overrides.trQualityValue1 = trQualityValue1;
+                overrides.enQualityValue1 = enQualityValue1;
+                overrides.trQualityValue2 = trQualityValue2;
+                overrides.enQualityValue2 = enQualityValue2;
+                overrides.trQualityValue3 = trQualityValue3;
+                overrides.enQualityValue3 = enQualityValue3;
                 overrides.trQualityValues = trQualityValues;
                 overrides.enQualityValues = enQualityValues;
                 overrides.trProductionQuality = trProductionQuality;
@@ -1780,6 +1802,12 @@ export default function AdminPage() {
                 overrides.enMission = enMission;
                 overrides.trVision = trVision;
                 overrides.enVision = enVision;
+                overrides.trQualityValue1 = trQualityValue1;
+                overrides.enQualityValue1 = enQualityValue1;
+                overrides.trQualityValue2 = trQualityValue2;
+                overrides.enQualityValue2 = enQualityValue2;
+                overrides.trQualityValue3 = trQualityValue3;
+                overrides.enQualityValue3 = enQualityValue3;
                 overrides.trQualityValues = trQualityValues;
                 overrides.enQualityValues = enQualityValues;
                 overrides.trProductionQuality = trProductionQuality;
