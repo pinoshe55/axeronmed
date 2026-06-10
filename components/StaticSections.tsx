@@ -358,45 +358,70 @@ export default function StaticSections() {
           </div>
         )}
 
-        {/* 4 sütun metin — Misyon, Vizyon, Üretim Kalitesi, Sertifikasyon */}
+        {/* 4 sütun metin — Misyon, Vizyon, Üretim Kalitesi, Sertifikasyon (Dinamik layout) */}
         {(overrides?.trMission || overrides?.enMission || overrides?.trVision || overrides?.enVision || overrides?.trProductionQuality || overrides?.enProductionQuality || overrides?.trCertification || overrides?.enCertification) ? (
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pt-14 border-t border-ink/10">
-            {/* Misyon */}
-            {(overrides?.trMission || overrides?.enMission) && (
-              <div>
-                <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
-                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trMission : overrides.enMission) || "" }} />
-              </div>
-            )}
+          <>
+            {/* Count active fields to determine grid layout */}
+            {(() => {
+              const activeFields = [
+                overrides?.trMission || overrides?.enMission,
+                overrides?.trVision || overrides?.enVision,
+                overrides?.trProductionQuality || overrides?.enProductionQuality,
+                overrides?.trCertification || overrides?.enCertification,
+              ].filter(Boolean).length;
 
-            {/* Vizyon */}
-            {(overrides?.trVision || overrides?.enVision) && (
-              <div>
-                <p className="eyebrow mb-3">{lang === "tr" ? "Vizyon" : "Vision"}</p>
-                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trVision : overrides.enVision) || "" }} />
-              </div>
-            )}
+              const gridClass = activeFields === 2 ? "lg:grid-cols-2" : activeFields === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4";
 
-            {/* Üretim Kalitesi */}
-            {(overrides?.trProductionQuality || overrides?.enProductionQuality) && (
-              <div>
-                <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
-                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality) || "" }} />
-              </div>
-            )}
+              return (
+                <div className={`mt-14 grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 pt-14 border-t border-ink/10`}>
+                  {/* Misyon */}
+                  {(overrides?.trMission || overrides?.enMission) && (
+                    <div>
+                      <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
+                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trMission : overrides.enMission) || "" }} />
+                    </div>
+                  )}
 
-            {/* Sertifikasyon */}
-            {(overrides?.trCertification || overrides?.enCertification) && (
-              <div>
-                <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
+                  {/* Vizyon */}
+                  {(overrides?.trVision || overrides?.enVision) && (
+                    <div>
+                      <p className="eyebrow mb-3">{lang === "tr" ? "Vizyon" : "Vision"}</p>
+                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trVision : overrides.enVision) || "" }} />
+                    </div>
+                  )}
+
+                  {/* Üretim Kalitesi */}
+                  {(overrides?.trProductionQuality || overrides?.enProductionQuality) && (
+                    <div>
+                      <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
+                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality) || "" }} />
+                    </div>
+                  )}
+
+                  {/* Sertifikasyon */}
+                  {(overrides?.trCertification || overrides?.enCertification) && (
+                    <div>
+                      <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
+                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trCertification : overrides.enCertification) || "" }} />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Kalite Değerlerimiz — Separate section below */}
+            {(overrides?.trQualityValues || overrides?.enQualityValues) && (
+              <div className="mt-14 pt-14 border-t border-ink/10">
+                <p className="eyebrow mb-3">{lang === "tr" ? "Kalite Değerlerimiz" : "Our Quality Values"}</p>
                 <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trCertification : overrides.enCertification) || "" }} />
+                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trQualityValues : overrides.enQualityValues) || "" }} />
               </div>
             )}
-          </div>
+          </>
         ) : (
           // Fallback: original columns eğer About verileri yoksa
           <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 pt-14 border-t border-ink/10">
