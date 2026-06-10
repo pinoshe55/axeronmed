@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useContent } from "@/context/ContentContext";
-import { loadOverrides, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig } from "@/lib/siteOverrides";
+import { loadOverrides, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides } from "@/lib/siteOverrides";
 import { translations } from "@/lib/i18n";
 import { hashPassword, verifyPassword, generateUserId } from "@/lib/auth";
 import "react-quill/dist/quill.core.css";
@@ -217,6 +217,20 @@ export default function AdminPage() {
       .catch((err) => console.error("Failed to load models:", err))
       .finally(() => setLoadingModels(false));
   }, []);
+
+  // ─── Helper: Preserve colors + other settings when saving ───
+  const saveWithColors = (updates: Partial<SiteOverrides>) => {
+    const overrides = loadOverrides();
+    const merged = {
+      ...overrides,
+      ...updates,
+      // Always preserve current state values
+      darkBgColor,
+      accentColor,
+      whatsappNumber,
+    };
+    saveOverrides(merged);
+  };
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -836,9 +850,7 @@ export default function AdminPage() {
                   <button
                     onClick={() => {
                       updateEmailConfig(emailConfig);
-                      const overrides = loadOverrides();
-                      overrides.modelPath = modelPath;
-                      saveOverrides(overrides);
+                      saveWithColors({ modelPath });
                       flashSaved();
                     }}
                     className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
@@ -848,9 +860,7 @@ export default function AdminPage() {
                   <button
                     onClick={() => {
                       setModelPath("/models/camera.glb");
-                      const overrides = loadOverrides();
-                      overrides.modelPath = "/models/camera.glb";
-                      saveOverrides(overrides);
+                      saveWithColors({ modelPath: "/models/camera.glb" });
                       setToast({ msg: "Varsayılan model restore edildi", type: "success" });
                     }}
                     className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
@@ -946,14 +956,14 @@ export default function AdminPage() {
                     <button
                       onClick={() => {
                         updateEmailConfig(emailConfig);
-                        const overrides = loadOverrides();
-                        overrides.modelPath = modelPath;
-                        overrides.modelScale = modelScale;
-                        overrides.lightIntensity = lightIntensity;
-                        overrides.lightPositionX = lightPositionX;
-                        overrides.lightPositionY = lightPositionY;
-                        overrides.lightPositionZ = lightPositionZ;
-                        saveOverrides(overrides);
+                        saveWithColors({
+                          modelPath,
+                          modelScale,
+                          lightIntensity,
+                          lightPositionX,
+                          lightPositionY,
+                          lightPositionZ,
+                        });
                         flashSaved();
                       }}
                       className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
@@ -1166,8 +1176,7 @@ export default function AdminPage() {
 
                         if (adminIndex >= 0) {
                           adminUsers[adminIndex].passwordHash = newHash;
-                          overrides.adminUsers = adminUsers;
-                          saveOverrides(overrides);
+                          saveWithColors({ adminUsers });
 
                           // Current admin'i update et
                           setCurrentAdmin({ ...currentAdmin, passwordHash: newHash });
@@ -1324,9 +1333,7 @@ export default function AdminPage() {
             {/* Save Changes Button */}
             <div className="mt-6 flex justify-end">
               <button onClick={() => {
-                const overrides = loadOverrides();
-                overrides.adminUsers = adminUsers;
-                saveOverrides(overrides);
+                saveWithColors({ adminUsers });
                 flashSaved();
               }}
                 className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-6 py-3">
@@ -1347,10 +1354,10 @@ export default function AdminPage() {
                 </p>
               </div>
               <button onClick={() => {
-                const overrides = loadOverrides();
-                overrides.trSEO = { metaTitle: trSEOTitle, metaDescription: trSEODesc, keywords: trSEOKeywords, ogTitle: trSEOOgTitle, ogDescription: trSEOOgDesc, ogImage: trSEOOgImage };
-                overrides.enSEO = { metaTitle: enSEOTitle, metaDescription: enSEODesc, keywords: enSEOKeywords, ogTitle: enSEOOgTitle, ogDescription: enSEOOgDesc, ogImage: enSEOOgImage };
-                saveOverrides(overrides);
+                saveWithColors({
+                  trSEO: { metaTitle: trSEOTitle, metaDescription: trSEODesc, keywords: trSEOKeywords, ogTitle: trSEOOgTitle, ogDescription: trSEOOgDesc, ogImage: trSEOOgImage },
+                  enSEO: { metaTitle: enSEOTitle, metaDescription: enSEODesc, keywords: enSEOKeywords, ogTitle: enSEOOgTitle, ogDescription: enSEOOgDesc, ogImage: enSEOOgImage },
+                });
                 flashSaved();
               }}
                 className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-5 py-2.5">
