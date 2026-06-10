@@ -93,6 +93,7 @@ export interface SiteOverrides {
   enProductionQuality?: string; // English: Production Quality
   trCertification?: string; // Turkish: Sertifikasyon
   enCertification?: string; // English: Certification
+  darkBgColor?: string; // Dark background color (hex, e.g., "#2d2d2d")
 }
 
 const KEY = "axeron_site_overrides";
@@ -133,6 +134,7 @@ export function loadOverrides(): SiteOverrides {
     if (!data.enProductionQuality) data.enProductionQuality = "";
     if (!data.trCertification) data.trCertification = "";
     if (!data.enCertification) data.enCertification = "";
+    if (!data.darkBgColor) data.darkBgColor = "#3a3a3a"; // Default dark color
 
     // session: ile başlayan src'lerin boş olma ihtimaline karşı
     // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
@@ -199,6 +201,7 @@ export function saveOverrides(data: SiteOverrides) {
     enProductionQuality: data.enProductionQuality,
     trCertification: data.trCertification,
     enCertification: data.enCertification,
+    darkBgColor: data.darkBgColor,
   };
 
   const json = JSON.stringify(optimized);

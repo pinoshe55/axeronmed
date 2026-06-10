@@ -74,7 +74,7 @@ export default function AdminPage() {
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [tab, setTab] = useState<"gallery" | "stats" | "tr" | "en" | "3d" | "mail" | "users" | "seo" | "about">("gallery");
+  const [tab, setTab] = useState<"gallery" | "stats" | "tr" | "en" | "3d" | "mail" | "users" | "seo" | "about" | "colors">("gallery");
   const { overrides, updateText, updateGallery, updateStats, updateEmailConfig, getStats, resetAll } = useContent();
 
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -97,6 +97,7 @@ export default function AdminPage() {
   const [emailConfig, setEmailConfig] = useState<EmailConfig | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
+  const [darkBgColor, setDarkBgColor] = useState("#3a3a3a");
   const [testingEmail, setTestingEmail] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -176,6 +177,7 @@ export default function AdminPage() {
     setLightPositionX(raw.lightPositionX || 5);
     setLightPositionY(raw.lightPositionY || 3);
     setLightPositionZ(raw.lightPositionZ || 5);
+    setDarkBgColor(raw.darkBgColor || "#3a3a3a");
 
     // Load About section fields
     setTrAbout(raw.trAbout || "");
@@ -369,6 +371,7 @@ export default function AdminPage() {
     { id: "users"   as const, label: "Kullanıcılar" },
     { id: "seo"     as const, label: "SEO Ayarları" },
     { id: "about"   as const, label: "Hakkımızda" },
+    { id: "colors"  as const, label: "Renk Ayarları" },
   ];
 
   const fields = tab === "tr" ? TR_FIELDS : EN_FIELDS;
@@ -1481,6 +1484,7 @@ export default function AdminPage() {
                 overrides.enProductionQuality = enProductionQuality;
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
+                overrides.darkBgColor = darkBgColor;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1882,6 +1886,7 @@ export default function AdminPage() {
                 overrides.enProductionQuality = enProductionQuality;
                 overrides.trCertification = trCertification;
                 overrides.enCertification = enCertification;
+                overrides.darkBgColor = darkBgColor;
                 saveOverrides(overrides);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
@@ -1890,6 +1895,63 @@ export default function AdminPage() {
                 className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-6 py-3">
                 Kaydet
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Colors Tab */}
+        {tab === "colors" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-semibold">Renk Ayarları</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Koyu arka plan rengini özelleştir (Rakamlarla Biz, Kalite Değerlerimiz, İletişim vb.)
+                </p>
+              </div>
+              <button onClick={() => {
+                const overrides = loadOverrides();
+                overrides.darkBgColor = darkBgColor;
+                saveOverrides(overrides);
+                // Update CSS variable immediately
+                document.documentElement.style.setProperty('--dark', darkBgColor);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+                setToast({ msg: "Renk kaydedildi", type: "success" });
+              }}
+                className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-5 py-2.5">
+                Kaydet
+              </button>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-3 block">
+                Koyu Arka Plan Rengi
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  value={darkBgColor}
+                  onChange={(e) => setDarkBgColor(e.target.value)}
+                  className="w-20 h-20 rounded-lg cursor-pointer border border-slate-700"
+                />
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-white">Seçilen renk: <span className="font-mono font-semibold">{darkBgColor.toUpperCase()}</span></p>
+                  <p className="text-xs text-slate-400">Tüm koyu alanlar (kartlar, istatistikler vb.) bu renkle güncellenir</p>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => setDarkBgColor("#3a3a3a")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Varsayılan</button>
+                    <button onClick={() => setDarkBgColor("#2d2d2d")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Daha Koyu</button>
+                    <button onClick={() => setDarkBgColor("#4a4a4a")} className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white">Daha Açık</button>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
+                <p className="text-xs text-slate-400 mb-2">Önizleme:</p>
+                <div className="rounded-lg p-4" style={{ backgroundColor: darkBgColor }}>
+                  <p className="text-white text-sm font-semibold">Renk Önizlemesi</p>
+                  <p className="text-white/70 text-xs mt-1">Bu alanlar bu renkle gösterilecek</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
