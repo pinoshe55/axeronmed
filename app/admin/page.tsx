@@ -6,6 +6,8 @@ import { useContent } from "@/context/ContentContext";
 import { loadOverrides, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig } from "@/lib/siteOverrides";
 import { translations } from "@/lib/i18n";
 import { hashPassword, verifyPassword, generateUserId } from "@/lib/auth";
+import "react-quill/dist/quill.core.css";
+import "react-quill/dist/quill.snow.css";
 
 // Lazy load ModelPreviewCanvas to avoid Three.js in SSR
 const ModelPreviewCanvas = dynamic(() => import("@/components/ModelPreviewCanvas"), {
