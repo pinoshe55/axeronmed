@@ -413,12 +413,48 @@ export default function StaticSections() {
               );
             })()}
 
-            {/* Kalite Değerlerimiz — Separate section below */}
-            {(overrides?.trQualityValues || overrides?.enQualityValues) && (
+            {/* Kalite Değerlerimiz — 3 Cards Layout */}
+            {(overrides?.trQualityValue1 || overrides?.enQualityValue1 ||
+              overrides?.trQualityValue2 || overrides?.enQualityValue2 ||
+              overrides?.trQualityValue3 || overrides?.enQualityValue3) && (
               <div className="mt-14 pt-14 border-t border-ink/10">
-                <p className="eyebrow mb-3">{lang === "tr" ? "Kalite Değerlerimiz" : "Our Quality Values"}</p>
-                <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trQualityValues : overrides.enQualityValues) || "" }} />
+                <p className="eyebrow mb-8">{lang === "tr" ? "Kalite Değerlerimiz" : "Our Quality Values"}</p>
+                <div className="rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-3 divide-x divide-y md:divide-y-0 divide-white/8"
+                  style={{ backgroundColor: "var(--dark)" }}>
+
+                  {/* Card 1 */}
+                  {(lang === "tr" ? overrides.trQualityValue1 : overrides.enQualityValue1) && (
+                    <div className="p-7 lg:p-10">
+                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
+                        {lang === "tr" ? overrides.trQualityValue1?.value : overrides.enQualityValue1?.value}
+                      </span>
+                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue1?.label : overrides.enQualityValue1?.label}</span>
+                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue1?.desc : overrides.enQualityValue1?.desc}</span>
+                    </div>
+                  )}
+
+                  {/* Card 2 */}
+                  {(lang === "tr" ? overrides.trQualityValue2 : overrides.enQualityValue2) && (
+                    <div className="p-7 lg:p-10">
+                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
+                        {lang === "tr" ? overrides.trQualityValue2?.value : overrides.enQualityValue2?.value}
+                      </span>
+                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue2?.label : overrides.enQualityValue2?.label}</span>
+                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue2?.desc : overrides.enQualityValue2?.desc}</span>
+                    </div>
+                  )}
+
+                  {/* Card 3 */}
+                  {(lang === "tr" ? overrides.trQualityValue3 : overrides.enQualityValue3) && (
+                    <div className="p-7 lg:p-10">
+                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
+                        {lang === "tr" ? overrides.trQualityValue3?.value : overrides.enQualityValue3?.value}
+                      </span>
+                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue3?.label : overrides.enQualityValue3?.label}</span>
+                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue3?.desc : overrides.enQualityValue3?.desc}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </>

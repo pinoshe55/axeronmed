@@ -79,8 +79,16 @@ export interface SiteOverrides {
   enMission?: string; // English: Mission
   trVision?: string; // Turkish: Vizyon
   enVision?: string; // English: Vision
-  trQualityValues?: string; // Turkish: Kalite Değerlerimiz
-  enQualityValues?: string; // English: Our Quality Values
+  // Quality Values - 3 cards (value, label, description)
+  trQualityValue1?: { value: string; label: string; desc: string }; // Turkish: Kalite Değeri 1
+  enQualityValue1?: { value: string; label: string; desc: string }; // English: Quality Value 1
+  trQualityValue2?: { value: string; label: string; desc: string }; // Turkish: Kalite Değeri 2
+  enQualityValue2?: { value: string; label: string; desc: string }; // English: Quality Value 2
+  trQualityValue3?: { value: string; label: string; desc: string }; // Turkish: Kalite Değeri 3
+  enQualityValue3?: { value: string; label: string; desc: string }; // English: Quality Value 3
+  // Old format (kept for backward compatibility, will be phased out)
+  trQualityValues?: string; // Turkish: Kalite Değerlerimiz (old text format)
+  enQualityValues?: string; // English: Our Quality Values (old text format)
   trProductionQuality?: string; // Turkish: Üretim Kalitesi
   enProductionQuality?: string; // English: Production Quality
   trCertification?: string; // Turkish: Sertifikasyon
@@ -111,6 +119,14 @@ export function loadOverrides(): SiteOverrides {
     if (!data.enMission) data.enMission = "";
     if (!data.trVision) data.trVision = "";
     if (!data.enVision) data.enVision = "";
+    // Quality Values - 3 cards
+    if (!data.trQualityValue1) data.trQualityValue1 = { value: "", label: "", desc: "" };
+    if (!data.enQualityValue1) data.enQualityValue1 = { value: "", label: "", desc: "" };
+    if (!data.trQualityValue2) data.trQualityValue2 = { value: "", label: "", desc: "" };
+    if (!data.enQualityValue2) data.enQualityValue2 = { value: "", label: "", desc: "" };
+    if (!data.trQualityValue3) data.trQualityValue3 = { value: "", label: "", desc: "" };
+    if (!data.enQualityValue3) data.enQualityValue3 = { value: "", label: "", desc: "" };
+    // Old format (backward compatibility)
     if (!data.trQualityValues) data.trQualityValues = "";
     if (!data.enQualityValues) data.enQualityValues = "";
     if (!data.trProductionQuality) data.trProductionQuality = "";
@@ -171,6 +187,12 @@ export function saveOverrides(data: SiteOverrides) {
     enMission: data.enMission,
     trVision: data.trVision,
     enVision: data.enVision,
+    trQualityValue1: data.trQualityValue1,
+    enQualityValue1: data.enQualityValue1,
+    trQualityValue2: data.trQualityValue2,
+    enQualityValue2: data.enQualityValue2,
+    trQualityValue3: data.trQualityValue3,
+    enQualityValue3: data.enQualityValue3,
     trQualityValues: data.trQualityValues,
     enQualityValues: data.enQualityValues,
     trProductionQuality: data.trProductionQuality,
