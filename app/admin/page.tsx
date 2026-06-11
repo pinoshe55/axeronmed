@@ -6,6 +6,7 @@ import { useContent } from "@/context/ContentContext";
 import { loadOverrides, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides } from "@/lib/siteOverrides";
 import { translations } from "@/lib/i18n";
 import { hashPassword, verifyPassword, generateUserId } from "@/lib/auth";
+import MediaManager from "@/components/MediaManager";
 import "react-quill/dist/quill.core.css";
 import "react-quill/dist/quill.snow.css";
 
@@ -119,6 +120,8 @@ export default function AdminPage() {
   const [heroVideoPath, setHeroVideoPath] = useState("");
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoList, setVideoList] = useState<Array<{ name: string; path: string; size: number; sizeFormatted: string }>>([]);
+  const [loadingVideos, setLoadingVideos] = useState(false);
   const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
   const addFileRef = useRef<HTMLInputElement>(null);
 
@@ -222,6 +225,18 @@ export default function AdminPage() {
       })
       .catch((err) => console.error("Failed to load models:", err))
       .finally(() => setLoadingModels(false));
+
+    // Load available videos
+    setLoadingVideos(true);
+    fetch("/api/videos/list")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.videos) {
+          setVideoList(data.videos);
+        }
+      })
+      .catch((err) => console.error("Failed to load videos:", err))
+      .finally(() => setLoadingVideos(false));
   }, []);
 
   // ─── Helper: Preserve colors + other settings when saving ───
@@ -721,385 +736,30 @@ export default function AdminPage() {
             </div>
 
             <div className="space-y-6">
-              {/* Media Type Selector */}
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-                <label className="text-sm text-slate-400 mb-3 block font-semibold">Medya Tipi</label>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setHeroMediaType("3d");
-                      saveWithColors({ heroMediaType: "3d", heroVideoPath });
-                      setToast({ msg: "3D Model aktif edildi ✓", type: "success" });
-                    }}
-                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold border transition-colors ${
-                      heroMediaType === "3d"
-                        ? "bg-blue-600 border-blue-500 text-white"
-                        : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    🧊 3D Model (Scroll animasyonlu)
-                  </button>
-                  <button
-                    onClick={() => {
-                      setHeroMediaType("video");
-                      saveWithColors({ heroMediaType: "video", heroVideoPath });
-                      setToast({ msg: heroVideoPath ? "Video aktif edildi ✓" : "Video modu seçildi — şimdi video yükleyin", type: "success" });
-                    }}
-                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold border transition-colors ${
-                      heroMediaType === "video"
-                        ? "bg-blue-600 border-blue-500 text-white"
-                        : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    🎬 Video (Geniş arka plan)
-                  </button>
-                </div>
-                {heroMediaType === "video" && !heroVideoPath && (
-                  <p className="text-xs text-amber-400 mt-3">⚠️ Video seçili ama henüz video yüklenmedi. Aşağıdan video yükleyin, yoksa 3D model gösterilmeye devam eder.</p>
-                )}
-                <p className="text-xs text-slate-500 mt-3">Seçim anında kaydedilir. Anasayfayı yenileyerek görebilirsiniz.</p>
-              </div>
-
-              {/* Video Upload (only in video mode) */}
-              {heroMediaType === "video" && (
-                <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
-                  <div>
-                    <label className="text-sm text-slate-400 mb-2 block font-semibold">Video Yükle</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="file"
-                        accept=".mp4,.webm,video/mp4,video/webm"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const MAX_SIZE = 50 * 1024 * 1024; // 50MB
-                          if (file.size > MAX_SIZE) {
-                            setToast({ msg: "Dosya çok büyük (Max: 50 MB)", type: "error" });
-                            e.target.value = "";
-                            return;
-                          }
-                          setSelectedVideoFile(file);
-                        }}
-                        className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-600 file:text-white"
-                      />
-                      <button
-                        onClick={async () => {
-                          if (!selectedVideoFile) return;
-                          setUploadingVideo(true);
-                          const formData = new FormData();
-                          formData.append("file", selectedVideoFile);
-                          try {
-                            const res = await fetch("/api/videos/upload", { method: "POST", body: formData });
-                            const data = await res.json();
-                            if (data.success) {
-                              setHeroVideoPath(data.file.path);
-                              saveWithColors({ heroMediaType: "video", heroVideoPath: data.file.path });
-                              setToast({ msg: `${data.file.name} yüklendi ve aktif edildi ✓`, type: "success" });
-                              setSelectedVideoFile(null);
-                            } else {
-                              setToast({ msg: data.error, type: "error" });
-                            }
-                          } catch {
-                            setToast({ msg: "Yükleme başarısız", type: "error" });
-                          } finally {
-                            setUploadingVideo(false);
-                          }
-                        }}
-                        disabled={!selectedVideoFile || uploadingVideo}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                      >
-                        {uploadingVideo ? "Yükleniyor..." : "Yükle"}
-                      </button>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2">Max 50 MB • .mp4 veya .webm dosyası • Video sessiz ve döngüde oynar</p>
-                  </div>
-
-                  {/* Current video preview */}
-                  {heroVideoPath && (
-                    <div>
-                      <label className="text-sm text-slate-400 mb-2 block font-semibold">Aktif Video Önizleme</label>
-                      <video
-                        key={heroVideoPath}
-                        src={heroVideoPath}
-                        controls
-                        muted
-                        loop
-                        className="w-full max-h-64 rounded-lg border border-slate-700 bg-black"
-                      />
-                      <p className="text-xs text-slate-500 mt-2 font-mono">{heroVideoPath}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Model Upload */}
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block font-semibold">Yeni Model Yükle</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="file"
-                      accept=".glb,.gltf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const MAX_SIZE = 50 * 1024 * 1024; // 50MB
-                        if (file.size > MAX_SIZE) {
-                          setToast({ msg: `Dosya çok büyük (Max: 50 MB)`, type: "error" });
-                          e.target.value = "";
-                          return;
-                        }
-                        setSelectedFile(file);
-                      }}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-600 file:text-white"
-                    />
-                    <button
-                      onClick={async () => {
-                        if (!selectedFile) return;
-                        setUploading(true);
-                        const formData = new FormData();
-                        formData.append("file", selectedFile);
-                        try {
-                          const res = await fetch("/api/models/upload", { method: "POST", body: formData });
-                          const data = await res.json();
-                          if (data.success) {
-                            setToast({ msg: `${selectedFile.name} yüklendi ✓`, type: "success" });
-                            const listRes = await fetch("/api/models/list");
-                            const listData = await listRes.json();
-                            setModelList(listData.models || []);
-                            setSelectedFile(null);
-                          } else {
-                            setToast({ msg: data.error, type: "error" });
-                          }
-                        } catch {
-                          setToast({ msg: "Yükleme başarısız", type: "error" });
-                        } finally {
-                          setUploading(false);
-                        }
-                      }}
-                      disabled={!selectedFile || uploading}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                    >
-                      {uploading ? "Yükleniyor..." : "Yükle"}
-                    </button>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-2">Max 100 MB • .glb veya .gltf dosyası</p>
-                </div>
-              </div>
-
-              {/* Model Selection */}
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block font-semibold">Mevcut Modelleri Seç</label>
-                  {loadingModels ? (
-                    <div className="text-slate-400 text-sm py-2">Modeller yükleniyor...</div>
-                  ) : modelList.length === 0 ? (
-                    <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
-                      <p className="text-sm text-slate-400">
-                        📁 /public/models/ klasöründe model bulunmuyor.
-                      </p>
-                      <p className="text-xs text-slate-500 mt-2">
-                        Yukarıdaki forma .glb veya .gltf dosyası yükleyin.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {modelList.map((model) => (
-                        <div key={model.path} className="flex items-center justify-between bg-slate-800 border border-slate-700 rounded-lg p-3">
-                          <button
-                            onClick={() => setModelPath(model.path)}
-                            className={`flex-1 text-left text-sm ${modelPath === model.path ? "text-blue-400 font-semibold" : "text-slate-300 hover:text-white"}`}
-                          >
-                            {model.name} ({model.sizeFormatted})
-                            {model.size > 50 ? " ⚠️" : ""}
-                          </button>
-                          <button
-                            onClick={async () => {
-                              if (!confirm(`${model.name} silinecek. Emin misin?`)) return;
-                              try {
-                                const res = await fetch("/api/models/delete", {
-                                  method: "POST",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({ fileName: model.name + (model.path.endsWith(".glb") ? ".glb" : ".gltf") }),
-                                });
-                                const data = await res.json();
-                                if (data.success) {
-                                  setToast({ msg: `${model.name} silindi ✓`, type: "success" });
-                                  if (modelPath === model.path) setModelPath("");
-                                  const listRes = await fetch("/api/models/list");
-                                  const listData = await listRes.json();
-                                  setModelList(listData.models || []);
-                                } else {
-                                  setToast({ msg: data.error, type: "error" });
-                                }
-                              } catch {
-                                setToast({ msg: "Silme başarısız", type: "error" });
-                              }
-                            }}
-                            className="ml-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-3 py-1 transition-colors"
-                          >
-                            Sil
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {modelPath && (
-                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
-                    <p className="text-xs text-slate-400 mb-1">Seçilen Model:</p>
-                    <p className="text-sm font-mono text-blue-400">{modelPath}</p>
-                    {modelList.find((m) => m.path === modelPath) && (
-                      <p className="text-xs text-slate-500 mt-1">
-                        Dosya Boyutu: {modelList.find((m) => m.path === modelPath)?.sizeFormatted}
-                      </p>
-                    )}
-                    {modelPath && (modelList.find((m) => m.path === modelPath)?.size ?? 0) > 50 && (
-                      <p className="text-xs text-yellow-400 mt-1">
-                        ⚠️ Bu model büyük boyutta. Sayfa yüklemesi yavaşlayabilir.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      updateEmailConfig(emailConfig);
-                      saveWithColors({ modelPath });
-                      flashSaved();
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                  >
-                    Kaydet
-                  </button>
-                  <button
-                    onClick={() => {
-                      setModelPath("/models/camera.glb");
-                      saveWithColors({ modelPath: "/models/camera.glb" });
-                      setToast({ msg: "Varsayılan model restore edildi", type: "success" });
-                    }}
-                    className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                  >
-                    Varsayılana Sıfırla
-                  </button>
-                </div>
-              </div>
-
-              {/* Model Preview & Scale */}
-              {modelPath && (
-                <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
-                  <div>
-                    <label className="text-sm text-slate-400 mb-2 block font-semibold">Ölçekleme (Scale)</label>
-                    <div className="flex items-center gap-4 mb-3">
-                      <input
-                        type="range"
-                        min="0.5"
-                        max="3"
-                        step="0.1"
-                        value={modelScale}
-                        onChange={(e) => setModelScale(parseFloat(e.target.value))}
-                        className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                      />
-                      <span className="text-sm font-semibold text-white min-w-12 text-right">{modelScale.toFixed(1)}x</span>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-4">
-                      Model boyutunu ayarlayın (0.5x - 3.0x). Anasayfa'da da bu ölçek kullanılacaktır.
-                    </p>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <label className="text-sm text-slate-400 mb-2 block font-semibold">Işık Yoğunluğu</label>
-                      <div className="flex items-center gap-4 mb-3">
-                        <input
-                          type="range"
-                          min="0.1"
-                          max="2"
-                          step="0.1"
-                          value={lightIntensity}
-                          onChange={(e) => setLightIntensity(parseFloat(e.target.value))}
-                          className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
-                        <span className="text-sm font-semibold text-white min-w-12 text-right">{lightIntensity.toFixed(1)}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mb-4">
-                        Model'e vuran ışığın yoğunluğunu ayarlayın (0.1 - 2.0)
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setLightIntensity(1);
-                        setLightPositionX(-6);
-                        setLightPositionY(3);
-                        setLightPositionZ(5);
-                      }}
-                      className="mt-2 bg-slate-700 hover:bg-slate-600 transition-colors text-white text-xs font-semibold rounded-lg px-3 py-2 whitespace-nowrap h-fit"
-                      title="Işık ayarlarını optimal değerlere sıfırla"
-                    >
-                      Varsayılana Sıfırla
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[10px] text-slate-500 mb-1 block font-semibold">Işık X Pozisyonu</label>
-                      <input type="number" value={lightPositionX} onChange={(e) => setLightPositionX(parseFloat(e.target.value) || 0)} step="0.5"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 mb-1 block font-semibold">Işık Y Pozisyonu</label>
-                      <input type="number" value={lightPositionY} onChange={(e) => setLightPositionY(parseFloat(e.target.value) || 0)} step="0.5"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 mb-1 block font-semibold">Işık Z Pozisyonu</label>
-                      <input type="number" value={lightPositionZ} onChange={(e) => setLightPositionZ(parseFloat(e.target.value) || 0)} step="0.5"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-blue-500" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-2 mb-4">
-                    Işığın uzay konumunu ayarlayın (X, Y, Z koordinatları)
-                  </p>
-
-                  <div>
-                    <label className="text-sm text-slate-400 mb-2 block font-semibold">Önizleme</label>
-                    <p className="text-xs text-slate-500 mb-3">Modeli 3D olarak görüntüle (döndürmek için sürükle, zoom için scroll)</p>
-                    <ModelPreviewCanvas modelPath={modelPath} scale={modelScale} lightIntensity={lightIntensity} lightPosition={[lightPositionX, lightPositionY, lightPositionZ]} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <button
-                      onClick={() => {
-                        updateEmailConfig(emailConfig);
-                        saveWithColors({
-                          modelPath,
-                          modelScale,
-                          lightIntensity,
-                          lightPositionX,
-                          lightPositionY,
-                          lightPositionZ,
-                          heroMediaType,
-                          heroVideoPath,
-                        });
-                        flashSaved();
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                    >
-                      Kaydet
-                    </button>
-                    <button
-                      onClick={() => {
-                        setModelScale(1);
-                      }}
-                      className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
-                    >
-                      1.0x'e Sıfırla
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Unified media manager: upload, list, preview, publish */}
+              <MediaManager
+                heroMediaType={heroMediaType}
+                heroVideoPath={heroVideoPath}
+                modelPath={modelPath}
+                onPublish={(item) => {
+                  if (item.kind === "video") {
+                    setHeroMediaType("video");
+                    setHeroVideoPath(item.path);
+                    saveWithColors({ heroMediaType: "video", heroVideoPath: item.path });
+                  } else {
+                    setHeroMediaType("3d");
+                    setModelPath(item.path);
+                    saveWithColors({ heroMediaType: "3d", modelPath: item.path });
+                  }
+                  setToast({ msg: `${item.name} yayınlandı ✓ Anasayfada aktif`, type: "success" });
+                }}
+                onActiveDeleted={() => {
+                  setHeroMediaType("3d");
+                  setModelPath("/models/camera.glb");
+                  saveWithColors({ heroMediaType: "3d", modelPath: "/models/camera.glb" });
+                }}
+                notify={(msg, type) => setToast({ msg, type })}
+              />
             </div>
           </div>
         )}

@@ -213,7 +213,7 @@ export default function StaticSections() {
   const IMGS = overrideGallery.filter((img) => img.active !== false);
 
   return (
-    <div className="relative z-10" style={{ backgroundColor: "var(--bg)" }}>
+    <div className="relative z-10">
 
       {/* ── Lightbox ── */}
       {lightboxIdx !== null && (
@@ -273,7 +273,7 @@ export default function StaticSections() {
       )}
 
       {/* ── Ürün Galerisi — Bento Grid ── */}
-      <div className="px-[8vw] py-16 gallery-section">
+      <div className="px-[8vw] py-16 gallery-section" style={{ backgroundColor: "rgba(236, 233, 227, 0.85)" }}>
 
         {/* Başlık */}
         <div className="flex items-center justify-between mb-8">
@@ -327,7 +327,7 @@ export default function StaticSections() {
       {/* ══════════════════════════════════════════════
           HAKKIMIZDA / ABOUT
       ══════════════════════════════════════════════ */}
-      <section id="hakkimizda" className="px-[8vw] py-24">
+      <section id="hakkimizda" className="px-[8vw] py-24" style={{ backgroundColor: "var(--bg)" }}>
 
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-12">
           <div>
@@ -477,7 +477,7 @@ export default function StaticSections() {
       {/* ══════════════════════════════════════════════
           İLETİŞİM / CONTACT
       ══════════════════════════════════════════════ */}
-      <section id="iletisim" className="px-[8vw] py-24">
+      <section id="iletisim" className="px-[8vw] py-24" style={{ backgroundColor: "var(--bg)" }}>
 
         {/* Başlık */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-14">

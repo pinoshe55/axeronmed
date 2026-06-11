@@ -1,13 +1,29 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function Header() {
   const { lang, setLang, t } = useLanguage();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll(); // initial state on mount
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-[6vw] md:px-[8vw] py-5 flex items-center justify-between pointer-events-none">
+    <header
+      style={{ backgroundColor: scrolled ? "rgba(236, 233, 227, 0.82)" : "transparent" }}
+      className={`fixed top-0 left-0 right-0 z-50 px-[6vw] md:px-[8vw] py-4 flex items-center justify-between transition-all duration-500 ease-out ${
+        scrolled
+          ? "translate-y-0 opacity-100 pointer-events-auto backdrop-blur-md border-b border-ink/10 shadow-sm"
+          : "-translate-y-full opacity-0 pointer-events-none"
+      }`}
+    >
       <a href="#hero" className="pointer-events-auto">
         <Image
           src="/logo.png" unoptimized
