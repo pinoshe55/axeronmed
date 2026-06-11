@@ -115,6 +115,10 @@ export default function AdminPage() {
   const [lightPositionZ, setLightPositionZ] = useState(5);
   const [modelList, setModelList] = useState<Array<{ name: string; path: string; size: number; sizeFormatted: string }>>([]);
   const [loadingModels, setLoadingModels] = useState(false);
+  const [heroMediaType, setHeroMediaType] = useState<"3d" | "video">("3d");
+  const [heroVideoPath, setHeroVideoPath] = useState("");
+  const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
   const addFileRef = useRef<HTMLInputElement>(null);
 
@@ -182,6 +186,8 @@ export default function AdminPage() {
     setDarkBgColor(raw.darkBgColor || "#3a3a3a");
     setAccentColor(raw.accentColor || "#4a9eff");
     setWhatsappNumber(raw.whatsappNumber || "");
+    setHeroMediaType(raw.heroMediaType || "3d");
+    setHeroVideoPath(raw.heroVideoPath || "");
 
     // Load About section fields
     setTrAbout(raw.trAbout || "");
@@ -710,11 +716,122 @@ export default function AdminPage() {
         {tab === "3d" && (
           <div>
             <div className="mb-6">
-              <h2 className="text-lg font-semibold">3D Model Yönetimi</h2>
-              <p className="text-xs text-slate-400 mt-1">Anasayfa'da gösterilecek 3D model'i seçin ve önizleyin.</p>
+              <h2 className="text-lg font-semibold">Anasayfa Medya Yönetimi</h2>
+              <p className="text-xs text-slate-400 mt-1">Anasayfa'da 3D model veya arka plan videosu gösterin.</p>
             </div>
 
             <div className="space-y-6">
+              {/* Media Type Selector */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+                <label className="text-sm text-slate-400 mb-3 block font-semibold">Medya Tipi</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setHeroMediaType("3d");
+                      saveWithColors({ heroMediaType: "3d", heroVideoPath });
+                      setToast({ msg: "3D Model aktif edildi ✓", type: "success" });
+                    }}
+                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold border transition-colors ${
+                      heroMediaType === "3d"
+                        ? "bg-blue-600 border-blue-500 text-white"
+                        : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    🧊 3D Model (Scroll animasyonlu)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setHeroMediaType("video");
+                      saveWithColors({ heroMediaType: "video", heroVideoPath });
+                      setToast({ msg: heroVideoPath ? "Video aktif edildi ✓" : "Video modu seçildi — şimdi video yükleyin", type: "success" });
+                    }}
+                    className={`flex-1 rounded-lg px-4 py-3 text-sm font-semibold border transition-colors ${
+                      heroMediaType === "video"
+                        ? "bg-blue-600 border-blue-500 text-white"
+                        : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    🎬 Video (Geniş arka plan)
+                  </button>
+                </div>
+                {heroMediaType === "video" && !heroVideoPath && (
+                  <p className="text-xs text-amber-400 mt-3">⚠️ Video seçili ama henüz video yüklenmedi. Aşağıdan video yükleyin, yoksa 3D model gösterilmeye devam eder.</p>
+                )}
+                <p className="text-xs text-slate-500 mt-3">Seçim anında kaydedilir. Anasayfayı yenileyerek görebilirsiniz.</p>
+              </div>
+
+              {/* Video Upload (only in video mode) */}
+              {heroMediaType === "video" && (
+                <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400 mb-2 block font-semibold">Video Yükle</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept=".mp4,.webm,video/mp4,video/webm"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+                          if (file.size > MAX_SIZE) {
+                            setToast({ msg: "Dosya çok büyük (Max: 50 MB)", type: "error" });
+                            e.target.value = "";
+                            return;
+                          }
+                          setSelectedVideoFile(file);
+                        }}
+                        className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-600 file:text-white"
+                      />
+                      <button
+                        onClick={async () => {
+                          if (!selectedVideoFile) return;
+                          setUploadingVideo(true);
+                          const formData = new FormData();
+                          formData.append("file", selectedVideoFile);
+                          try {
+                            const res = await fetch("/api/videos/upload", { method: "POST", body: formData });
+                            const data = await res.json();
+                            if (data.success) {
+                              setHeroVideoPath(data.file.path);
+                              saveWithColors({ heroMediaType: "video", heroVideoPath: data.file.path });
+                              setToast({ msg: `${data.file.name} yüklendi ve aktif edildi ✓`, type: "success" });
+                              setSelectedVideoFile(null);
+                            } else {
+                              setToast({ msg: data.error, type: "error" });
+                            }
+                          } catch {
+                            setToast({ msg: "Yükleme başarısız", type: "error" });
+                          } finally {
+                            setUploadingVideo(false);
+                          }
+                        }}
+                        disabled={!selectedVideoFile || uploadingVideo}
+                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white text-sm font-semibold rounded-lg px-6 py-2 transition-colors"
+                      >
+                        {uploadingVideo ? "Yükleniyor..." : "Yükle"}
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">Max 50 MB • .mp4 veya .webm dosyası • Video sessiz ve döngüde oynar</p>
+                  </div>
+
+                  {/* Current video preview */}
+                  {heroVideoPath && (
+                    <div>
+                      <label className="text-sm text-slate-400 mb-2 block font-semibold">Aktif Video Önizleme</label>
+                      <video
+                        key={heroVideoPath}
+                        src={heroVideoPath}
+                        controls
+                        muted
+                        loop
+                        className="w-full max-h-64 rounded-lg border border-slate-700 bg-black"
+                      />
+                      <p className="text-xs text-slate-500 mt-2 font-mono">{heroVideoPath}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Model Upload */}
               <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
                 <div>
@@ -963,6 +1080,8 @@ export default function AdminPage() {
                           lightPositionX,
                           lightPositionY,
                           lightPositionZ,
+                          heroMediaType,
+                          heroVideoPath,
                         });
                         flashSaved();
                       }}

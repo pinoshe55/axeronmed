@@ -63,6 +63,8 @@ export interface SiteOverrides {
   adminUsers?: AdminUser[];
   emailConfig?: EmailConfig;
   verificationTokens?: VerificationToken[];
+  heroMediaType?: "3d" | "video"; // Homepage hero: "3d" (scroll-driven model) or "video" (background video)
+  heroVideoPath?: string; // Background video path (e.g., "/videos/intro.mp4")
   modelPath?: string; // 3D model path (e.g., "/models/camera.glb")
   modelScale?: number; // 3D model scale (e.g., 1.0, 1.5, 2.0)
   lightIntensity?: number; // Directional light intensity (0.1 - 2.0)
@@ -139,6 +141,8 @@ export function loadOverrides(): SiteOverrides {
     if (!data.darkBgColor) data.darkBgColor = "#3a3a3a"; // Default dark color
     if (!data.accentColor) data.accentColor = "#4a9eff"; // Default accent/blue color
     if (!data.whatsappNumber) data.whatsappNumber = ""; // WhatsApp number (optional)
+    if (!data.heroMediaType) data.heroMediaType = "3d"; // Default: 3D model
+    if (!data.heroVideoPath) data.heroVideoPath = "";
 
     // session: ile başlayan src'lerin boş olma ihtimaline karşı
     // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
@@ -179,6 +183,8 @@ export function saveOverrides(data: SiteOverrides) {
     adminUsers: data.adminUsers,
     emailConfig: data.emailConfig,
     verificationTokens: data.verificationTokens,
+    heroMediaType: data.heroMediaType,
+    heroVideoPath: data.heroVideoPath,
     modelPath: data.modelPath,
     modelScale: data.modelScale,
     lightIntensity: data.lightIntensity,
