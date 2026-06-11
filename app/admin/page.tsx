@@ -118,6 +118,7 @@ export default function AdminPage() {
   const [loadingModels, setLoadingModels] = useState(false);
   const [heroMediaType, setHeroMediaType] = useState<"3d" | "video">("3d");
   const [heroVideoPath, setHeroVideoPath] = useState("");
+  const [galleryLayout, setGalleryLayout] = useState<"collage" | "masonry" | "strip">("collage");
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [videoList, setVideoList] = useState<Array<{ name: string; path: string; size: number; sizeFormatted: string }>>([]);
@@ -191,6 +192,7 @@ export default function AdminPage() {
     setWhatsappNumber(raw.whatsappNumber || "");
     setHeroMediaType(raw.heroMediaType || "3d");
     setHeroVideoPath(raw.heroVideoPath || "");
+    setGalleryLayout(raw.galleryLayout || "collage");
 
     // Load About section fields
     setTrAbout(raw.trAbout || "");
@@ -341,7 +343,10 @@ export default function AdminPage() {
       // /public resimleri olduğu gibi sakla
       return img;
     });
-    updateGallery(toSave);
+    // En güncel ayarları localStorage'dan oku ki galleryLayout / renk / medya
+    // gibi başka tab'larda yazılan alanlar ezilmesin
+    const fresh = loadOverrides();
+    saveOverrides({ ...fresh, gallery: toSave });
     flashSaved();
   }
 
@@ -466,6 +471,40 @@ export default function AdminPage() {
                 className="bg-blue-600 hover:bg-blue-500 transition-colors text-white text-sm font-semibold rounded-xl px-5 py-2.5">
                 Kaydet
               </button>
+            </div>
+
+            {/* Galeri tasarım stili seçici */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-6">
+              <label className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-3 block">
+                Galeri Tasarım Stili
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {([
+                  { id: "collage", title: "Kolaj", desc: "Farklı boyutlu, eğik, dağınık yerleşim" },
+                  { id: "masonry", title: "Izgara", desc: "Temiz hizalı masonry düzen" },
+                  { id: "strip", title: "Şerit", desc: "Yatay kayan kartlar" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => {
+                      setGalleryLayout(opt.id);
+                      saveWithColors({ galleryLayout: opt.id });
+                      setToast({ msg: `Galeri stili: ${opt.title} ✓`, type: "success" });
+                    }}
+                    className={`text-left rounded-xl border p-4 transition-colors ${
+                      galleryLayout === opt.id
+                        ? "bg-blue-600/15 border-blue-500"
+                        : "bg-slate-800 border-slate-700 hover:border-slate-500"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold ${galleryLayout === opt.id ? "text-blue-400" : "text-white"}`}>
+                      {opt.title} {galleryLayout === opt.id && "✓"}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">{opt.desc}</p>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-3">Seçim anında kaydedilir. Anasayfayı yenileyerek görebilirsiniz.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

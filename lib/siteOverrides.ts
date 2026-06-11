@@ -98,6 +98,7 @@ export interface SiteOverrides {
   darkBgColor?: string; // Dark background color (hex, e.g., "#2d2d2d")
   accentColor?: string; // Accent/heading color (hex, e.g., "#4a9eff")
   whatsappNumber?: string; // WhatsApp number with country code (e.g., "+905551234567")
+  galleryLayout?: "collage" | "masonry" | "strip"; // Product gallery layout style
 }
 
 const KEY = "axeron_site_overrides";
@@ -143,6 +144,7 @@ export function loadOverrides(): SiteOverrides {
     if (!data.whatsappNumber) data.whatsappNumber = ""; // WhatsApp number (optional)
     if (!data.heroMediaType) data.heroMediaType = "3d"; // Default: 3D model
     if (!data.heroVideoPath) data.heroVideoPath = "";
+    if (!data.galleryLayout) data.galleryLayout = "collage"; // Default gallery style
 
     // session: ile başlayan src'lerin boş olma ihtimaline karşı
     // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
@@ -185,6 +187,7 @@ export function saveOverrides(data: SiteOverrides) {
     verificationTokens: data.verificationTokens,
     heroMediaType: data.heroMediaType,
     heroVideoPath: data.heroVideoPath,
+    galleryLayout: data.galleryLayout,
     modelPath: data.modelPath,
     modelScale: data.modelScale,
     lightIntensity: data.lightIntensity,

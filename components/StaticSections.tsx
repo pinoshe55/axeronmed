@@ -106,6 +106,26 @@ export default function StaticSections() {
   const g = (key: string, fallback: string) => getText(lang, `static.${key}`, fallback);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  // Şerit galeriyi oklarla kaydır (native smooth bazı tarayıcılarda
+  // güvenilmez olduğu için rAF ile manuel animasyon)
+  const scrollStrip = (dir: -1 | 1) => {
+    const el = stripRef.current;
+    if (!el) return;
+    const amount = dir * Math.min(el.clientWidth * 0.8, 640);
+    const start = el.scrollLeft;
+    const target = Math.max(0, Math.min(start + amount, el.scrollWidth - el.clientWidth));
+    const startTime = performance.now();
+    const duration = 420;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const step = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      el.scrollLeft = start + (target - start) * ease(t);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
 
   // Form state'leri
   const [formData, setFormData] = useState({
@@ -212,6 +232,30 @@ export default function StaticSections() {
   const overrideGallery = getGallery(DEFAULT_IMGS);
   const IMGS = overrideGallery.filter((img) => img.active !== false);
 
+  // Galeri tasarım stili: collage (dağınık kolaj), masonry (ızgara), strip (şerit)
+  const galleryLayout = overrides?.galleryLayout || "collage";
+
+  // Ortak beyaz çerçeve kartı (üç stil de bunu kullanır)
+  const galleryCard = (img: GalleryItem, imgWrapClass: string, cardExtra = "") => (
+    <div className={`bg-white p-2 rounded-[3px] shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)] group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] transition-shadow duration-300 ${cardExtra}`}>
+      <div className={`relative overflow-hidden rounded-[2px] bg-ink/5 ${imgWrapClass}`}>
+        <Image
+          src={img.src}
+          alt={img.caption || ""}
+          fill
+          className="object-cover"
+          sizes="(max-width:768px) 50vw, 25vw"
+        />
+        <span className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-ink text-sm shadow">⤢</span>
+      </div>
+      {img.caption && (
+        <figcaption className="px-1 pt-2 pb-0.5">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-ink leading-tight">{img.caption}</p>
+        </figcaption>
+      )}
+    </div>
+  );
+
   return (
     <div className="relative z-10">
 
@@ -284,44 +328,84 @@ export default function StaticSections() {
           <p className="text-xs text-ink/35 hidden md:block">Görmek için tıklayın</p>
         </div>
 
-        {/* Grid — her resim eklediğinizde IMGS dizisine src eklemek yeterli */}
-        <div ref={galleryRef} className="grid grid-cols-2 md:grid-cols-4 gap-3 auto-rows-[200px] gallery-grid">
-          {IMGS.map((img, i) => {
-            // Döngüsel span paterni: 0→geniş(2col), 5→geniş(2col), diğerleri normal
-            const pos = i % 6;
-            const span = pos === 0
-              ? "col-span-2 row-span-2"
-              : pos === 3
-              ? "col-span-2"
-              : "col-span-1";
-            return (
-              <div
-                key={i}
-                className={`${span} relative overflow-hidden rounded-2xl cursor-zoom-in group`}
-                style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
-                onClick={() => setLightboxIdx(i)}
-              >
-                <Image
-                  src={img.src}
-                  alt=""
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width:768px) 50vw, 25vw"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 flex items-end justify-center">
-                  {img.caption && (
-                    <span className="w-full px-3 py-2 text-[11px] text-white font-medium bg-black/50 backdrop-blur-sm leading-snug text-center">
-                      {img.caption}
-                    </span>
-                  )}
-                  {!img.caption && (
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 mb-3 w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-ink text-lg">⤢</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* ─── Stil 1: KOLAJ — farklı boyutlu, eğik, üst üste binen dağınık yerleşim ─── */}
+        {galleryLayout === "collage" && (
+          <div ref={galleryRef} className="gallery-grid grid grid-cols-6 lg:grid-cols-12 auto-rows-[54px] grid-flow-dense gap-2.5">
+            {IMGS.map((img, i) => {
+              // Farklı boyut paterni (referanstaki gibi büyük/orta/küçük karışımı)
+              const spans = [
+                "col-span-4 row-span-6", "col-span-3 row-span-4", "col-span-5 row-span-4",
+                "col-span-3 row-span-5", "col-span-4 row-span-4", "col-span-3 row-span-4",
+                "col-span-5 row-span-5", "col-span-4 row-span-5",
+              ];
+              const rotations = ["rotate-1", "-rotate-1", "rotate-2", "-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "-rotate-2"];
+              return (
+                <figure
+                  key={i}
+                  onClick={() => setLightboxIdx(i)}
+                  className={`group relative cursor-zoom-in ${spans[i % spans.length]} ${rotations[i % rotations.length]} transition-transform duration-300 ease-out hover:rotate-0 hover:scale-[1.04] hover:z-20`}
+                >
+                  {galleryCard(img, "flex-1 min-h-0", "h-full flex flex-col")}
+                </figure>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ─── Stil 2: IZGARA — temiz hizalı masonry ─── */}
+        {galleryLayout === "masonry" && (
+          <div ref={galleryRef} className="gallery-grid columns-2 md:columns-3 lg:columns-4 [column-gap:1.25rem]">
+            {IMGS.map((img, i) => {
+              const rotations = ["rotate-2", "-rotate-1", "rotate-1", "-rotate-2", "rotate-3", "-rotate-2", "rotate-1", "-rotate-3"];
+              const aspects = ["aspect-[4/5]", "aspect-[1/1]", "aspect-[4/3]", "aspect-[3/4]", "aspect-[5/4]", "aspect-[1/1]"];
+              return (
+                <figure
+                  key={i}
+                  onClick={() => setLightboxIdx(i)}
+                  className={`group relative mb-5 break-inside-avoid cursor-zoom-in ${rotations[i % rotations.length]} transition-transform duration-300 ease-out hover:rotate-0 hover:scale-[1.03] hover:z-20`}
+                >
+                  {galleryCard(img, `w-full ${aspects[i % aspects.length]}`)}
+                </figure>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ─── Stil 3: ŞERİT — yatay kayan kartlar + yön okları ─── */}
+        {galleryLayout === "strip" && (
+          <div className="relative">
+            <div
+              ref={stripRef}
+              className="flex gap-5 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {IMGS.map((img, i) => (
+                <figure
+                  key={i}
+                  onClick={() => setLightboxIdx(i)}
+                  className="group relative shrink-0 w-[240px] md:w-[300px] cursor-zoom-in transition-transform duration-300 ease-out hover:scale-[1.02] hover:z-20"
+                >
+                  {galleryCard(img, "w-full aspect-[4/5]")}
+                </figure>
+              ))}
+            </div>
+
+            {/* Sol ok */}
+            <button
+              type="button"
+              onClick={() => scrollStrip(-1)}
+              aria-label="Önceki"
+              className="hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur shadow-lg items-center justify-center text-ink text-xl hover:bg-white hover:scale-105 transition-all"
+            >‹</button>
+
+            {/* Sağ ok */}
+            <button
+              type="button"
+              onClick={() => scrollStrip(1)}
+              aria-label="Sonraki"
+              className="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur shadow-lg items-center justify-center text-ink text-xl hover:bg-white hover:scale-105 transition-all"
+            >›</button>
+          </div>
+        )}
       </div>
 
       {/* ══════════════════════════════════════════════
