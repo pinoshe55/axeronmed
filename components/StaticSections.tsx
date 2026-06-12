@@ -778,7 +778,8 @@ export default function StaticSections() {
             alt="Axeron"
             width={64}
             height={64}
-            className="opacity-20 flex-shrink-0"
+            className="opacity-40 flex-shrink-0"
+            style={{ filter: "brightness(0) invert(1)" }}
           />
           <div>
             <p className="eyebrow text-white/35 mb-2">{g("ctaEyebrow", s.ctaEyebrow)}</p>
