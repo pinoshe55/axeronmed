@@ -22,6 +22,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { ok: false, error: "BLOB_READ_WRITE_TOKEN env variable is missing" },
+      { status: 500 }
+    );
+  }
   try {
     const body = await req.text();
     await put(BLOB_PATHNAME, body, {
