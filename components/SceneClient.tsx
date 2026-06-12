@@ -11,22 +11,23 @@ const Scene = dynamic(() => import("@/components/Scene"), {
 });
 
 export default function SceneClient() {
-  const { overrides } = useContent();
+  const { overrides, serverLoaded } = useContent();
   const unlockedRef = useRef(false);
 
   const isVideo = overrides.heroMediaType === "video" && !!overrides.heroVideoPath;
 
-  // Video mode: unlock scroll/loading screen once media type is known
+  // Video mode: unlock scroll/loading screen once media type is confirmed
   useEffect(() => {
-    if (isVideo && !unlockedRef.current) {
+    if (serverLoaded && isVideo && !unlockedRef.current) {
       unlockedRef.current = true;
       markTexturesReady();
       unlockScroll();
     }
-  }, [isVideo]);
+  }, [serverLoaded, isVideo]);
 
-  // Still waiting for overrides to load from server — show nothing (loading screen stays)
-  if (!overrides.heroMediaType) return null;
+  // Wait for Blob fetch to complete before deciding 3D vs video — prevents
+  // loading the heavy 3D scene only to swap it out for video a moment later.
+  if (!serverLoaded) return null;
 
   if (isVideo) {
     return (

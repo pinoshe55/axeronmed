@@ -5,6 +5,7 @@ import { loadOverrides, loadOverridesFromServer, saveOverrides, type SiteOverrid
 
 interface ContentContextType {
   overrides: SiteOverrides;
+  serverLoaded: boolean; // true once Blob fetch completes (or fails)
   getText: (lang: "tr" | "en", key: string, fallback: string) => string;
   getGallery: (defaults: GalleryItem[]) => GalleryItem[];
   getStats: (lang: "tr" | "en", defaults: StatItem[]) => StatItem[];
@@ -17,6 +18,7 @@ interface ContentContextType {
 
 const ContentContext = createContext<ContentContextType>({
   overrides: { gallery: [], tr: {}, en: {} },
+  serverLoaded: false,
   getText: (_, __, fallback) => fallback,
   getGallery: (d) => d,
   getStats: (_, d) => d,
@@ -29,16 +31,19 @@ const ContentContext = createContext<ContentContextType>({
 
 export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [overrides, setOverrides] = useState<SiteOverrides>({ gallery: [], tr: {}, en: {} });
+  const [serverLoaded, setServerLoaded] = useState(false);
 
   useEffect(() => {
-    // Quick local cache first, then server as source of truth
+    // Load local cache immediately for text/colors, then Blob as source of truth for media
     setOverrides(loadOverrides());
-    loadOverridesFromServer().then((serverData) => {
-      if (serverData) {
-        setOverrides(serverData);
-        saveOverrides(serverData); // update local cache silently
-      }
-    });
+    loadOverridesFromServer()
+      .then((serverData) => {
+        if (serverData) {
+          setOverrides(serverData);
+          saveOverrides(serverData);
+        }
+      })
+      .finally(() => setServerLoaded(true)); // mark done whether server had data or not
   }, []);
 
   const getText = useCallback(
@@ -51,7 +56,6 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const getGallery = useCallback(
     (defaults: GalleryItem[]) => {
       if (!overrides.gallery || overrides.gallery.length === 0) return defaults;
-      // sessionStorage'dan base64 verisini geri yükle
       return overrides.gallery.map(img => {
         if (img.src.startsWith('session:')) {
           const key = img.src.replace('session:', '');
@@ -117,7 +121,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ContentContext.Provider value={{ overrides, getText, getGallery, getStats, updateText, updateGallery, updateStats, updateEmailConfig, resetAll }}>
+    <ContentContext.Provider value={{ overrides, serverLoaded, getText, getGallery, getStats, updateText, updateGallery, updateStats, updateEmailConfig, resetAll }}>
       {children}
     </ContentContext.Provider>
   );
