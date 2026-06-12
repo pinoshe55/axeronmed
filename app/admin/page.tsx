@@ -210,12 +210,17 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    // Load local cache immediately, then server overrides as source of truth
-    applyRawToState(loadOverrides());
+    const localData = loadOverrides();
+    // Load local cache immediately for fast UI
+    applyRawToState(localData);
     loadOverridesFromServer().then((serverData) => {
       if (serverData) {
+        // Server has data → use it as source of truth
         applyRawToState(serverData);
-        saveOverrides(serverData); // sync to local cache
+        saveOverrides(serverData);
+      } else {
+        // Server empty (first deploy) → push local data to server
+        saveOverrides(localData);
       }
     });
 
