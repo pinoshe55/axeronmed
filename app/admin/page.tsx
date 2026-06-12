@@ -263,6 +263,44 @@ export default function AdminPage() {
     saveOverrides(merged);
   };
 
+  const [pushing, setPushing] = useState(false);
+
+  async function pushAllToServer() {
+    setPushing(true);
+    try {
+      // Build full overrides from current localStorage state (always up-to-date on this device)
+      const local = loadOverrides();
+      const payload = {
+        ...local,
+        // Ensure latest form state values are included
+        darkBgColor,
+        accentColor,
+        whatsappNumber,
+        heroMediaType,
+        heroVideoPath,
+        galleryLayout,
+        modelPath,
+        trAbout, enAbout, trMission, enMission, trVision, enVision,
+        trQualityValue1, enQualityValue1,
+        trQualityValue2, enQualityValue2,
+        trQualityValue3, enQualityValue3,
+        adminUsers: [], // never send password hashes
+        verificationTokens: [],
+      };
+      const res = await fetch("/api/site-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setToast({ msg: "✓ Sunucu güncellendi — tüm cihazlarda geçerli", type: "success" });
+    } catch (e) {
+      setToast({ msg: `Hata: ${e instanceof Error ? e.message : String(e)}`, type: "error" });
+    } finally {
+      setPushing(false);
+    }
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
@@ -438,6 +476,13 @@ export default function AdminPage() {
           {saved && <span className="text-xs text-emerald-400 font-medium animate-pulse">Kaydedildi ✓</span>}
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={pushAllToServer}
+            disabled={pushing}
+            className="text-xs font-semibold text-white bg-green-700 hover:bg-green-600 disabled:opacity-50 disabled:cursor-wait transition-colors rounded-lg px-4 py-1.5 flex items-center gap-1.5"
+          >
+            {pushing ? "⏳ Güncelleniyor..." : "🌐 Sunucuyu Güncelle"}
+          </button>
           <button onClick={handleReset}
             className="text-xs text-red-400 hover:text-red-300 transition-colors border border-red-900 hover:border-red-700 rounded-lg px-3 py-1.5">
             Sıfırla
