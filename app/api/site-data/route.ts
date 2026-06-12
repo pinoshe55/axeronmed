@@ -1,4 +1,4 @@
-import { list, put } from "@vercel/blob";
+import { list, put, getDownloadUrl } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -6,14 +6,16 @@ export const dynamic = "force-dynamic";
 const BLOB_PATHNAME = "axeron-site-overrides.json";
 
 export async function GET() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json(null);
   try {
     const { blobs } = await list({ prefix: "axeron-site-overrides" });
     const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME);
     if (!blob) return NextResponse.json(null);
 
-    const res = await fetch(blob.url, { cache: "no-store" });
+    // Use authenticated download URL for private store
+    const downloadUrl = await getDownloadUrl(blob.url);
+    const res = await fetch(downloadUrl, { cache: "no-store" });
     if (!res.ok) return NextResponse.json(null);
-
     const data = await res.json();
     return NextResponse.json(data);
   } catch {
