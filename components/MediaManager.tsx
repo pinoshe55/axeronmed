@@ -28,12 +28,14 @@ interface Props {
   heroMediaType: "3d" | "video";
   heroVideoPath: string;
   modelPath: string;
+  hiddenMediaFiles?: string[];
   onPublish: (item: MediaItem) => void;
   onActiveDeleted: () => void;
+  onHide: (fileName: string) => void;
   notify: (msg: string, type: "success" | "error") => void;
 }
 
-export default function MediaManager({ heroMediaType, heroVideoPath, modelPath, onPublish, onActiveDeleted, notify }: Props) {
+export default function MediaManager({ heroMediaType, heroVideoPath, modelPath, hiddenMediaFiles = [], onPublish, onActiveDeleted, onHide, notify }: Props) {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -120,30 +122,16 @@ export default function MediaManager({ heroMediaType, heroVideoPath, modelPath, 
     }
   };
 
-  const handleDelete = async (item: MediaItem) => {
-    if (!confirm(`"${item.name}" silinecek. Bu medyayı silmek istediğinize emin misiniz?`)) return;
+  const handleDelete = (item: MediaItem) => {
+    if (!confirm(`"${item.name}" listeden kaldırılacak. Emin misiniz?`)) return;
     const wasActive = isActive(item);
-    try {
-      const endpoint = item.kind === "video" ? "/api/videos/delete" : "/api/models/delete";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: item.name }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        notify(`${item.name} silindi ✓${wasActive ? " Aktif medya kalmadı, varsayılan içerik gösteriliyor." : ""}`, "success");
-        if (wasActive) onActiveDeleted();
-        await refreshLists();
-      } else {
-        notify(data.error || "Silme başarısız", "error");
-      }
-    } catch {
-      notify("Silme başarısız", "error");
-    }
+    onHide(item.name);
+    if (wasActive) onActiveDeleted();
+    notify(`${item.name} kaldırıldı ✓`, "success");
   };
 
-  const activeItem = items.find(isActive) || null;
+  const visibleItems = items.filter(item => !hiddenMediaFiles.includes(item.name));
+  const activeItem = visibleItems.find(isActive) || null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
@@ -191,7 +179,7 @@ export default function MediaManager({ heroMediaType, heroVideoPath, modelPath, 
           <div className="text-slate-500 text-sm py-4 text-center">Henüz medya yüklenmedi.</div>
         ) : (
           <div className="space-y-3">
-            {items.map((item) => {
+            {visibleItems.map((item) => {
               const active = isActive(item);
               return (
                 <div

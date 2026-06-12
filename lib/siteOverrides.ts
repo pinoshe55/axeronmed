@@ -99,6 +99,7 @@ export interface SiteOverrides {
   accentColor?: string; // Accent/heading color (hex, e.g., "#4a9eff")
   whatsappNumber?: string; // WhatsApp number with country code (e.g., "+905551234567")
   galleryLayout?: "collage" | "masonry" | "strip"; // Product gallery layout style
+  hiddenMediaFiles?: string[]; // Files hidden from media manager (soft-delete for Vercel read-only FS)
 }
 
 const KEY = "axeron_site_overrides";
@@ -134,6 +135,7 @@ export function applyDefaults(data: SiteOverrides): SiteOverrides {
   if (!data.heroMediaType) data.heroMediaType = "3d";
   if (!data.heroVideoPath) data.heroVideoPath = "";
   if (!data.galleryLayout) data.galleryLayout = "collage";
+  if (!data.hiddenMediaFiles) data.hiddenMediaFiles = [];
 
   if (data.gallery && data.gallery.length > 0) {
     data.gallery = data.gallery.map((img, i) => {
@@ -236,6 +238,7 @@ export function saveOverrides(data: SiteOverrides) {
     darkBgColor: data.darkBgColor,
     accentColor: data.accentColor,
     whatsappNumber: data.whatsappNumber,
+    hiddenMediaFiles: data.hiddenMediaFiles,
   };
 
   const json = JSON.stringify(optimized);

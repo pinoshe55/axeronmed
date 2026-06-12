@@ -119,6 +119,7 @@ export default function AdminPage() {
   const [heroMediaType, setHeroMediaType] = useState<"3d" | "video">("3d");
   const [heroVideoPath, setHeroVideoPath] = useState("");
   const [galleryLayout, setGalleryLayout] = useState<"collage" | "masonry" | "strip">("collage");
+  const [hiddenMediaFiles, setHiddenMediaFiles] = useState<string[]>([]);
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [videoList, setVideoList] = useState<Array<{ name: string; path: string; size: number; sizeFormatted: string }>>([]);
@@ -207,6 +208,7 @@ export default function AdminPage() {
     setEnProductionQuality(raw.enProductionQuality || "");
     setTrCertification(raw.trCertification || "");
     setEnCertification(raw.enCertification || "");
+    setHiddenMediaFiles(raw.hiddenMediaFiles || []);
   }
 
   useEffect(() => {
@@ -286,6 +288,7 @@ export default function AdminPage() {
         trQualityValue3, enQualityValue3,
         adminUsers: [], // never send password hashes
         verificationTokens: [],
+        hiddenMediaFiles,
       };
       const res = await fetch("/api/site-data", {
         method: "POST",
@@ -834,6 +837,7 @@ export default function AdminPage() {
                 heroMediaType={heroMediaType}
                 heroVideoPath={heroVideoPath}
                 modelPath={modelPath}
+                hiddenMediaFiles={hiddenMediaFiles}
                 onPublish={(item) => {
                   if (item.kind === "video") {
                     setHeroMediaType("video");
@@ -850,6 +854,11 @@ export default function AdminPage() {
                   setHeroMediaType("3d");
                   setModelPath("/models/camera.glb");
                   saveWithColors({ heroMediaType: "3d", modelPath: "/models/camera.glb" });
+                }}
+                onHide={(fileName) => {
+                  const updated = [...hiddenMediaFiles, fileName];
+                  setHiddenMediaFiles(updated);
+                  saveWithColors({ hiddenMediaFiles: updated });
                 }}
                 notify={(msg, type) => setToast({ msg, type })}
               />
