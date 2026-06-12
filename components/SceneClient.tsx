@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { loadOverrides } from "@/lib/siteOverrides";
+import { useContent } from "@/context/ContentContext";
 import { markTexturesReady, unlockScroll } from "@/lib/sceneReady";
-
-// MUST be "use client" so next/dynamic({ ssr: false }) actually code-splits.
-// In Next 14 App Router, a dynamic({ ssr: false }) call from a server
-// component often keeps the dynamic module in the initial chunk. Wrapping
-// it in a client component creates a proper lazy chunk boundary:
-// Initial First Load JS ~390kB → ~90kB
 
 const Scene = dynamic(() => import("@/components/Scene"), {
   ssr: false,
@@ -17,37 +11,27 @@ const Scene = dynamic(() => import("@/components/Scene"), {
 });
 
 export default function SceneClient() {
-  // null = overrides not loaded yet (avoids loading the heavy 3D chunk
-  // when admin selected video mode)
-  const [media, setMedia] = useState<{ type: "3d" | "video"; videoPath: string } | null>(null);
+  const { overrides } = useContent();
+  const unlockedRef = useRef(false);
 
+  const isVideo = overrides.heroMediaType === "video" && !!overrides.heroVideoPath;
+
+  // Video mode: unlock scroll/loading screen once media type is known
   useEffect(() => {
-    let next: { type: "3d" | "video"; videoPath: string };
-    try {
-      const overrides = loadOverrides();
-      next = {
-        type: overrides.heroMediaType === "video" && overrides.heroVideoPath ? "video" : "3d",
-        videoPath: overrides.heroVideoPath || "",
-      };
-    } catch {
-      next = { type: "3d", videoPath: "" };
-    }
-    setMedia(next);
-
-    // Video mode: the 3D pipeline (CameraModel) never mounts, so the
-    // loading-screen fade and scroll unlock must be triggered here.
-    if (next.type === "video") {
+    if (isVideo && !unlockedRef.current) {
+      unlockedRef.current = true;
       markTexturesReady();
       unlockScroll();
     }
-  }, []);
+  }, [isVideo]);
 
-  if (!media) return null;
+  // Still waiting for overrides to load from server — show nothing (loading screen stays)
+  if (!overrides.heroMediaType) return null;
 
-  if (media.type === "video") {
+  if (isVideo) {
     return (
       <video
-        src={media.videoPath}
+        src={overrides.heroVideoPath}
         autoPlay
         muted
         loop
