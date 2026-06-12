@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useContent } from "@/context/ContentContext";
-import { loadOverrides, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides } from "@/lib/siteOverrides";
+import { loadOverrides, loadOverridesFromServer, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides } from "@/lib/siteOverrides";
 import { translations } from "@/lib/i18n";
 import { hashPassword, verifyPassword, generateUserId } from "@/lib/auth";
 import MediaManager from "@/components/MediaManager";
@@ -148,9 +148,7 @@ export default function AdminPage() {
   const [trCertification, setTrCertification] = useState("");
   const [enCertification, setEnCertification] = useState("");
 
-  useEffect(() => {
-    const raw = loadOverrides();
-    // sessionStorage'dan base64 verisini geri yükle
+  function applyRawToState(raw: SiteOverrides) {
     const galleryWithImages = raw.gallery?.length
       ? raw.gallery.map(img => {
           if (img.src.startsWith('session:')) {
@@ -165,8 +163,6 @@ export default function AdminPage() {
     setGallery(galleryWithImages);
     setTrStats(raw.trStats?.length ? raw.trStats : DEFAULT_TR_STATS.map(s => ({ ...s })));
     setEnStats(raw.enStats?.length ? raw.enStats : DEFAULT_EN_STATS.map(s => ({ ...s })));
-
-    // Load SEO data
     setTrSEOTitle(raw.trSEO?.metaTitle || "");
     setTrSEODesc(raw.trSEO?.metaDescription || "");
     setTrSEOKeywords(raw.trSEO?.keywords || "");
@@ -193,28 +189,35 @@ export default function AdminPage() {
     setHeroMediaType(raw.heroMediaType || "3d");
     setHeroVideoPath(raw.heroVideoPath || "");
     setGalleryLayout(raw.galleryLayout || "collage");
-
-    // Load About section fields
     setTrAbout(raw.trAbout || "");
     setEnAbout(raw.enAbout || "");
     setTrMission(raw.trMission || "");
     setEnMission(raw.enMission || "");
     setTrVision(raw.trVision || "");
     setEnVision(raw.enVision || "");
-    // Quality Values - 3 cards
     setTrQualityValue1(raw.trQualityValue1 || { value: "", label: "", desc: "" });
     setEnQualityValue1(raw.enQualityValue1 || { value: "", label: "", desc: "" });
     setTrQualityValue2(raw.trQualityValue2 || { value: "", label: "", desc: "" });
     setEnQualityValue2(raw.enQualityValue2 || { value: "", label: "", desc: "" });
     setTrQualityValue3(raw.trQualityValue3 || { value: "", label: "", desc: "" });
     setEnQualityValue3(raw.enQualityValue3 || { value: "", label: "", desc: "" });
-    // Old format
     setTrQualityValues(raw.trQualityValues || "");
     setEnQualityValues(raw.enQualityValues || "");
     setTrProductionQuality(raw.trProductionQuality || "");
     setEnProductionQuality(raw.enProductionQuality || "");
     setTrCertification(raw.trCertification || "");
     setEnCertification(raw.enCertification || "");
+  }
+
+  useEffect(() => {
+    // Load local cache immediately, then server overrides as source of truth
+    applyRawToState(loadOverrides());
+    loadOverridesFromServer().then((serverData) => {
+      if (serverData) {
+        applyRawToState(serverData);
+        saveOverrides(serverData); // sync to local cache
+      }
+    });
 
     // Load available models
     setLoadingModels(true);

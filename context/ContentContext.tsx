@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { loadOverrides, saveOverrides, type SiteOverrides, type GalleryItem, type StatItem } from "@/lib/siteOverrides";
+import { loadOverrides, loadOverridesFromServer, saveOverrides, type SiteOverrides, type GalleryItem, type StatItem } from "@/lib/siteOverrides";
 
 interface ContentContextType {
   overrides: SiteOverrides;
@@ -31,7 +31,14 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [overrides, setOverrides] = useState<SiteOverrides>({ gallery: [], tr: {}, en: {} });
 
   useEffect(() => {
+    // Quick local cache first, then server as source of truth
     setOverrides(loadOverrides());
+    loadOverridesFromServer().then((serverData) => {
+      if (serverData) {
+        setOverrides(serverData);
+        saveOverrides(serverData); // update local cache silently
+      }
+    });
   }, []);
 
   const getText = useCallback(

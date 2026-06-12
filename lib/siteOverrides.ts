@@ -104,74 +104,93 @@ export interface SiteOverrides {
 const KEY = "axeron_site_overrides";
 const QUOTA_LIMIT = 4 * 1024 * 1024; // 4MB (localStorage güvenli limiti)
 
+// Shared defaults logic — used by both loadOverrides and server fetch
+export function applyDefaults(data: SiteOverrides): SiteOverrides {
+  if (!data.adminUsers) data.adminUsers = [];
+  if (!data.verificationTokens) data.verificationTokens = [];
+  if (!data.trSEO) data.trSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
+  if (!data.enSEO) data.enSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
+  if (!data.trAbout) data.trAbout = "";
+  if (!data.enAbout) data.enAbout = "";
+  if (!data.trMission) data.trMission = "";
+  if (!data.enMission) data.enMission = "";
+  if (!data.trVision) data.trVision = "";
+  if (!data.enVision) data.enVision = "";
+  if (!data.trQualityValue1) data.trQualityValue1 = { value: "", label: "", desc: "" };
+  if (!data.enQualityValue1) data.enQualityValue1 = { value: "", label: "", desc: "" };
+  if (!data.trQualityValue2) data.trQualityValue2 = { value: "", label: "", desc: "" };
+  if (!data.enQualityValue2) data.enQualityValue2 = { value: "", label: "", desc: "" };
+  if (!data.trQualityValue3) data.trQualityValue3 = { value: "", label: "", desc: "" };
+  if (!data.enQualityValue3) data.enQualityValue3 = { value: "", label: "", desc: "" };
+  if (!data.trQualityValues) data.trQualityValues = "";
+  if (!data.enQualityValues) data.enQualityValues = "";
+  if (!data.trProductionQuality) data.trProductionQuality = "";
+  if (!data.enProductionQuality) data.enProductionQuality = "";
+  if (!data.trCertification) data.trCertification = "";
+  if (!data.enCertification) data.enCertification = "";
+  if (!data.darkBgColor) data.darkBgColor = "#3a3a3a";
+  if (!data.accentColor) data.accentColor = "#4a9eff";
+  if (!data.whatsappNumber) data.whatsappNumber = "";
+  if (!data.heroMediaType) data.heroMediaType = "3d";
+  if (!data.heroVideoPath) data.heroVideoPath = "";
+  if (!data.galleryLayout) data.galleryLayout = "collage";
+
+  if (data.gallery && data.gallery.length > 0) {
+    data.gallery = data.gallery.map((img, i) => {
+      if (img.src.startsWith('session:')) return { ...img, src: `/hero-${(i % 11) + 1}.jpg` };
+      if (!img.src || img.src === '') return { ...img, src: `/hero-${(i % 11) + 1}.jpg` };
+      return img;
+    });
+  }
+
+  return data;
+}
+
+// Fetch site overrides from server (Vercel Blob). Returns null if unavailable.
+export async function loadOverridesFromServer(): Promise<SiteOverrides | null> {
+  try {
+    const res = await fetch("/api/site-data", { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json() as SiteOverrides | null;
+    if (!data) return null;
+    return applyDefaults(data);
+  } catch {
+    return null;
+  }
+}
+
 export function loadOverrides(): SiteOverrides {
   if (typeof window === "undefined") return { gallery: [], tr: {}, en: {}, adminUsers: [], verificationTokens: [] };
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return { gallery: [], tr: {}, en: {}, adminUsers: [], verificationTokens: [] };
-
     const data = JSON.parse(raw) as SiteOverrides;
-
-    // Ensure new fields have default values
-    if (!data.adminUsers) data.adminUsers = [];
-    if (!data.verificationTokens) data.verificationTokens = [];
-    if (!data.trSEO) data.trSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
-    if (!data.enSEO) data.enSEO = { metaTitle: "", metaDescription: "", keywords: "", ogTitle: "", ogDescription: "", ogImage: "" };
-
-    // About section defaults
-    if (!data.trAbout) data.trAbout = "";
-    if (!data.enAbout) data.enAbout = "";
-    if (!data.trMission) data.trMission = "";
-    if (!data.enMission) data.enMission = "";
-    if (!data.trVision) data.trVision = "";
-    if (!data.enVision) data.enVision = "";
-    // Quality Values - 3 cards
-    if (!data.trQualityValue1) data.trQualityValue1 = { value: "", label: "", desc: "" };
-    if (!data.enQualityValue1) data.enQualityValue1 = { value: "", label: "", desc: "" };
-    if (!data.trQualityValue2) data.trQualityValue2 = { value: "", label: "", desc: "" };
-    if (!data.enQualityValue2) data.enQualityValue2 = { value: "", label: "", desc: "" };
-    if (!data.trQualityValue3) data.trQualityValue3 = { value: "", label: "", desc: "" };
-    if (!data.enQualityValue3) data.enQualityValue3 = { value: "", label: "", desc: "" };
-    // Old format (backward compatibility)
-    if (!data.trQualityValues) data.trQualityValues = "";
-    if (!data.enQualityValues) data.enQualityValues = "";
-    if (!data.trProductionQuality) data.trProductionQuality = "";
-    if (!data.enProductionQuality) data.enProductionQuality = "";
-    if (!data.trCertification) data.trCertification = "";
-    if (!data.enCertification) data.enCertification = "";
-    if (!data.darkBgColor) data.darkBgColor = "#3a3a3a"; // Default dark color
-    if (!data.accentColor) data.accentColor = "#4a9eff"; // Default accent/blue color
-    if (!data.whatsappNumber) data.whatsappNumber = ""; // WhatsApp number (optional)
-    if (!data.heroMediaType) data.heroMediaType = "3d"; // Default: 3D model
-    if (!data.heroVideoPath) data.heroVideoPath = "";
-    if (!data.galleryLayout) data.galleryLayout = "collage"; // Default gallery style
-
-    // session: ile başlayan src'lerin boş olma ihtimaline karşı
-    // Eğer sessionStorage'da veri varsa kopyala, yoksa /public varsayılan resimleri kullan
-    if (data.gallery && data.gallery.length > 0) {
-      data.gallery = data.gallery.map((img, i) => {
-        // session: ile başlayan src'leri fallback'le replace et
-        if (img.src.startsWith('session:')) {
-          return { ...img, src: `/hero-${(i % 11) + 1}.jpg` };
-        }
-        // Boş src'yi fallback'le replace et
-        if (!img.src || img.src === '') {
-          return { ...img, src: `/hero-${(i % 11) + 1}.jpg` };
-        }
-        // /public path'leri olduğu gibi sakla
-        return img;
-      });
-    }
-
-    return data;
+    return applyDefaults(data);
   } catch {
     return { gallery: [], tr: {}, en: {}, adminUsers: [], verificationTokens: [] };
   }
 }
 
 export function saveOverrides(data: SiteOverrides) {
-  // Base64 verileri sessionStorage'a kaydedildiği için, localStorage'da src'yi boş bırak
-  // (sessionStorage'dan geri yüklenir admin panelde açılıp kaydedildiğinde)
+  // Server copy: keep real /public paths, strip only session: (base64) items
+  if (typeof window !== "undefined") {
+    const serverData: SiteOverrides = {
+      ...data,
+      gallery: data.gallery.map(img => ({
+        ...img,
+        src: img.src.startsWith('session:') ? '' : img.src,
+      })),
+      adminUsers: [], // never send password hashes to blob
+      verificationTokens: [],
+    };
+    fetch("/api/site-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(serverData),
+    }).catch(() => {});
+  }
+
+  // localStorage copy: strip all real src too (size optimization, session: kept)
   const optimized: SiteOverrides = {
     gallery: data.gallery.map(img => ({
       ...img,
