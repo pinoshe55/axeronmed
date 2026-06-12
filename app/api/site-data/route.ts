@@ -1,4 +1,4 @@
-import { list, put, getDownloadUrl } from "@vercel/blob";
+import { list, put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -6,15 +6,13 @@ export const dynamic = "force-dynamic";
 const BLOB_PATHNAME = "axeron-site-overrides.json";
 
 export async function GET() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json(null);
   try {
     const { blobs } = await list({ prefix: "axeron-site-overrides" });
     const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME);
     if (!blob) return NextResponse.json(null);
 
-    // Use authenticated download URL for private store
-    const downloadUrl = await getDownloadUrl(blob.url);
-    const res = await fetch(downloadUrl, { cache: "no-store" });
+    // Blob is stored with access:"public" so URL is directly fetchable
+    const res = await fetch(blob.url, { cache: "no-store" });
     if (!res.ok) return NextResponse.json(null);
     const data = await res.json();
     return NextResponse.json(data);
@@ -24,12 +22,6 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json(
-      { ok: false, error: "BLOB_READ_WRITE_TOKEN env variable is missing" },
-      { status: 500 }
-    );
-  }
   try {
     const body = await req.text();
     await put(BLOB_PATHNAME, body, {
