@@ -292,7 +292,8 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
       setToast({ msg: "✓ Sunucu güncellendi — tüm cihazlarda geçerli", type: "success" });
     } catch (e) {
       setToast({ msg: `Hata: ${e instanceof Error ? e.message : String(e)}`, type: "error" });
