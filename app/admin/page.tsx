@@ -3391,12 +3391,12 @@ export default function AdminPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Üst Etiket (TR)</label>
-                  <input type="text" value={overrides.tr?.["faqEyebrow"] ?? "Sık Sorulan Sorular"} onChange={(e) => updateText("tr", "faqEyebrow", e.target.value)}
+                  <input type="text" value={overrides.tr?.["static.faqEyebrow"] ?? "Sık Sorulan Sorular"} onChange={(e) => updateText("tr", "static.faqEyebrow", e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                 </div>
                 <div>
                   <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Eyebrow (EN)</label>
-                  <input type="text" value={overrides.en?.["faqEyebrow"] ?? "Frequently Asked Questions"} onChange={(e) => updateText("en", "faqEyebrow", e.target.value)}
+                  <input type="text" value={overrides.en?.["static.faqEyebrow"] ?? "Frequently Asked Questions"} onChange={(e) => updateText("en", "static.faqEyebrow", e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                 </div>
               </div>
@@ -3541,10 +3541,10 @@ export default function AdminPage() {
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa Başlıkları</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 {([
-                  { key: "contactEyebrow", labelTr: "Üst Etiket (TR)", labelEn: "Eyebrow (EN)", defTr: "Bize Ulaşın", defEn: "Reach Us" },
-                  { key: "contactTitle",   labelTr: "Başlık (TR)",     labelEn: "Title (EN)",   defTr: "İletişime",  defEn: "Get in" },
-                  { key: "contactTitleAccent", labelTr: "Vurgulu Sözcük (TR)", labelEn: "Accent Word (EN)", defTr: "Geçin", defEn: "Touch" },
-                  { key: "contactSubtitle", labelTr: "Alt Yazı (TR)", labelEn: "Subtitle (EN)", defTr: "", defEn: "" },
+                  { key: "static.contactEyebrow", labelTr: "Üst Etiket (TR)", labelEn: "Eyebrow (EN)", defTr: "Bize Ulaşın", defEn: "Reach Us" },
+                  { key: "static.contactTitle",   labelTr: "Başlık (TR)",     labelEn: "Title (EN)",   defTr: "İletişime",  defEn: "Get in" },
+                  { key: "static.contactTitleAccent", labelTr: "Vurgulu Sözcük (TR)", labelEn: "Accent Word (EN)", defTr: "Geçin", defEn: "Touch" },
+                  { key: "static.contactSubtitle", labelTr: "Alt Yazı (TR)", labelEn: "Subtitle (EN)", defTr: "", defEn: "" },
                 ] as {key:string;labelTr:string;labelEn:string;defTr:string;defEn:string}[]).map(({ key, labelTr, labelEn, defTr, defEn }) => (
                   <div key={key} className="contents">
                     <div>
@@ -3716,10 +3716,10 @@ export default function AdminPage() {
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Bölüm Başlıkları</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 {([
-                  { key: "aboutEyebrow",      labelTr: "Üst Etiket (TR)",    labelEn: "Eyebrow (EN)",       defTr: "Neden Axeron",    defEn: "Why Axeron" },
-                  { key: "aboutTitle",        labelTr: "Başlık (TR)",        labelEn: "Title (EN)",         defTr: "Rakamlarla",      defEn: "By the" },
-                  { key: "aboutTitleAccent",  labelTr: "Vurgulu Sözcük (TR)",labelEn: "Accent Word (EN)",   defTr: "Biz",             defEn: "Numbers" },
-                  { key: "aboutSubtitle",     labelTr: "Alt Yazı (TR)",      labelEn: "Subtitle (EN)",      defTr: "",                defEn: "" },
+                  { key: "static.aboutEyebrow",      labelTr: "Üst Etiket (TR)",    labelEn: "Eyebrow (EN)",       defTr: "Neden Axeron",    defEn: "Why Axeron" },
+                  { key: "static.aboutTitle",        labelTr: "Başlık (TR)",        labelEn: "Title (EN)",         defTr: "Rakamlarla",      defEn: "By the" },
+                  { key: "static.aboutTitleAccent",  labelTr: "Vurgulu Sözcük (TR)",labelEn: "Accent Word (EN)",   defTr: "Biz",             defEn: "Numbers" },
+                  { key: "static.aboutSubtitle",     labelTr: "Alt Yazı (TR)",      labelEn: "Subtitle (EN)",      defTr: "",                defEn: "" },
                 ] as {key:string;labelTr:string;labelEn:string;defTr:string;defEn:string}[]).map(({ key, labelTr, labelEn, defTr, defEn }) => (
                   <div key={key} className="contents">
                     <div>
