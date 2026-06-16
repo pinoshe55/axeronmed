@@ -74,7 +74,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         [lang]: { ...prev[lang], [key]: value },
       };
-      saveOverrides(next);
+      cacheLocally(next); // localStorage only — no blob POST on every keystroke
       return next;
     });
   }, []);
