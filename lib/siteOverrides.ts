@@ -108,6 +108,7 @@ export interface ActiveSections {
   aboutText?: boolean;     // Hakkımızda açıklama metni
   missionVision?: boolean; // Misyon / Vizyon / Üretim / Sertifikasyon sütunları
   contact?: boolean;       // İletişim bölümü
+  ctaBand?: boolean;       // Footer CTA bandı ("TEDARİKE AÇIK")
 }
 
 export interface CustomPage {

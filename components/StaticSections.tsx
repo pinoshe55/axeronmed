@@ -243,6 +243,7 @@ export default function StaticSections() {
   const showAboutText = sec.aboutText !== false;
   const showMissionVision = sec.missionVision !== false;
   const showContact = sec.contact !== false;
+  const showCtaBand = sec.ctaBand !== false;
 
   // Sayfa görünürlüğü
   const ap = overrides?.activePages || {};
@@ -449,6 +450,7 @@ export default function StaticSections() {
       ══════════════════════════════════════════════ */}
       {showHakkimizda && <section id="hakkimizda" className={`px-[8vw] ${showGallery ? "py-24" : "pt-16 pb-24"}`} style={{ backgroundColor: "var(--bg)" }}>
 
+        {showStats && (
         <div className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 ${hasAboveColumns ? "mb-12" : "mb-6"}`}>
           <div>
             <p className="eyebrow mb-3">{g("aboutEyebrow", s.aboutEyebrow)}</p>
@@ -460,6 +462,7 @@ export default function StaticSections() {
             {g("aboutSubtitle", s.aboutSubtitle)}
           </p>
         </div>
+        )}
 
         {/* İstatistikler */}
         {showStats && (
@@ -720,7 +723,7 @@ export default function StaticSections() {
       )}
 
       {/* Footer CTA bandı */}
-      <div className="px-[8vw] py-20 flex flex-col sm:flex-row items-center justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>
+      {showCtaBand && <div className="px-[8vw] py-20 flex flex-col sm:flex-row items-center justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>
         <div className="flex items-center gap-6">
           <Image
             src="/logo-badge.png" unoptimized
@@ -743,7 +746,7 @@ export default function StaticSections() {
         >
           satis@axeronmed.com ↗
         </a>
-      </div>
+      </div>}
 
     </div>
   );

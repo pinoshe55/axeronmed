@@ -1848,23 +1848,30 @@ export default function AdminPage() {
 
             </div>
 
-            {/* Aktif/Pasif toggle */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-800">İstatistikleri sitede göster</p>
-                <p className="text-xs text-gray-400 mt-0.5">Kapalıysa rakamlar bölümü sitede görünmez</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = { ...activeSections, stats: activeSections.stats === false ? true : false };
-                  setActiveSections(next);
-                  saveActiveSectionsToServer(next);
-                }}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${activeSections.stats === false ? "bg-gray-300" : "bg-emerald-500"}`}
-              >
-                <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${activeSections.stats === false ? "translate-x-0" : "translate-x-5"}`} />
-              </button>
+            {/* Aktif/Pasif togglelar */}
+            <div className="bg-white border border-gray-200 rounded-2xl divide-y divide-gray-100 mb-6">
+              {([
+                { key: "stats" as const, label: "İstatistik Kartları", desc: "Rakamlarla Biz başlığı ve kartlar" },
+                { key: "ctaBand" as const, label: "Alt CTA Bandı", desc: '"Tedarike Açık" koyu arka planlı bölüm' },
+              ]).map(({ key, label, desc }) => (
+                <div key={key} className="p-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = { ...activeSections, [key]: activeSections[key] === false ? true : false };
+                      setActiveSections(next);
+                      saveActiveSectionsToServer(next);
+                    }}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${activeSections[key] === false ? "bg-gray-300" : "bg-emerald-500"}`}
+                  >
+                    <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${activeSections[key] === false ? "translate-x-0" : "translate-x-5"}`} />
+                  </button>
+                </div>
+              ))}
             </div>
 
 
