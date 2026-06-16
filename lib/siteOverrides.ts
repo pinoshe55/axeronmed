@@ -54,6 +54,104 @@ export interface SEOConfig {
   ogImage?: string;           // Sosyal medyada paylaşıldığında görünecek resim
 }
 
+export interface ContentBlockText {
+  id: string;
+  type: "text";
+  html: string;
+}
+
+export interface ContentBlockImage {
+  id: string;
+  type: "image";
+  src: string;
+  caption?: string;
+  frame: "none" | "border" | "shadow" | "rounded" | "polaroid";
+  animation: "none" | "fade" | "zoom" | "float" | "hover-zoom";
+  scale: number; // 25–100 (%)
+  align: "left" | "center" | "right";
+}
+
+export interface ContentBlockGallery {
+  id: string;
+  type: "gallery";
+  images: { src: string; caption?: string }[];
+  cols: 2 | 3 | 4;
+  frame: "none" | "border" | "shadow" | "rounded";
+}
+
+export type ContentBlock = ContentBlockText | ContentBlockImage | ContentBlockGallery;
+
+export interface PageContent {
+  trTitle?: string;
+  enTitle?: string;
+  trBody?: string;
+  enBody?: string;
+  heroImage?: string;
+  trBlocks?: ContentBlock[];
+  enBlocks?: ContentBlock[];
+}
+
+export interface ActivePages {
+  urunler?: boolean;
+  kurumsal?: boolean;
+  referanslarimiz?: boolean;
+  kvkk?: boolean;
+  hero?: boolean;
+  hakkimizda?: boolean;
+  sss?: boolean;
+  iletisim?: boolean;
+}
+
+export interface ActiveSections {
+  gallery?: boolean;       // Ürün Galerisi bölümü
+  stats?: boolean;         // İstatistikler kartları
+  aboutText?: boolean;     // Hakkımızda açıklama metni
+  missionVision?: boolean; // Misyon / Vizyon / Üretim / Sertifikasyon sütunları
+  contact?: boolean;       // İletişim bölümü
+}
+
+export interface CustomPage {
+  id: string;
+  slug: string;
+  navLabel: string;
+  trTitle: string;
+  enTitle: string;
+  trBody?: string;
+  enBody?: string;
+  trBlocks?: ContentBlock[];
+  enBlocks?: ContentBlock[];
+  heroImage?: string;
+  active: boolean;
+  showInNav: boolean;
+}
+
+export type FontFamily = "system" | "inter" | "playfair" | "space-grotesk" | "dm-sans" | "roboto-slab";
+export type NavStyle = "hamburger" | "topbar" | "sidebar";
+export type ButtonRadius = "none" | "sm" | "lg" | "full";
+export type CardRadius = "none" | "sm" | "md" | "lg" | "xl";
+
+export interface ThemeConfig {
+  // Renkler
+  colorBg?: string;       // Sayfa arka planı          default: #ece9e3
+  colorInk?: string;      // Ana metin rengi            default: #0d0c0a
+  colorAccent?: string;   // Vurgu / buton rengi        default: #4A7FD7
+  colorDark?: string;     // Koyu panel / header bg     default: #3a3730
+  colorSurface?: string;  // Kart cam efekti bg         default: rgba(255,255,255,0.55)
+  // Tipografi
+  fontFamily?: FontFamily;
+  headingWeight?: "600" | "700" | "800" | "900";
+  // Navigasyon
+  navStyle?: NavStyle;
+  // Şekil
+  buttonRadius?: ButtonRadius;
+  cardRadius?: CardRadius;
+  // Menü
+  navBg?: string;            // Menü/dropdown arka plan rengi (default: rgba(236,233,227,0.92))
+  // Efektler
+  glassBlur?: boolean;       // Header/kart blur efekti
+  animationsEnabled?: boolean; // Geçiş animasyonları
+}
+
 export interface SiteOverrides {
   gallery: GalleryItem[];
   tr: Record<string, string>;
@@ -98,8 +196,32 @@ export interface SiteOverrides {
   darkBgColor?: string; // Dark background color (hex, e.g., "#2d2d2d")
   accentColor?: string; // Accent/heading color (hex, e.g., "#4a9eff")
   whatsappNumber?: string; // WhatsApp number with country code (e.g., "+905551234567")
-  galleryLayout?: "collage" | "masonry" | "strip"; // Product gallery layout style
+  galleryLayout?: "collage" | "masonry" | "strip" | "catalog"; // Product gallery layout style
   hiddenMediaFiles?: string[]; // Files hidden from media manager (soft-delete for Vercel read-only FS)
+  activePages?: ActivePages;
+  activeSections?: ActiveSections;
+  trFaqs?: { q: string; a: string }[];
+  enFaqs?: { q: string; a: string }[];
+  trContactBlocks?: { label: string; lines: string[] }[];
+  enContactBlocks?: { label: string; lines: string[] }[];
+  trCompanyInfo?: string;
+  enCompanyInfo?: string;
+  certImages?: (string | null)[]; // 3 circular certificate images for footer
+  certLinks?: (string | null)[];  // optional link URLs for each certificate
+  theme?: ThemeConfig;            // Tam tema ayarları
+  customPages?: CustomPage[];
+  pages?: {
+    urunler?: PageContent;
+    kurumsal?: PageContent;
+    kalitePolitikamiz?: PageContent;
+    kaliteBelgeleri?: PageContent;
+    referanslarimiz?: PageContent;
+    kvkk?: PageContent;
+    hero?: PageContent;
+    hakkimizda?: PageContent;
+    sss?: PageContent;
+    iletisim?: PageContent;
+  };
 }
 
 const KEY = "axeron_site_overrides";
@@ -134,8 +256,21 @@ export function applyDefaults(data: SiteOverrides): SiteOverrides {
   if (!data.whatsappNumber) data.whatsappNumber = "";
   if (!data.heroMediaType) data.heroMediaType = "3d";
   if (!data.heroVideoPath) data.heroVideoPath = "";
-  if (!data.galleryLayout) data.galleryLayout = "collage";
+  if (!data.galleryLayout) data.galleryLayout = "catalog";
+  if (!data.theme) data.theme = {};
+  if (!data.theme.fontFamily) data.theme.fontFamily = "system";
+  if (!data.theme.headingWeight) data.theme.headingWeight = "700";
+  if (!data.theme.navStyle) data.theme.navStyle = "hamburger";
+  if (!data.theme.buttonRadius) data.theme.buttonRadius = "full";
+  if (!data.theme.cardRadius) data.theme.cardRadius = "lg";
+  if (data.theme.glassBlur === undefined) data.theme.glassBlur = true;
+  if (data.theme.animationsEnabled === undefined) data.theme.animationsEnabled = true;
   if (!data.hiddenMediaFiles) data.hiddenMediaFiles = [];
+  if (!data.activePages) data.activePages = {};
+  if (!data.activeSections) data.activeSections = {};
+  if (!data.pages) data.pages = {};
+  // trFaqs/enFaqs/contactBlocks intentionally not defaulted here — undefined = use i18n fallback
+  if (!data.customPages) data.customPages = [];
 
   if (data.gallery && data.gallery.length > 0) {
     data.gallery = data.gallery.map((img, i) => {
@@ -239,6 +374,17 @@ export function saveOverrides(data: SiteOverrides) {
     accentColor: data.accentColor,
     whatsappNumber: data.whatsappNumber,
     hiddenMediaFiles: data.hiddenMediaFiles,
+    theme: data.theme,
+    activePages: data.activePages,
+    activeSections: data.activeSections,
+    trFaqs: data.trFaqs,
+    enFaqs: data.enFaqs,
+    trContactBlocks: data.trContactBlocks,
+    enContactBlocks: data.enContactBlocks,
+    trCompanyInfo: data.trCompanyInfo,
+    enCompanyInfo: data.enCompanyInfo,
+    customPages: data.customPages,
+    pages: data.pages,
   };
 
   const json = JSON.stringify(optimized);

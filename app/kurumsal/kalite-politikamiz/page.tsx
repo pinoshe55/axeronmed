@@ -12,9 +12,7 @@ export default function Page() {
 
   if (!serverLoaded) return null;
 
-  if (overrides.activePages?.kvkk === false) return null;
-
-  const pageContent = overrides.pages?.["kvkk"];
+  const pageContent = overrides.pages?.["kalitePolitikamiz"];
   const title = lang === "tr" ? pageContent?.trTitle : pageContent?.enTitle;
   const blocks = lang === "tr" ? pageContent?.trBlocks : pageContent?.enBlocks;
   const body = lang === "tr" ? pageContent?.trBody : pageContent?.enBody;
@@ -27,9 +25,10 @@ export default function Page() {
           ← Ana Sayfa
         </Link>
 
+        {/* Hero image */}
         {heroImage && (
           <div className="w-full aspect-[3/1] rounded-2xl overflow-hidden mb-8 bg-ink/5">
-            <img src={heroImage} alt={title || "KVKK"} className="w-full h-full object-cover" />
+            <img src={heroImage} alt={title} className="w-full h-full object-cover" />
           </div>
         )}
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { useContent } from "@/context/ContentContext";
 import type { GalleryItem } from "@/lib/siteOverrides";
+import BlockRenderer from "@/components/BlockRenderer";
 
 /* ─── yardımcı ───────────────────────────────────────────────────── */
 
@@ -163,7 +164,7 @@ export default function StaticSections() {
     e.preventDefault();
 
     // Validation
-    if (!formData.company || !formData.person || !formData.email || !formData.phone || !formData.subject || !formData.message) {
+    if (!formData.company || !formData.person || !formData.email || !formData.phone || !formData.message) {
       setToast({ type: "error", message: lang === "tr" ? "Lütfen tüm alanları doldurun" : "Please fill all fields" });
       return;
     }
@@ -234,6 +235,23 @@ export default function StaticSections() {
 
   // Galeri tasarım stili: collage (dağınık kolaj), masonry (ızgara), strip (şerit)
   const galleryLayout = overrides?.galleryLayout || "collage";
+
+  // Bölüm görünürlüğü (undefined veya true = göster, false = gizle)
+  const sec = overrides?.activeSections || {};
+  const showGallery = sec.gallery !== false;
+  const showStats = sec.stats !== false;
+  const showAboutText = sec.aboutText !== false;
+  const showMissionVision = sec.missionVision !== false;
+  const showContact = sec.contact !== false;
+
+  // Sayfa görünürlüğü
+  const ap = overrides?.activePages || {};
+  const showHakkimizda = ap.hakkimizda !== false;
+  const showSss = ap.sss !== false;
+  const showIletisim = ap.iletisim !== false;
+
+  // Misyon/Vizyon sütunlarının üzerinde içerik var mı? (border ve margin için)
+  const hasAboveColumns = showStats || (showAboutText && (overrides?.trAbout || overrides?.enAbout));
 
   // Ortak beyaz çerçeve kartı (üç stil de bunu kullanır)
   const galleryCard = (img: GalleryItem, imgWrapClass: string, cardExtra = "") => (
@@ -316,34 +334,33 @@ export default function StaticSections() {
         </div>
       )}
 
-      {/* ── Ürün Galerisi — Bento Grid ── */}
-      <div className="px-[8vw] py-16 gallery-section" style={{ backgroundColor: "rgba(236, 233, 227, 0.85)" }}>
+      {/* ── Ürün Galerisi ── */}
+      {showGallery && (
+      <div className="px-[8vw] py-10 gallery-section" style={{ backgroundColor: "rgba(236, 233, 227, 0.85)" }}>
 
         {/* Başlık */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <span className="accent-rule" />
             <p className="eyebrow">Ürün Galerisi</p>
           </div>
-          <p className="text-xs text-ink/35 hidden md:block">Görmek için tıklayın</p>
+          <p className="text-xs text-ink/30 hidden md:block">Büyütmek için tıklayın</p>
         </div>
 
-        {/* ─── Stil 1: KOLAJ — farklı boyutlu, eğik, üst üste binen dağınık yerleşim ─── */}
+        {/* ─── Kolaj ─── */}
         {galleryLayout === "collage" && (
-          <div ref={galleryRef} className="gallery-grid grid grid-cols-6 lg:grid-cols-12 auto-rows-[54px] grid-flow-dense gap-2.5">
+          <div ref={galleryRef} className="gallery-grid grid grid-cols-6 lg:grid-cols-12 auto-rows-[42px] grid-flow-dense gap-2">
             {IMGS.map((img, i) => {
-              // Farklı boyut paterni (referanstaki gibi büyük/orta/küçük karışımı)
               const spans = [
-                "col-span-4 row-span-6", "col-span-3 row-span-4", "col-span-5 row-span-4",
-                "col-span-3 row-span-5", "col-span-4 row-span-4", "col-span-3 row-span-4",
-                "col-span-5 row-span-5", "col-span-4 row-span-5",
+                "col-span-4 row-span-5", "col-span-3 row-span-4", "col-span-5 row-span-4",
+                "col-span-3 row-span-4", "col-span-4 row-span-4", "col-span-3 row-span-4",
+                "col-span-5 row-span-4", "col-span-4 row-span-4",
               ];
-              const rotations = ["rotate-1", "-rotate-1", "rotate-2", "-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "-rotate-2"];
               return (
                 <figure
                   key={i}
                   onClick={() => setLightboxIdx(i)}
-                  className={`group relative cursor-zoom-in ${spans[i % spans.length]} ${rotations[i % rotations.length]} transition-transform duration-300 ease-out hover:rotate-0 hover:scale-[1.04] hover:z-20`}
+                  className={`group relative cursor-zoom-in ${spans[i % spans.length]} transition-transform duration-300 ease-out hover:scale-[1.03] hover:z-20`}
                 >
                   {galleryCard(img, "flex-1 min-h-0", "h-full flex flex-col")}
                 </figure>
@@ -352,17 +369,16 @@ export default function StaticSections() {
           </div>
         )}
 
-        {/* ─── Stil 2: IZGARA — temiz hizalı masonry ─── */}
+        {/* ─── Izgara (Masonry) ─── */}
         {galleryLayout === "masonry" && (
-          <div ref={galleryRef} className="gallery-grid columns-2 md:columns-3 lg:columns-4 [column-gap:1.25rem]">
+          <div ref={galleryRef} className="gallery-grid columns-2 md:columns-3 lg:columns-4 gap-2 [column-gap:0.625rem]">
             {IMGS.map((img, i) => {
-              const rotations = ["rotate-2", "-rotate-1", "rotate-1", "-rotate-2", "rotate-3", "-rotate-2", "rotate-1", "-rotate-3"];
               const aspects = ["aspect-[4/5]", "aspect-[1/1]", "aspect-[4/3]", "aspect-[3/4]", "aspect-[5/4]", "aspect-[1/1]"];
               return (
                 <figure
                   key={i}
                   onClick={() => setLightboxIdx(i)}
-                  className={`group relative mb-5 break-inside-avoid cursor-zoom-in ${rotations[i % rotations.length]} transition-transform duration-300 ease-out hover:rotate-0 hover:scale-[1.03] hover:z-20`}
+                  className="group relative mb-2.5 break-inside-avoid cursor-zoom-in transition-transform duration-300 ease-out hover:scale-[1.02] hover:z-20"
                 >
                   {galleryCard(img, `w-full ${aspects[i % aspects.length]}`)}
                 </figure>
@@ -371,49 +387,69 @@ export default function StaticSections() {
           </div>
         )}
 
-        {/* ─── Stil 3: ŞERİT — yatay kayan kartlar + yön okları ─── */}
+        {/* ─── Şerit ─── */}
         {galleryLayout === "strip" && (
           <div className="relative">
             <div
               ref={stripRef}
-              className="flex gap-5 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="flex gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {IMGS.map((img, i) => (
                 <figure
                   key={i}
                   onClick={() => setLightboxIdx(i)}
-                  className="group relative shrink-0 w-[240px] md:w-[300px] cursor-zoom-in transition-transform duration-300 ease-out hover:scale-[1.02] hover:z-20"
+                  className="group relative shrink-0 w-[200px] md:w-[240px] cursor-zoom-in transition-transform duration-300 ease-out hover:scale-[1.02] hover:z-20"
                 >
                   {galleryCard(img, "w-full aspect-[4/5]")}
                 </figure>
               ))}
             </div>
+            <button type="button" onClick={() => scrollStrip(-1)} aria-label="Önceki"
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 backdrop-blur shadow items-center justify-center text-ink hover:bg-white transition-all">‹</button>
+            <button type="button" onClick={() => scrollStrip(1)} aria-label="Sonraki"
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 backdrop-blur shadow items-center justify-center text-ink hover:bg-white transition-all">›</button>
+          </div>
+        )}
 
-            {/* Sol ok */}
-            <button
-              type="button"
-              onClick={() => scrollStrip(-1)}
-              aria-label="Önceki"
-              className="hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur shadow-lg items-center justify-center text-ink text-xl hover:bg-white hover:scale-105 transition-all"
-            >‹</button>
-
-            {/* Sağ ok */}
-            <button
-              type="button"
-              onClick={() => scrollStrip(1)}
-              aria-label="Sonraki"
-              className="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur shadow-lg items-center justify-center text-ink text-xl hover:bg-white hover:scale-105 transition-all"
-            >›</button>
+        {/* ─── Katalog ─── */}
+        {(galleryLayout === "catalog" || !galleryLayout) && (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 gap-1.5">
+            {IMGS.map((img, i) => (
+              <figure
+                key={i}
+                onClick={() => setLightboxIdx(i)}
+                className="group relative cursor-zoom-in overflow-hidden rounded-md bg-ink/5"
+              >
+                <div className="aspect-square w-full relative overflow-hidden">
+                  <Image
+                    src={img.src}
+                    alt={img.caption || ""}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width:768px) 33vw, (max-width:1024px) 25vw, 17vw"
+                  />
+                  <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/20 transition-colors duration-300 flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xl">⤢</span>
+                  </div>
+                </div>
+                {img.caption && (
+                  <div className="px-2.5 py-2 bg-white/80 backdrop-blur-sm">
+                    <p className="text-[11px] font-medium text-ink/70 truncate">{img.caption}</p>
+                  </div>
+                )}
+              </figure>
+            ))}
           </div>
         )}
       </div>
+      )}
 
       {/* ══════════════════════════════════════════════
           HAKKIMIZDA / ABOUT
       ══════════════════════════════════════════════ */}
-      <section id="hakkimizda" className="px-[8vw] py-24" style={{ backgroundColor: "var(--bg)" }}>
+      {showHakkimizda && <section id="hakkimizda" className={`px-[8vw] ${showGallery ? "py-24" : "pt-16 pb-24"}`} style={{ backgroundColor: "var(--bg)" }}>
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-12">
+        <div className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 ${hasAboveColumns ? "mb-12" : "mb-6"}`}>
           <div>
             <p className="eyebrow mb-3">{g("aboutEyebrow", s.aboutEyebrow)}</p>
             <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
@@ -426,6 +462,7 @@ export default function StaticSections() {
         </div>
 
         {/* İstatistikler */}
+        {showStats && (
         <div className="rounded-2xl overflow-hidden grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8" style={{ backgroundColor: "var(--dark)" }}>
           {getStats(lang, s.stats).map((st) => (
             <div key={st.label} className="p-7 lg:p-10">
@@ -433,144 +470,69 @@ export default function StaticSections() {
             </div>
           ))}
         </div>
+        )}
 
         {/* About description - Larger text with HTML support */}
-        {(overrides?.trAbout || overrides?.enAbout) && (
+        {showAboutText && (overrides?.trAbout || overrides?.enAbout) && (
           <div className="mt-12 pt-12 border-t border-ink/10">
             <div className="text-base text-ink/60 leading-relaxed prose prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trAbout : overrides.enAbout) || "" }} />
           </div>
         )}
 
-        {/* 4 sütun metin — Misyon, Vizyon, Üretim Kalitesi, Sertifikasyon (Dinamik layout) */}
-        {(overrides?.trMission || overrides?.enMission || overrides?.trVision || overrides?.enVision || overrides?.trProductionQuality || overrides?.enProductionQuality || overrides?.trCertification || overrides?.enCertification) ? (
-          <>
-            {/* Count active fields to determine grid layout */}
-            {(() => {
-              const activeFields = [
-                overrides?.trMission || overrides?.enMission,
-                overrides?.trVision || overrides?.enVision,
-                overrides?.trProductionQuality || overrides?.enProductionQuality,
-                overrides?.trCertification || overrides?.enCertification,
-              ].filter(Boolean).length;
 
-              const gridClass = activeFields === 2 ? "lg:grid-cols-2" : activeFields === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4";
-
-              return (
-                <div className={`mt-14 grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 pt-14 border-t border-ink/10 justify-center`}>
-                  {/* Misyon */}
-                  {(overrides?.trMission || overrides?.enMission) && (
-                    <div>
-                      <p className="eyebrow mb-3">{lang === "tr" ? "Misyon" : "Mission"}</p>
-                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trMission : overrides.enMission) || "" }} />
-                    </div>
-                  )}
-
-                  {/* Vizyon */}
-                  {(overrides?.trVision || overrides?.enVision) && (
-                    <div>
-                      <p className="eyebrow mb-3">{lang === "tr" ? "Vizyon" : "Vision"}</p>
-                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trVision : overrides.enVision) || "" }} />
-                    </div>
-                  )}
-
-                  {/* Üretim Kalitesi */}
-                  {(overrides?.trProductionQuality || overrides?.enProductionQuality) && (
-                    <div>
-                      <p className="eyebrow mb-3">{lang === "tr" ? "Üretim Kalitesi" : "Production Quality"}</p>
-                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trProductionQuality : overrides.enProductionQuality) || "" }} />
-                    </div>
-                  )}
-
-                  {/* Sertifikasyon */}
-                  {(overrides?.trCertification || overrides?.enCertification) && (
-                    <div>
-                      <p className="eyebrow mb-3">{lang === "tr" ? "Sertifikasyon" : "Certification"}</p>
-                      <div className="text-sm text-ink/60 leading-relaxed prose prose-invert prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trCertification : overrides.enCertification) || "" }} />
-                    </div>
-                  )}
+        {/* Alt sütunlar: Misyon · Üretim Kalitesi · Sertifikasyon */}
+        {(overrides?.trMission || overrides?.enMission || overrides?.trProductionQuality || overrides?.enProductionQuality || overrides?.trCertification || overrides?.enCertification) && (() => {
+          const cols = [
+            { labelTr: "Misyon", labelEn: "Mission", tr: overrides?.trMission, en: overrides?.enMission },
+            { labelTr: "Üretim Kalitesi", labelEn: "Production Quality", tr: overrides?.trProductionQuality, en: overrides?.enProductionQuality },
+            { labelTr: "Sertifikasyon", labelEn: "Certification", tr: overrides?.trCertification, en: overrides?.enCertification },
+          ].filter(c => c.tr || c.en);
+          const gridClass = cols.length === 1 ? "lg:grid-cols-1" : cols.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3";
+          return (
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 mt-14`}>
+              {cols.map((c) => (
+                <div key={c.labelTr} className="text-center">
+                  <p className="eyebrow mb-3">{lang === "tr" ? c.labelTr : c.labelEn}</p>
+                  <p className="text-sm text-ink/60 leading-relaxed">{lang === "tr" ? c.tr : c.en}</p>
                 </div>
-              );
-            })()}
+              ))}
+            </div>
+          );
+        })()}
 
-            {/* Kalite Değerlerimiz — 3 Cards Layout */}
-            {(overrides?.trQualityValue1 || overrides?.enQualityValue1 ||
-              overrides?.trQualityValue2 || overrides?.enQualityValue2 ||
-              overrides?.trQualityValue3 || overrides?.enQualityValue3) && (
-              <div className="mt-14 pt-14 border-t border-ink/10">
-                <p className="eyebrow mb-8">{lang === "tr" ? "Kalite Değerlerimiz" : "Our Quality Values"}</p>
-                <div className="rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-3 divide-x divide-y md:divide-y-0 divide-white/8"
-                  style={{ backgroundColor: "var(--dark)" }}>
+        {/* Hakkımızda ek blok içeriği */}
+        {(() => {
+          const hpc = overrides?.pages?.hakkimizda;
+          const blocks = lang === "tr" ? hpc?.trBlocks : hpc?.enBlocks;
+          const title = lang === "tr" ? hpc?.trTitle : hpc?.enTitle;
+          if (!blocks || blocks.length === 0) return null;
+          return (
+            <div className="mt-14 pt-14 border-t border-ink/10">
+              {title && <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mb-8" style={{ color: "var(--accent)" }}>{title}</h3>}
+              <BlockRenderer blocks={blocks} />
+            </div>
+          );
+        })()}
 
-                  {/* Card 1 */}
-                  {(lang === "tr" ? overrides.trQualityValue1 : overrides.enQualityValue1) && (
-                    <div className="p-7 lg:p-10">
-                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
-                        {lang === "tr" ? overrides.trQualityValue1?.value : overrides.enQualityValue1?.value}
-                      </span>
-                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue1?.label : overrides.enQualityValue1?.label}</span>
-                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue1?.desc : overrides.enQualityValue1?.desc}</span>
-                    </div>
-                  )}
+      </section>}
 
-                  {/* Card 2 */}
-                  {(lang === "tr" ? overrides.trQualityValue2 : overrides.enQualityValue2) && (
-                    <div className="p-7 lg:p-10">
-                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
-                        {lang === "tr" ? overrides.trQualityValue2?.value : overrides.enQualityValue2?.value}
-                      </span>
-                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue2?.label : overrides.enQualityValue2?.label}</span>
-                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue2?.desc : overrides.enQualityValue2?.desc}</span>
-                    </div>
-                  )}
-
-                  {/* Card 3 */}
-                  {(lang === "tr" ? overrides.trQualityValue3 : overrides.enQualityValue3) && (
-                    <div className="p-7 lg:p-10">
-                      <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-none tabular-nums">
-                        {lang === "tr" ? overrides.trQualityValue3?.value : overrides.enQualityValue3?.value}
-                      </span>
-                      <span className="text-sm font-semibold text-white/80 mt-3 block">{lang === "tr" ? overrides.trQualityValue3?.label : overrides.enQualityValue3?.label}</span>
-                      <span className="text-xs text-white/35 mt-2 block">{lang === "tr" ? overrides.trQualityValue3?.desc : overrides.enQualityValue3?.desc}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          // Fallback: original columns eğer About verileri yoksa
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 pt-14 border-t border-ink/10">
-            {s.columns.map((b) => (
-              <div key={b.title}>
-                <p className="eyebrow mb-3">{b.title}</p>
-                <p className="text-sm text-ink/60 leading-relaxed">{b.body}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-      </section>
-
-      <Divider />
+      {showIletisim && <Divider />}
 
       {/* ══════════════════════════════════════════════
           İLETİŞİM / CONTACT
       ══════════════════════════════════════════════ */}
-      <section id="iletisim" className="px-[8vw] py-24" style={{ backgroundColor: "var(--bg)" }}>
+      {showIletisim && (
+      <section id="iletisim" className="px-[8vw] py-16" style={{ backgroundColor: "var(--bg)" }}>
 
         {/* Başlık */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-14">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-10">
           <div>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-2">
               <span className="accent-rule" />
               <p className="eyebrow">{g("contactEyebrow", s.contactEyebrow)}</p>
             </div>
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
               {g("contactTitle", s.contactTitle)} <span className="text-accent">{g("contactTitleAccent", s.contactTitleAccent)}</span>
             </h2>
           </div>
@@ -580,41 +542,32 @@ export default function StaticSections() {
         </div>
 
         {/* 2 sütun — sol koyu kart + sağ form */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-5">
 
           {/* ── Sol: koyu iletişim kartı ── */}
-          <div className="rounded-2xl p-8 flex flex-col justify-between gap-10" style={{ backgroundColor: "var(--dark)" }}>
+          <div className="rounded-2xl p-6 flex flex-col justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>
 
-            <div className="flex flex-col gap-8">
-              {s.contactBlocks.map((b) => (
-                <div key={b.label}>
-                  <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-2">{b.label}</p>
-                  <div className="flex flex-col gap-1">
-                    {b.lines.map((l) => (
-                      <span key={l} className="text-sm text-white/70 leading-relaxed">{l}</span>
-                    ))}
+            <div className="flex flex-col gap-6">
+              {(() => {
+                const blocks = lang === "tr"
+                  ? (overrides?.trContactBlocks?.length ? overrides.trContactBlocks : s.contactBlocks)
+                  : (overrides?.enContactBlocks?.length ? overrides.enContactBlocks : s.contactBlocks);
+                return blocks.map((b) => (
+                  <div key={b.label}>
+                    <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-1.5">{b.label}</p>
+                    <div className="flex flex-col gap-0.5">
+                      {b.lines.map((l) => (
+                        <span key={l} className="text-sm text-white/70 leading-relaxed">{l}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ));
+              })()}
             </div>
 
-            {/* Alt: aksiyon linkleri */}
-            <div className="flex flex-col gap-3 pt-8 border-t border-white/10">
-              <a
-                href="mailto:satis@axeronmed.com"
-                className="flex items-center justify-between group text-sm text-white/60 hover:text-white transition-colors py-2.5 border-b border-white/8"
-              >
-                <span>satis@axeronmed.com</span>
-                <span className="opacity-40 group-hover:opacity-100 transition-opacity">↗</span>
-              </a>
-              <a
-                href="tel:+902125550872"
-                className="flex items-center justify-between group text-sm text-white/60 hover:text-white transition-colors py-2.5"
-              >
-                <span>+90 212 555 08 72</span>
-                <span className="opacity-40 group-hover:opacity-100 transition-opacity">↗</span>
-              </a>
-              <p className="text-[11px] text-white/20 mt-2 leading-relaxed whitespace-pre-line">{s.companyInfo}</p>
+            {/* Alt: şirket bilgisi */}
+            <div className="pt-5 border-t border-white/10">
+              <p className="text-[11px] text-white/25 leading-relaxed whitespace-pre-line">{lang === "tr" ? (overrides?.trCompanyInfo || s.companyInfo) : (overrides?.enCompanyInfo || s.companyInfo)}</p>
             </div>
           </div>
 
@@ -636,15 +589,15 @@ export default function StaticSections() {
             )}
 
             {/* Form başlık bandı */}
-            <div className="px-8 py-6 border-b border-ink/8 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-ink/8 flex items-center justify-between">
               <div>
                 <p className="eyebrow mb-0.5">{g("formEyebrow", s.formEyebrow)}</p>
                 <p className="text-xs text-ink/40">{g("formSubtitle", s.formSubtitle)}</p>
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+              <span className="w-2 h-2 rounded-full bg-accent" />
             </div>
 
-            <form className="px-8 py-7 flex flex-col gap-5" onSubmit={handleContactSubmit}>
+            <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleContactSubmit}>
 
               {/* Firma + Kişi */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -694,25 +647,10 @@ export default function StaticSections() {
                 </Field>
               </div>
 
-              {/* Konu */}
-              <Field label={s.formSubject} required>
-                <select
-                  value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  disabled={formLoading}
-                  className={inputCls}
-                >
-                  <option value="">{s.formSubjectPlaceholder}</option>
-                  {s.formSubjectOptions.map((o) => (
-                    <option key={o} value={o}>{o}</option>
-                  ))}
-                </select>
-              </Field>
-
               {/* Mesaj */}
               <Field label={s.formMessage} required>
                 <textarea
-                  rows={4}
+                  rows={3}
                   placeholder={s.formMessagePlaceholder}
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
@@ -756,19 +694,30 @@ export default function StaticSections() {
         </div>
 
         {/* ── SSS — full width ── */}
+        {showSss && (
         <div className="mt-16 pt-14 border-t border-ink/8">
           <div className="flex items-center gap-3 mb-8">
             <span className="accent-rule" />
             <p className="eyebrow">{g("faqEyebrow", s.faqEyebrow)}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16">
-            {s.faqs.map((f) => (
+            {(lang === "tr" ? (overrides?.trFaqs || s.faqs) : (overrides?.enFaqs || s.faqs)).map((f) => (
               <FaqItem key={f.q} q={f.q} a={f.a} />
             ))}
           </div>
         </div>
+        )}
+
+        {/* SSS & İletişim ek blok içerikleri */}
+        {(() => {
+          const sssBlocks = lang === "tr" ? overrides?.pages?.sss?.trBlocks : overrides?.pages?.sss?.enBlocks;
+          const iletisimBlocks = lang === "tr" ? overrides?.pages?.iletisim?.trBlocks : overrides?.pages?.iletisim?.enBlocks;
+          const allBlocks = [...(sssBlocks || []), ...(iletisimBlocks || [])];
+          return allBlocks.length > 0 ? <div className="mt-14 pt-14 border-t border-ink/8"><BlockRenderer blocks={allBlocks} /></div> : null;
+        })()}
 
       </section>
+      )}
 
       {/* Footer CTA bandı */}
       <div className="px-[8vw] py-20 flex flex-col sm:flex-row items-center justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>

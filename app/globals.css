@@ -10,12 +10,19 @@
   --accent-soft: rgba(74, 127, 215, 0.08);
   --surface: rgba(255,255,255,0.55);
   --border: rgba(13,12,10,0.09);
+
+  /* Tema override değişkenleri — ThemeInjector tarafından güncellenir */
+  --btn-radius: 999px;
+  --card-radius: 16px;
+  --heading-weight: 700;
+  --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html,
 body {
   background-color: var(--bg);
   color: var(--ink);
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -138,15 +145,6 @@ body {
   border-radius: 999px;
 }
 
-/* Bilgi kartı — yüzen metin bloğu */
-.info-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
 .cta {
   display: inline-flex;
   align-items: center;
@@ -154,10 +152,18 @@ body {
   background: var(--accent);
   color: white;
   padding: 14px 28px;
-  border-radius: 999px;
+  border-radius: var(--btn-radius);
   font-weight: 500;
   font-size: 15px;
   transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .cta:hover {
