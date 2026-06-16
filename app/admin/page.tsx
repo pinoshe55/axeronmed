@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 
 import { useContent } from "@/context/ContentContext";
 
-import { loadOverrides, loadOverridesFromServer, saveOverrides, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides, type PageContent, type ActivePages, type ActiveSections, type ThemeConfig } from "@/lib/siteOverrides";
+import { loadOverrides, loadOverridesFromServer, saveOverrides, cacheLocally, type GalleryItem, type StatItem, type EmailConfig, type AdminUser, type SEOConfig, type SiteOverrides, type PageContent, type ActivePages, type ActiveSections, type ThemeConfig } from "@/lib/siteOverrides";
 import { applyTheme } from "@/components/ThemeInjector";
 
 import { translations } from "@/lib/i18n";
@@ -150,7 +150,7 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<TabId>("dashboard");
 
-  const { overrides, updateText, updateGallery, updateStats, updateEmailConfig, getStats, resetAll } = useContent();
+  const { overrides, serverLoaded, updateText, updateGallery, updateStats, updateEmailConfig, getStats, resetAll } = useContent();
 
 
 
@@ -551,11 +551,11 @@ export default function AdminPage() {
 
       if (serverData) {
 
-        // Server has data → use it as source of truth
+        // Server has data → use it as source of truth, only cache locally (don't write back to blob)
 
         applyRawToState(serverData);
 
-        saveOverrides(serverData);
+        cacheLocally(serverData);
 
       } else {
 
@@ -623,11 +623,11 @@ export default function AdminPage() {
 
   const saveWithColors = (updates: Partial<SiteOverrides>) => {
 
-    const overrides = loadOverrides();
+    const base = loadOverrides(); // localStorage is always current after cacheLocally fix
 
     const merged = {
 
-      ...overrides,
+      ...base,
 
       ...updates,
 
@@ -655,13 +655,6 @@ export default function AdminPage() {
     const ov = loadOverrides();
     ov.activeSections = next;
     saveOverrides(ov);
-    try {
-      await fetch("/api/site-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ov),
-      });
-    } catch { /* silent — localStorage still updated */ }
   }
 
   async function pushAllToServer() {
@@ -670,13 +663,17 @@ export default function AdminPage() {
 
     try {
 
-      // Build full overrides from current localStorage state (always up-to-date on this device)
+      // Build payload: use context overrides (server-loaded, has real gallery URLs) as base
+      // then overlay React state values that may have changed since load
 
       const local = loadOverrides();
 
       const payload = {
 
         ...local,
+
+        // Use server-loaded gallery so CDN URLs aren't lost (localStorage strips them)
+        gallery: overrides.gallery?.length ? overrides.gallery : local.gallery,
 
         // Ensure latest form state values are included
 

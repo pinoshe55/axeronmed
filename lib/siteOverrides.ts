@@ -375,6 +375,8 @@ export function saveOverrides(data: SiteOverrides) {
     accentColor: data.accentColor,
     whatsappNumber: data.whatsappNumber,
     hiddenMediaFiles: data.hiddenMediaFiles,
+    certImages: data.certImages,
+    certLinks: data.certLinks,
     theme: data.theme,
     activePages: data.activePages,
     activeSections: data.activeSections,
@@ -396,6 +398,71 @@ export function saveOverrides(data: SiteOverrides) {
   }
 
   localStorage.setItem(KEY, json);
+}
+
+// Only updates localStorage cache — does NOT fire a blob POST.
+// Use when loading server data to avoid overwriting in-flight user saves.
+export function cacheLocally(data: SiteOverrides) {
+  const optimized: SiteOverrides = {
+    gallery: data.gallery.map(img => ({
+      ...img,
+      src: img.src.startsWith('session:') ? img.src : '',
+    })),
+    tr: data.tr,
+    en: data.en,
+    trStats: data.trStats,
+    enStats: data.enStats,
+    adminUsers: data.adminUsers,
+    emailConfig: data.emailConfig,
+    verificationTokens: data.verificationTokens,
+    heroMediaType: data.heroMediaType,
+    heroVideoPath: data.heroVideoPath,
+    galleryLayout: data.galleryLayout,
+    modelPath: data.modelPath,
+    modelScale: data.modelScale,
+    lightIntensity: data.lightIntensity,
+    lightPositionX: data.lightPositionX,
+    lightPositionY: data.lightPositionY,
+    lightPositionZ: data.lightPositionZ,
+    trSEO: data.trSEO,
+    enSEO: data.enSEO,
+    trAbout: data.trAbout,
+    enAbout: data.enAbout,
+    trMission: data.trMission,
+    enMission: data.enMission,
+    trVision: data.trVision,
+    enVision: data.enVision,
+    trQualityValue1: data.trQualityValue1,
+    enQualityValue1: data.enQualityValue1,
+    trQualityValue2: data.trQualityValue2,
+    enQualityValue2: data.enQualityValue2,
+    trQualityValue3: data.trQualityValue3,
+    enQualityValue3: data.enQualityValue3,
+    trQualityValues: data.trQualityValues,
+    enQualityValues: data.enQualityValues,
+    trProductionQuality: data.trProductionQuality,
+    enProductionQuality: data.enProductionQuality,
+    trCertification: data.trCertification,
+    enCertification: data.enCertification,
+    darkBgColor: data.darkBgColor,
+    accentColor: data.accentColor,
+    whatsappNumber: data.whatsappNumber,
+    hiddenMediaFiles: data.hiddenMediaFiles,
+    certImages: data.certImages,
+    certLinks: data.certLinks,
+    theme: data.theme,
+    activePages: data.activePages,
+    activeSections: data.activeSections,
+    trFaqs: data.trFaqs,
+    enFaqs: data.enFaqs,
+    trContactBlocks: data.trContactBlocks,
+    enContactBlocks: data.enContactBlocks,
+    trCompanyInfo: data.trCompanyInfo,
+    enCompanyInfo: data.enCompanyInfo,
+    customPages: data.customPages,
+    pages: data.pages,
+  };
+  localStorage.setItem(KEY, JSON.stringify(optimized));
 }
 
 export function clearOverrides() {

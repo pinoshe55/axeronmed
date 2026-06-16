@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { loadOverrides, loadOverridesFromServer, saveOverrides, type SiteOverrides, type GalleryItem, type StatItem } from "@/lib/siteOverrides";
+import { loadOverrides, loadOverridesFromServer, saveOverrides, cacheLocally, type SiteOverrides, type GalleryItem, type StatItem } from "@/lib/siteOverrides";
 
 interface ContentContextType {
   overrides: SiteOverrides;
@@ -40,7 +40,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       .then((serverData) => {
         if (serverData) {
           setOverrides(serverData);
-          saveOverrides(serverData);
+          cacheLocally(serverData); // only cache — don't write back to blob
         }
       })
       .finally(() => setServerLoaded(true)); // mark done whether server had data or not

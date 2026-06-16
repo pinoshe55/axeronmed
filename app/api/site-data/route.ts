@@ -29,9 +29,17 @@ export async function GET() {
     const { blobs } = await list({ prefix: "axeron-site-overrides" });
     const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME);
     if (!blob) return NextResponse.json(null);
-    const res = await fetch(blob.url, { cache: "no-store" });
+    // Cache-bust the CDN URL so stale content is never served
+    const bustUrl = `${blob.url}?_t=${Date.now()}`;
+    const res = await fetch(bustUrl, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache" },
+    });
     if (!res.ok) return NextResponse.json(null);
-    return NextResponse.json(await res.json());
+    const json = await res.json();
+    return NextResponse.json(json, {
+      headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+    });
   } catch {
     return NextResponse.json(null);
   }

@@ -254,6 +254,15 @@ export default function StaticSections() {
   // Misyon/Vizyon sütunlarının üzerinde içerik var mı? (border ve margin için)
   const hasAboveColumns = showStats || (showAboutText && (overrides?.trAbout || overrides?.enAbout));
 
+  // Hakkımızda section'ında gösterilecek içerik var mı? Yoksa section hiç render edilmez (boş alan önlenir)
+  const hasHakkimizdaContent = showStats
+    || (showAboutText && (overrides?.trAbout || overrides?.enAbout))
+    || overrides?.trMission || overrides?.enMission
+    || overrides?.trProductionQuality || overrides?.enProductionQuality
+    || overrides?.trCertification || overrides?.enCertification
+    || overrides?.pages?.hakkimizda?.trBlocks?.length
+    || overrides?.pages?.hakkimizda?.enBlocks?.length;
+
   // Ortak beyaz çerçeve kartı (üç stil de bunu kullanır)
   const galleryCard = (img: GalleryItem, imgWrapClass: string, cardExtra = "") => (
     <div className={`bg-white p-2 rounded-[3px] shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)] group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] transition-shadow duration-300 ${cardExtra}`}>
@@ -448,7 +457,7 @@ export default function StaticSections() {
       {/* ══════════════════════════════════════════════
           HAKKIMIZDA / ABOUT
       ══════════════════════════════════════════════ */}
-      {showHakkimizda && <section id="hakkimizda" className={`px-[8vw] ${showGallery ? "py-24" : "pt-16 pb-24"}`} style={{ backgroundColor: "var(--bg)" }}>
+      {showHakkimizda && hasHakkimizdaContent && <section id="hakkimizda" className={`px-[8vw] ${showGallery ? "py-24" : "pt-16 pb-24"}`} style={{ backgroundColor: "var(--bg)" }}>
 
         {showStats && (
         <div className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 ${hasAboveColumns ? "mb-12" : "mb-6"}`}>
@@ -520,7 +529,7 @@ export default function StaticSections() {
 
       </section>}
 
-      {showIletisim && <Divider />}
+      {showHakkimizda && hasHakkimizdaContent && showIletisim && <Divider />}
 
       {/* ══════════════════════════════════════════════
           İLETİŞİM / CONTACT
@@ -734,7 +743,7 @@ export default function StaticSections() {
             style={{ filter: "brightness(0) invert(1)" }}
           />
           <div>
-            <p className="eyebrow text-white/35 mb-2">{g("ctaEyebrow", s.ctaEyebrow)}</p>
+            {g("ctaEyebrow", "") && <p className="eyebrow text-white/35 mb-2">{g("ctaEyebrow", "")}</p>}
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white/90 leading-tight">
               {g("ctaTitle", s.ctaTitle)}
             </h2>
