@@ -1848,6 +1848,25 @@ export default function AdminPage() {
 
             </div>
 
+            {/* Aktif/Pasif toggle */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-800">İstatistikleri sitede göster</p>
+                <p className="text-xs text-gray-400 mt-0.5">Kapalıysa rakamlar bölümü sitede görünmez</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = { ...activeSections, stats: activeSections.stats === false ? true : false };
+                  setActiveSections(next);
+                  saveActiveSectionsToServer(next);
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${activeSections.stats === false ? "bg-gray-300" : "bg-emerald-500"}`}
+              >
+                <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${activeSections.stats === false ? "translate-x-0" : "translate-x-5"}`} />
+              </button>
+            </div>
+
 
 
             {/* TR Stats */}
