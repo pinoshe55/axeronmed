@@ -537,29 +537,27 @@ export default function StaticSections() {
       {showIletisim && (
       <section id="iletisim" className="px-[8vw] py-16" style={{ backgroundColor: "var(--bg)" }}>
 
-        {/* Başlık — sadece metin varsa göster */}
-        {(g("contactEyebrow", "") || g("contactTitle", "") || g("contactTitleAccent", "") || g("contactSubtitle", "")) && (
+        {/* Başlık */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-10">
           <div>
-            {g("contactEyebrow", "") && (
+            {g("contactEyebrow", s.contactEyebrow) && (
               <div className="flex items-center gap-3 mb-2">
                 <span className="accent-rule" />
-                <p className="eyebrow">{g("contactEyebrow", "")}</p>
+                <p className="eyebrow">{g("contactEyebrow", s.contactEyebrow)}</p>
               </div>
             )}
-            {(g("contactTitle", "") || g("contactTitleAccent", "")) && (
+            {(g("contactTitle", s.contactTitle) || g("contactTitleAccent", s.contactTitleAccent)) && (
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight" style={{ color: "var(--accent)" }}>
-                {g("contactTitle", "")} <span className="text-accent">{g("contactTitleAccent", "")}</span>
+                {g("contactTitle", s.contactTitle)} <span className="text-accent">{g("contactTitleAccent", s.contactTitleAccent)}</span>
               </h2>
             )}
           </div>
-          {g("contactSubtitle", "") && (
+          {g("contactSubtitle", s.contactSubtitle) && (
             <p className="max-w-sm text-sm text-ink/50 leading-relaxed lg:text-right whitespace-pre-line">
-              {g("contactSubtitle", "")}
+              {g("contactSubtitle", s.contactSubtitle)}
             </p>
           )}
         </div>
-        )}
 
         {/* 2 sütun — sol koyu kart + sağ form */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-5">
