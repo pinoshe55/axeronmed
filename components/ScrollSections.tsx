@@ -118,12 +118,11 @@ export default function ScrollSections() {
           <h2 className={`${H} whitespace-pre-line`} style={{ color: "var(--accent)" }}>{g("finalHeading", s.finalHeading)}</h2>
           <div className="mt-5 w-full h-px bg-ink/8" />
           <p className={P}>{g("finalP", s.finalP)}</p>
-          <a
-            href="#iletisim"
-            className="cta mt-6 inline-flex"
-          >
-            {g("finalCta", s.finalCta)}
-          </a>
+          {g("finalCta", "") && (
+            <a href="#iletisim" className="cta mt-6 inline-flex">
+              {g("finalCta", "")}
+            </a>
+          )}
         </div>
       </section>
     </>
