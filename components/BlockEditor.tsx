@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import dynamic from "next/dynamic";
 import type { ContentBlock, ContentBlockText, ContentBlockImage, ContentBlockGallery } from "@/lib/siteOverrides";
-
-const RichEditor = dynamic(() => import("@/components/RichEditor"), { ssr: false });
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -28,7 +25,13 @@ async function uploadImage(file: File): Promise<string | null> {
 function TextBlockEditor({ block, onChange }: { block: ContentBlockText; onChange: (b: ContentBlockText) => void }) {
   return (
     <div className="space-y-2">
-      <RichEditor value={block.html} onChange={(v) => onChange({ ...block, html: v })} height={200} placeholder="Metin yazın..." />
+      <textarea
+        value={block.html}
+        onChange={(e) => onChange({ ...block, html: e.target.value })}
+        placeholder="Metin yazın..."
+        rows={6}
+        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
+      />
     </div>
   );
 }
