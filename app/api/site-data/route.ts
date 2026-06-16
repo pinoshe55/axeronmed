@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const BLOB_PATHNAME = "axeron-site-overrides.json";
+const BLOB_PREFIX = "axeron-site-overrides";
 
 function hasBlobCreds() {
   return !!(
@@ -12,7 +12,7 @@ function hasBlobCreds() {
 }
 
 export async function GET() {
-  // Local dev fallback — read from .local-site-data.json
+  // Local dev fallback
   if (!hasBlobCreds()) {
     try {
       const fs = (await import("fs/promises")).default;
@@ -26,17 +26,20 @@ export async function GET() {
 
   try {
     const { list } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: "axeron-site-overrides" });
-    const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME);
-    if (!blob) return NextResponse.json(null);
-    // Cache-bust the CDN URL so stale content is never served
-    const bustUrl = `${blob.url}?_t=${Date.now()}`;
-    const res = await fetch(bustUrl, {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache" },
-    });
+    const { blobs } = await list({ prefix: BLOB_PREFIX });
+    if (!blobs.length) return NextResponse.json(null);
+
+    // Sort by uploadedAt descending → latest first
+    const sorted = [...blobs].sort(
+      (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+    );
+    const latest = sorted[0];
+
+    // Each save creates a NEW unique URL → CDN has never seen it → always fresh, no stale cache
+    const res = await fetch(latest.url, { cache: "no-store" });
     if (!res.ok) return NextResponse.json(null);
     const json = await res.json();
+
     return NextResponse.json(json, {
       headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
     });
@@ -48,7 +51,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const body = await req.text();
 
-  // Local dev fallback — save to .local-site-data.json
+  // Local dev fallback
   if (!hasBlobCreds()) {
     try {
       const fs = (await import("fs/promises")).default;
@@ -61,13 +64,30 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { put } = await import("@vercel/blob");
-    await put(BLOB_PATHNAME, body, {
+    const { put, list, del } = await import("@vercel/blob");
+
+    // Unique filename per save → brand-new CDN URL → no caching problem
+    const timestamp = Date.now();
+    await put(`${BLOB_PREFIX}-${timestamp}.json`, body, {
       access: "public",
       contentType: "application/json",
       addRandomSuffix: false,
-      allowOverwrite: true,
     });
+
+    // Cleanup: keep only the 2 most recent blobs to avoid accumulation
+    try {
+      const { blobs } = await list({ prefix: BLOB_PREFIX });
+      const sorted = [...blobs].sort(
+        (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+      );
+      const toDelete = sorted.slice(2);
+      if (toDelete.length) {
+        await del(toDelete.map((b) => b.url));
+      }
+    } catch {
+      // cleanup failure is non-critical, ignore
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
