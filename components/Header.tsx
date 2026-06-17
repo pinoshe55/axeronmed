@@ -82,9 +82,9 @@ export default function Header() {
     </button>
   );
 
-  // Header her zaman şeffaf; topbar'da scroll olunca navBg ile hafif bg gelir
-  const headerBg = (navStyle === "topbar" && scrolled) ? navBg : "transparent";
-  const headerCls = `fixed top-0 left-0 right-0 z-50 px-[6vw] md:px-[8vw] py-4 flex items-center transition-all duration-300 ${navStyle === "topbar" && scrolled ? "backdrop-blur-md border-b border-black/8 shadow-sm" : ""}`;
+  // Scroll olunca tüm nav stillerinde arka plan gelir
+  const headerBg = scrolled ? navBg : "transparent";
+  const headerCls = `fixed top-0 left-0 right-0 z-50 px-[6vw] md:px-[8vw] py-4 flex items-center transition-all duration-300 ${scrolled ? "backdrop-blur-md border-b border-black/8 shadow-sm" : ""}`;
 
   // ══════════════════════════════════════════════════════════════
   // STYLE 1: HAMBURGER (default)
