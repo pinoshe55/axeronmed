@@ -13,7 +13,7 @@
 
   /* Tema override değişkenleri — ThemeInjector tarafından güncellenir */
   --btn-radius: 999px;
-  --card-radius: 16px;
+  --card-radius: 0px;
   --heading-weight: 700;
   --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }

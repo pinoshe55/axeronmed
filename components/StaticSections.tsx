@@ -563,7 +563,7 @@ export default function StaticSections() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-5">
 
           {/* ── Sol: koyu iletişim kartı ── */}
-          <div className="rounded-2xl p-6 flex flex-col justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>
+          <div className="p-6 flex flex-col justify-between gap-8" style={{ backgroundColor: "var(--dark)" }}>
 
             <div className="flex flex-col gap-6">
               {(() => {
@@ -590,7 +590,7 @@ export default function StaticSections() {
           </div>
 
           {/* ── Sağ: form kartı ── */}
-          <div className="bg-white/60 border border-ink/8 rounded-2xl overflow-hidden">
+          <div className="bg-white/60 border border-ink/8 overflow-hidden">
 
             {/* Toast Notification */}
             {toast && (
