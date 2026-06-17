@@ -57,7 +57,15 @@ export interface SEOConfig {
 export interface ContentBlockText {
   id: string;
   type: "text";
+  title?: string;
   html: string;
+  image?: {
+    src: string;
+    align: "left" | "right" | "bottom";
+    scale: number; // 20–50 (%)
+    frame?: "none" | "border" | "shadow" | "rounded" | "polaroid";
+    animation?: "none" | "fade" | "zoom" | "float" | "hover-zoom";
+  };
 }
 
 export interface ContentBlockImage {
@@ -77,6 +85,7 @@ export interface ContentBlockGallery {
   images: { src: string; caption?: string }[];
   cols: 2 | 3 | 4;
   frame: "none" | "border" | "shadow" | "rounded";
+  layout?: "grid" | "masonry" | "strip" | "featured";
 }
 
 export type ContentBlock = ContentBlockText | ContentBlockImage | ContentBlockGallery;

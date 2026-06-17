@@ -23,15 +23,108 @@ async function uploadImage(file: File): Promise<string | null> {
 // ── sub-editors ─────────────────────────────────────────────────────────────
 
 function TextBlockEditor({ block, onChange }: { block: ContentBlockText; onChange: (b: ContentBlockText) => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  const pick = useCallback(async () => {
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*"; input.click();
+    input.onchange = async () => {
+      const file = input.files?.[0]; if (!file) return;
+      setUploading(true);
+      const url = await uploadImage(file);
+      setUploading(false);
+      if (url) onChange({ ...block, image: { src: url, align: block.image?.align || "right", scale: block.image?.scale || 35 } });
+    };
+  }, [block, onChange]);
+
+  const img = block.image;
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Başlık */}
+      <input
+        type="text"
+        value={block.title || ""}
+        onChange={(e) => onChange({ ...block, title: e.target.value })}
+        placeholder="Başlık (isteğe bağlı)"
+        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 outline-none focus:border-blue-400"
+      />
+      {/* Metin */}
       <textarea
         value={block.html}
         onChange={(e) => onChange({ ...block, html: e.target.value })}
         placeholder="Metin yazın..."
-        rows={6}
+        rows={5}
         className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
       />
+      {/* Resim */}
+      <div className="border border-dashed border-gray-200 rounded-lg p-3 space-y-3">
+        <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Bu Bölümün Resmi</p>
+        <div className="flex gap-3 items-start">
+          {img?.src ? (
+            <div className="relative w-24 h-16 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50">
+              <img src={img.src} alt="" className="w-full h-full object-cover" />
+              <button onClick={() => onChange({ ...block, image: undefined })}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-xs flex items-center justify-center hover:bg-red-500">✕</button>
+            </div>
+          ) : (
+            <button onClick={pick} disabled={uploading}
+              className="w-24 h-16 rounded-lg border-2 border-dashed border-gray-200 hover:border-blue-400 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-blue-500 text-xs flex-shrink-0">
+              {uploading ? "…" : <><span className="text-xl">🖼️</span><span>Resim Ekle</span></>}
+            </button>
+          )}
+          {img?.src && (
+            <div className="flex-1 space-y-2">
+              <button onClick={pick} className="text-xs text-blue-500 hover:text-blue-700">Resmi değiştir</button>
+              {/* Konum */}
+              <div>
+                <p className="text-[10px] text-gray-400 mb-1">Konum</p>
+                <div className="flex gap-1.5">
+                  {(["left","right","bottom"] as const).map((v) => (
+                    <button key={v} onClick={() => onChange({ ...block, image: { ...img, align: v } })}
+                      className={`px-2 py-1 rounded text-xs border transition-colors ${img.align === v ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-600 hover:border-blue-300"}`}>
+                      {v === "left" ? "← Sol" : v === "right" ? "Sağ →" : "↓ Alt"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Boyut */}
+              {img.align !== "bottom" && (
+                <div>
+                  <p className="text-[10px] text-gray-400 mb-1">Genişlik — {img.scale}%</p>
+                  <input type="range" min={20} max={50} step={5} value={img.scale}
+                    onChange={(e) => onChange({ ...block, image: { ...img, scale: Number(e.target.value) } })}
+                    className="w-full accent-blue-600" />
+                </div>
+              )}
+              {/* Çerçeve */}
+              <div>
+                <p className="text-[10px] text-gray-400 mb-1">Çerçeve</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {FRAME_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => onChange({ ...block, image: { ...img, frame: o.value } })}
+                      className={`px-2 py-1 rounded text-xs border transition-colors ${(img.frame||"none") === o.value ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-600 hover:border-blue-300"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Animasyon */}
+              <div>
+                <p className="text-[10px] text-gray-400 mb-1">Animasyon</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {ANIM_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => onChange({ ...block, image: { ...img, animation: o.value } })}
+                      className={`px-2 py-1 rounded text-xs border transition-colors ${(img.animation||"none") === o.value ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-600 hover:border-blue-300"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -208,6 +301,24 @@ function GalleryBlockEditor({ block, onChange }: { block: ContentBlockGallery; o
           className="aspect-square rounded-lg border-2 border-dashed border-gray-200 hover:border-blue-400 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-blue-500 transition-colors text-xs">
           {uploading ? "Yükleniyor…" : <><span className="text-2xl">+</span><span>Resim Ekle</span></>}
         </button>
+      </div>
+
+      {/* Layout */}
+      <div>
+        <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1.5">Düzen</p>
+        <div className="flex flex-wrap gap-1.5">
+          {([
+            { value: "grid",     label: "Grid" },
+            { value: "masonry",  label: "Masonry" },
+            { value: "strip",    label: "Şerit" },
+            { value: "featured", label: "Öne Çıkan" },
+          ] as const).map(o => (
+            <button key={o.value} onClick={() => onChange({ ...block, layout: o.value })}
+              className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${(block.layout || "grid") === o.value ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-600 hover:border-blue-300"}`}>
+              {o.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

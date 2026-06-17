@@ -22,17 +22,24 @@ export default function Page() {
 
   return (
     <PageLayout>
+      {/* Hero image — tam genişlik, konteynerin dışında */}
+      {heroImage && (
+        <div className="relative w-full mb-8" style={{ maxHeight: "45vh", overflow: "hidden" }}>
+          <img src={heroImage} alt={title || ""} className="w-full h-full object-cover" style={{ maxHeight: "45vh" }} />
+          {title && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
+              <div className="px-[8vw] pb-8">
+                <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight">{title}</h1>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto">
         <Link href="/" className="text-[11px] tracking-widest uppercase text-ink/30 hover:text-ink/60 transition-colors mb-8 inline-block">
           ← Ana Sayfa
         </Link>
-
-        {/* Hero image */}
-        {heroImage && (
-          <div className="w-full aspect-[3/1] rounded-2xl overflow-hidden mb-8 bg-ink/5">
-            <img src={heroImage} alt={title} className="w-full h-full object-cover" />
-          </div>
-        )}
 
         {title && <h1 className="text-3xl md:text-4xl font-light tracking-tight text-ink/80 mb-8">{title}</h1>}
 
