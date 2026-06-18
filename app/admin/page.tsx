@@ -133,6 +133,27 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 
 }
 
+type ContentLang = "tr" | "en" | "de" | "media";
+
+function LangTabs({ value, onChange }: { value: ContentLang; onChange: (l: ContentLang) => void }) {
+  const tabs: { id: ContentLang; label: string; flag: string }[] = [
+    { id: "tr", label: "Türkçe", flag: "🇹🇷" },
+    { id: "en", label: "English", flag: "🇬🇧" },
+    { id: "de", label: "Deutsch", flag: "🇩🇪" },
+    { id: "media", label: "Medya", flag: "📷" },
+  ];
+  return (
+    <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit mb-5">
+      {tabs.map((t) => (
+        <button key={t.id} type="button" onClick={() => onChange(t.id)}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${value === t.id ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"}`}>
+          <span>{t.flag}</span> {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 
 
 // ─── Ana Panel ───────────────────────────────────────────────────────────────
@@ -149,6 +170,8 @@ export default function AdminPage() {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
 
   const [tab, setTab] = useState<TabId>("dashboard");
+
+  const [contentLang, setContentLang] = useState<ContentLang>("tr");
 
   const { overrides, serverLoaded, updateText, updateGallery, updateStats, updateEmailConfig, getStats, resetAll } = useContent();
 
@@ -184,6 +207,13 @@ export default function AdminPage() {
 
   const [enSEOOgImage, setEnSEOOgImage] = useState("");
 
+  const [deSEOTitle, setDeSEOTitle] = useState("");
+  const [deSEODesc, setDeSEODesc] = useState("");
+  const [deSEOKeywords, setDeSEOKeywords] = useState("");
+  const [deSEOOgTitle, setDeSEOOgTitle] = useState("");
+  const [deSEOOgDesc, setDeSEOOgDesc] = useState("");
+  const [deSEOOgImage, setDeSEOOgImage] = useState("");
+
   const [saved, setSaved] = useState(false);
 
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
@@ -213,6 +243,7 @@ export default function AdminPage() {
   const [themeCardRadius, setThemeCardRadius] = useState<"none"|"sm"|"md"|"lg"|"xl">("lg");
   const [themeGlassBlur, setThemeGlassBlur] = useState(true);
   const [themeAnimations, setThemeAnimations] = useState(true);
+  const [defaultLang, setDefaultLang] = useState<"tr"|"en"|"de">("tr");
 
   const [testingEmail, setTestingEmail] = useState(false);
 
@@ -343,9 +374,19 @@ export default function AdminPage() {
 
   const [enContactBlocks, setEnContactBlocks] = useState<{label: string; lines: string[]}[]>([]);
 
+  const [deContactBlocks, setDeContactBlocks] = useState<{label: string; lines: string[]}[]>([]);
+
   const [trCompanyInfo, setTrCompanyInfo] = useState("");
 
   const [enCompanyInfo, setEnCompanyInfo] = useState("");
+
+  const [deCompanyInfo, setDeCompanyInfo] = useState("");
+
+  const [deFaqs, setDeFaqs] = useState<{q: string; a: string}[]>([]);
+
+  const [deAbout, setDeAbout] = useState("");
+
+  const [deMission, setDeMission] = useState("");
 
 
 
@@ -403,6 +444,13 @@ export default function AdminPage() {
 
     setEnSEOOgImage(raw.enSEO?.ogImage || "");
 
+    setDeSEOTitle(raw.deSEO?.metaTitle || "");
+    setDeSEODesc(raw.deSEO?.metaDescription || "");
+    setDeSEOKeywords(raw.deSEO?.keywords || "");
+    setDeSEOOgTitle(raw.deSEO?.ogTitle || "");
+    setDeSEOOgDesc(raw.deSEO?.ogDescription || "");
+    setDeSEOOgImage(raw.deSEO?.ogImage || "");
+
     setEmailConfig(raw.emailConfig || null);
 
     setAdminUsers(raw.adminUsers || []);
@@ -439,6 +487,7 @@ export default function AdminPage() {
     setThemeCardRadius(t.cardRadius || "lg");
     setThemeGlassBlur(t.glassBlur !== false);
     setThemeAnimations(t.animationsEnabled !== false);
+    setDefaultLang((t.defaultLang as "tr"|"en"|"de") || "tr");
 
     setHeroMediaType(raw.heroMediaType || "3d");
 
@@ -499,9 +548,19 @@ export default function AdminPage() {
 
     setEnContactBlocks(raw.enContactBlocks || []);
 
+    setDeContactBlocks(raw.deContactBlocks || []);
+
     setTrCompanyInfo(raw.trCompanyInfo || "");
 
     setEnCompanyInfo(raw.enCompanyInfo || "");
+
+    setDeCompanyInfo(raw.deCompanyInfo || "");
+
+    setDeFaqs(raw.deFaqs || []);
+
+    setDeAbout(raw.deAbout || "");
+
+    setDeMission(raw.deMission || "");
 
     setCustomPages(raw.customPages || []);
 
@@ -691,7 +750,7 @@ export default function AdminPage() {
 
         modelPath,
 
-        trAbout, enAbout, trMission, enMission, trVision, enVision,
+        trAbout, enAbout, deAbout, trMission, enMission, deMission, trVision, enVision,
 
         trQualityValue1, enQualityValue1,
 
@@ -699,11 +758,11 @@ export default function AdminPage() {
 
         trQualityValue3, enQualityValue3,
 
-        trFaqs, enFaqs,
+        trFaqs, enFaqs, deFaqs,
 
-        trContactBlocks, enContactBlocks,
+        trContactBlocks, enContactBlocks, deContactBlocks,
 
-        trCompanyInfo, enCompanyInfo,
+        trCompanyInfo, enCompanyInfo, deCompanyInfo,
 
         adminUsers: [], // never send password hashes
 
@@ -1873,115 +1932,64 @@ export default function AdminPage() {
 
 
 
-            {/* TR Stats */}
+            {/* Stats — LangTabs (TR/EN only) */}
+            <LangTabs value={contentLang} onChange={setContentLang} />
 
-            <SectionHeader>Türkçe</SectionHeader>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-
-              {trStats.map((st, i) => (
-
-                <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3">
-
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Kart {i + 1}</p>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Değer (ör. 15+)</label>
-
-                    <input type="text" value={st.value}
-
-                      onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],value:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-bold" />
-
+            {contentLang === "de" ? (
+              <p className="text-sm text-gray-400 italic mb-8">Almanca istatistik desteği yok — EN değerleri kullanılır.</p>
+            ) : contentLang === "tr" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {trStats.map((st, i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3">
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Kart {i + 1}</p>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Değer (ör. 15+)</label>
+                      <input type="text" value={st.value}
+                        onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],value:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-bold" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Başlık (ör. Yıl Deneyim)</label>
+                      <input type="text" value={st.label}
+                        onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],label:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Alt Açıklama</label>
+                      <input type="text" value={st.desc}
+                        onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],desc:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                    </div>
                   </div>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Başlık (ör. Yıl Deneyim)</label>
-
-                    <input type="text" value={st.label}
-
-                      onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],label:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {enStats.map((st, i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3">
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Card {i + 1}</p>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Value (e.g. 15+)</label>
+                      <input type="text" value={st.value}
+                        onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],value:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-bold" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Label (e.g. Years Experience)</label>
+                      <input type="text" value={st.label}
+                        onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],label:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 mb-1 block">Description</label>
+                      <input type="text" value={st.desc}
+                        onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],desc:e.target.value}; return n; })}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                    </div>
                   </div>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Alt Açıklama</label>
-
-                    <input type="text" value={st.desc}
-
-                      onChange={(e) => setTrStats(prev => { const n=[...prev]; n[i]={...n[i],desc:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-
-
-            {/* EN Stats */}
-
-            <SectionHeader>English</SectionHeader>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-              {enStats.map((st, i) => (
-
-                <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3">
-
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Card {i + 1}</p>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Value (e.g. 15+)</label>
-
-                    <input type="text" value={st.value}
-
-                      onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],value:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-bold" />
-
-                  </div>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Label (e.g. Years Experience)</label>
-
-                    <input type="text" value={st.label}
-
-                      onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],label:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                  </div>
-
-                  <div>
-
-                    <label className="text-[10px] text-gray-400 mb-1 block">Description</label>
-
-                    <input type="text" value={st.desc}
-
-                      onChange={(e) => setEnStats(prev => { const n=[...prev]; n[i]={...n[i],desc:e.target.value}; return n; })}
-
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
+                ))}
+              </div>
+            )}
 
 
 
@@ -3067,6 +3075,8 @@ export default function AdminPage() {
 
                   enSEO: { metaTitle: enSEOTitle, metaDescription: enSEODesc, keywords: enSEOKeywords, ogTitle: enSEOOgTitle, ogDescription: enSEOOgDesc, ogImage: enSEOOgImage },
 
+                  deSEO: { metaTitle: deSEOTitle, metaDescription: deSEODesc, keywords: deSEOKeywords, ogTitle: deSEOOgTitle, ogDescription: deSEOOgDesc, ogImage: deSEOOgImage },
+
                 });
 
                 flashSaved();
@@ -3083,199 +3093,48 @@ export default function AdminPage() {
 
 
 
-            {/* TR SEO */}
+            {/* SEO — LangTabs */}
+            <LangTabs value={contentLang} onChange={setContentLang} />
 
-            <SectionHeader>Türkçe SEO</SectionHeader>
-
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4 mb-8">
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Sayfa Başlığı (Meta Title)
-
-                </label>
-
-                <input type="text" value={trSEOTitle} onChange={(e) => setTrSEOTitle(e.target.value)}
-
-                  placeholder="Örn: Axeron Medical - Sterilizasyon Konteyner Sistemleri"
-
-                  maxLength={60}
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                <p className="text-xs text-gray-400 mt-1">{trSEOTitle.length}/60 karakter</p>
-
+            {contentLang === "media" && (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
+                <p className="text-2xl mb-2">🔍</p>
+                <p className="text-sm text-gray-400">SEO bölümünde medya içeriği bulunmamaktadır.</p>
               </div>
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Sayfa Açıklaması (Meta Description)
-
-                </label>
-
-                <textarea value={trSEODesc} onChange={(e) => setTrSEODesc(e.target.value)}
-
-                  placeholder="Google'da görünen açıklama yazın..."
-
-                  maxLength={160}
-
-                  rows={3}
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
-
-                <p className="text-xs text-gray-400 mt-1">{trSEODesc.length}/160 karakter</p>
-
-              </div>
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Anahtar Kelimeler (Keywords)
-
-                </label>
-
-                <input type="text" value={trSEOKeywords} onChange={(e) => setTrSEOKeywords(e.target.value)}
-
-                  placeholder="Örn: sterilizasyon, konteyner, tıbbi, hastane (virgülle ayrılmış)"
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
-
-              </div>
-
-              <div className="border-t border-gray-300 pt-4 mt-4">
-
-                <p className="text-xs font-semibold text-gray-400 mb-3">Open Graph (Sosyal Medya)</p>
-
-                <div className="space-y-3">
-
-                  <input type="text" value={trSEOOgTitle} onChange={(e) => setTrSEOOgTitle(e.target.value)}
-
-                    placeholder="OG Başlık (sosyal medyada paylaşıldığında)"
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                  <textarea value={trSEOOgDesc} onChange={(e) => setTrSEOOgDesc(e.target.value)}
-
-                    placeholder="OG Açıklama"
-
-                    rows={2}
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
-
-                  <input type="text" value={trSEOOgImage} onChange={(e) => setTrSEOOgImage(e.target.value)}
-
-                    placeholder="OG Resim (örn: /og-image.jpg)"
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
-
+            )}
+            {contentLang !== "media" && (() => {
+              const seo = {
+                tr: { title: trSEOTitle, setTitle: setTrSEOTitle, desc: trSEODesc, setDesc: setTrSEODesc, keywords: trSEOKeywords, setKeywords: setTrSEOKeywords, ogTitle: trSEOOgTitle, setOgTitle: setTrSEOOgTitle, ogDesc: trSEOOgDesc, setOgDesc: setTrSEOOgDesc, ogImage: trSEOOgImage, setOgImage: setTrSEOOgImage, charTitle: "karakter", charDesc: "karakter", phTitle: "Örn: Axeron Medical - Sterilizasyon Konteyner Sistemleri", phDesc: "Google'da görünen açıklama yazın...", phKw: "Örn: sterilizasyon, konteyner, tıbbi, hastane (virgülle ayrılmış)", phOgTitle: "OG Başlık (sosyal medyada paylaşıldığında)", phOgDesc: "OG Açıklama", phOgImg: "OG Resim (örn: /og-image.jpg)", labelTitle: "Sayfa Başlığı (Meta Title)", labelDesc: "Sayfa Açıklaması (Meta Description)", labelKw: "Anahtar Kelimeler (Keywords)", ogLabel: "Open Graph (Sosyal Medya)" },
+                en: { title: enSEOTitle, setTitle: setEnSEOTitle, desc: enSEODesc, setDesc: setEnSEODesc, keywords: enSEOKeywords, setKeywords: setEnSEOKeywords, ogTitle: enSEOOgTitle, setOgTitle: setEnSEOOgTitle, ogDesc: enSEOOgDesc, setOgDesc: setEnSEOOgDesc, ogImage: enSEOOgImage, setOgImage: setEnSEOOgImage, charTitle: "characters", charDesc: "characters", phTitle: "E.g.: Axeron Medical - Sterilization Container Systems", phDesc: "Description that appears in Google search results...", phKw: "E.g.: sterilization, container, medical, hospital (comma-separated)", phOgTitle: "OG Title (appears when shared on social media)", phOgDesc: "OG Description", phOgImg: "OG Image (e.g.: /og-image.jpg)", labelTitle: "Page Title (Meta Title)", labelDesc: "Page Description (Meta Description)", labelKw: "Keywords", ogLabel: "Open Graph (Social Media)" },
+                de: { title: deSEOTitle, setTitle: setDeSEOTitle, desc: deSEODesc, setDesc: setDeSEODesc, keywords: deSEOKeywords, setKeywords: setDeSEOKeywords, ogTitle: deSEOOgTitle, setOgTitle: setDeSEOOgTitle, ogDesc: deSEOOgDesc, setOgDesc: setDeSEOOgDesc, ogImage: deSEOOgImage, setOgImage: setDeSEOOgImage, charTitle: "Zeichen", charDesc: "Zeichen", phTitle: "z.B.: Axeron Medical - Sterilisationsbehältersysteme", phDesc: "Beschreibung in Google-Suchergebnissen...", phKw: "z.B.: Sterilisation, Behälter, medizinisch, Krankenhaus", phOgTitle: "OG-Titel (in sozialen Medien)", phOgDesc: "OG-Beschreibung", phOgImg: "OG-Bild (z.B.: /og-image.jpg)", labelTitle: "Seitentitel (Meta Title)", labelDesc: "Seitenbeschreibung (Meta Description)", labelKw: "Schlüsselwörter (Keywords)", ogLabel: "Open Graph (Soziale Medien)" },
+              }[contentLang];
+              return (
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4 mb-8">
+                  <div>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{seo.labelTitle}</label>
+                    <input type="text" value={seo.title} onChange={(e) => seo.setTitle(e.target.value)} placeholder={seo.phTitle} maxLength={60} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                    <p className="text-xs text-gray-400 mt-1">{seo.title.length}/60 {seo.charTitle}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{seo.labelDesc}</label>
+                    <textarea value={seo.desc} onChange={(e) => seo.setDesc(e.target.value)} placeholder={seo.phDesc} maxLength={160} rows={3} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
+                    <p className="text-xs text-gray-400 mt-1">{seo.desc.length}/160 {seo.charDesc}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{seo.labelKw}</label>
+                    <input type="text" value={seo.keywords} onChange={(e) => seo.setKeywords(e.target.value)} placeholder={seo.phKw} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
+                  </div>
+                  <div className="border-t border-gray-300 pt-4 mt-4">
+                    <p className="text-xs font-semibold text-gray-400 mb-3">{seo.ogLabel}</p>
+                    <div className="space-y-3">
+                      <input type="text" value={seo.ogTitle} onChange={(e) => seo.setOgTitle(e.target.value)} placeholder={seo.phOgTitle} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
+                      <textarea value={seo.ogDesc} onChange={(e) => seo.setOgDesc(e.target.value)} placeholder={seo.phOgDesc} rows={2} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
+                      <input type="text" value={seo.ogImage} onChange={(e) => seo.setOgImage(e.target.value)} placeholder={seo.phOgImg} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
+                    </div>
+                  </div>
                 </div>
-
-              </div>
-
-            </div>
-
-
-
-            {/* EN SEO */}
-
-            <SectionHeader>English SEO</SectionHeader>
-
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4 mb-8">
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Page Title (Meta Title)
-
-                </label>
-
-                <input type="text" value={enSEOTitle} onChange={(e) => setEnSEOTitle(e.target.value)}
-
-                  placeholder="E.g.: Axeron Medical - Sterilization Container Systems"
-
-                  maxLength={60}
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                <p className="text-xs text-gray-400 mt-1">{enSEOTitle.length}/60 characters</p>
-
-              </div>
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Page Description (Meta Description)
-
-                </label>
-
-                <textarea value={enSEODesc} onChange={(e) => setEnSEODesc(e.target.value)}
-
-                  placeholder="Description that appears in Google search results..."
-
-                  maxLength={160}
-
-                  rows={3}
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
-
-                <p className="text-xs text-gray-400 mt-1">{enSEODesc.length}/160 characters</p>
-
-              </div>
-
-              <div>
-
-                <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">
-
-                  Keywords
-
-                </label>
-
-                <input type="text" value={enSEOKeywords} onChange={(e) => setEnSEOKeywords(e.target.value)}
-
-                  placeholder="E.g.: sterilization, container, medical, hospital (comma-separated)"
-
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
-
-              </div>
-
-              <div className="border-t border-gray-300 pt-4 mt-4">
-
-                <p className="text-xs font-semibold text-gray-400 mb-3">Open Graph (Social Media)</p>
-
-                <div className="space-y-3">
-
-                  <input type="text" value={enSEOOgTitle} onChange={(e) => setEnSEOOgTitle(e.target.value)}
-
-                    placeholder="OG Title (appears when shared on social media)"
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors" />
-
-                  <textarea value={enSEOOgDesc} onChange={(e) => setEnSEOOgDesc(e.target.value)}
-
-                    placeholder="OG Description"
-
-                    rows={2}
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none" />
-
-                  <input type="text" value={enSEOOgImage} onChange={(e) => setEnSEOOgImage(e.target.value)}
-
-                    placeholder="OG Image (e.g.: /og-image.jpg)"
-
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-colors font-mono" />
-
-                </div>
-
-              </div>
-
-            </div>
+              );
+            })()}
 
           </div>
 
@@ -3283,7 +3142,7 @@ export default function AdminPage() {
 
 
 
-        {/* ── HAKKIMIZDA ─────────────────────────────────────────────────── */}
+        {/* ── Hero ─────────────────────────────────────────────────── */}
 
         {tab === "page_hero" && (
           <div>
@@ -3303,40 +3162,22 @@ export default function AdminPage() {
               </label>
             </div>
 
-            {/* TR */}
-            <SectionHeader>Türkçe</SectionHeader>
-            {(["scroll.heroEyebrow","scroll.heroTitle","scroll.heroParagraph","scroll.scrollHint","scroll.closeupEyebrow","scroll.closeupH2","scroll.closeupP","scroll.frontEyebrow","scroll.frontH2","scroll.frontP","scroll.frontStat1","scroll.frontStat2","scroll.frontStat3","scroll.frontStat4","scroll.topEyebrow","scroll.topHeading","scroll.topP","scroll.backEyebrow","scroll.backHeading","scroll.backP","scroll.finalEyebrow","scroll.finalHeading","scroll.finalP","scroll.finalCta"] as const).map((key) => {
+            {/* Scroll texts — LangTabs */}
+            <LangTabs value={contentLang} onChange={setContentLang} />
+            {contentLang !== "media" && (["scroll.heroEyebrow","scroll.heroTitle","scroll.heroParagraph","scroll.scrollHint","scroll.closeupEyebrow","scroll.closeupH2","scroll.closeupP","scroll.frontEyebrow","scroll.frontH2","scroll.frontP","scroll.frontStat1","scroll.frontStat2","scroll.frontStat3","scroll.frontStat4","scroll.topEyebrow","scroll.topHeading","scroll.topP","scroll.backEyebrow","scroll.backHeading","scroll.backP","scroll.finalEyebrow","scroll.finalHeading","scroll.finalP","scroll.finalCta"] as const).map((key) => {
               const parts = key.split(".");
-              let val: unknown = translations.tr;
+              const srcLang = contentLang === "en" ? translations.en : translations.tr;
+              let val: unknown = srcLang;
               for (const p of parts) val = (val as Record<string, unknown>)?.[p];
-              const currentVal = (overrides.tr?.[key] ?? String(val ?? ""));
+              const langOverrides: Record<string, string> | undefined = contentLang === "de" ? overrides.de : overrides[contentLang];
+              const currentVal = (langOverrides?.[key] ?? String(val ?? ""));
               return (
                 <div key={key} className="bg-white border border-gray-200 rounded-xl p-4 mb-3">
                   <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{key.replace("scroll.", "")}</label>
                   <textarea
                     rows={2}
                     value={currentVal}
-                    onChange={(e) => updateText("tr", key, e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
-                  />
-                </div>
-              );
-            })}
-
-            {/* EN */}
-            <SectionHeader>English</SectionHeader>
-            {(["scroll.heroEyebrow","scroll.heroTitle","scroll.heroParagraph","scroll.scrollHint","scroll.closeupEyebrow","scroll.closeupH2","scroll.closeupP","scroll.frontEyebrow","scroll.frontH2","scroll.frontP","scroll.frontStat1","scroll.frontStat2","scroll.frontStat3","scroll.frontStat4","scroll.topEyebrow","scroll.topHeading","scroll.topP","scroll.backEyebrow","scroll.backHeading","scroll.backP","scroll.finalEyebrow","scroll.finalHeading","scroll.finalP","scroll.finalCta"] as const).map((key) => {
-              const parts = key.split(".");
-              let val: unknown = translations.en;
-              for (const p of parts) val = (val as Record<string, unknown>)?.[p];
-              const currentVal = (overrides.en?.[key] ?? String(val ?? ""));
-              return (
-                <div key={key} className="bg-white border border-gray-200 rounded-xl p-4 mb-3">
-                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{key.replace("scroll.", "")}</label>
-                  <textarea
-                    rows={2}
-                    value={currentVal}
-                    onChange={(e) => updateText("en", key, e.target.value)}
+                    onChange={(e) => updateText(contentLang as "tr"|"en"|"de", key, e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
                   />
                 </div>
@@ -3345,15 +3186,19 @@ export default function AdminPage() {
 
           {/* Blok İçerik — Hero */}
           <SectionHeader>Blok İçerik (Ek Alan)</SectionHeader>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">Türkçe Bloklar</p>
-              <BlockEditor blocks={pagesContent.hero.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hero: { ...pagesContent.hero, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">English Blocks</p>
-              <BlockEditor blocks={pagesContent.hero.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hero: { ...pagesContent.hero, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-            </div>
+          <LangTabs value={contentLang} onChange={setContentLang} />
+          <div className="mb-6">
+            {contentLang === "tr" && <BlockEditor blocks={pagesContent.hero.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hero: { ...pagesContent.hero, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "en" && <BlockEditor blocks={pagesContent.hero.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hero: { ...pagesContent.hero, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "de" && <BlockEditor blocks={(pagesContent.hero as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hero: { ...pagesContent.hero, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "media" && (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
+                <p className="text-2xl mb-2">🖼️</p>
+                <p className="text-sm font-semibold text-gray-700 mb-1">Hero Görselleri</p>
+                <p className="text-xs text-gray-400 mb-4">Ana sayfa hero görselleri Galeri sekmesinden yönetilir. Tüm diller için ortak kullanılır.</p>
+                <button type="button" onClick={() => setTab("gallery")} className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg px-4 py-2 transition-colors">Galeri Sekmesine Git →</button>
+              </div>
+            )}
           </div>
           </div>
         )}
@@ -3379,6 +3224,7 @@ export default function AdminPage() {
                 const ov = loadOverrides();
                 ov.trFaqs = trFaqs.length ? trFaqs : undefined;
                 ov.enFaqs = enFaqs.length ? enFaqs : undefined;
+                ov.deFaqs = deFaqs.length ? deFaqs : undefined;
                 saveOverrides(ov);
                 setToast({ msg: "SSS kaydedildi", type: "success" });
               }} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl px-5 py-2.5">Kaydet</button>
@@ -3388,105 +3234,74 @@ export default function AdminPage() {
             {/* Bölüm başlığı */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Bölüm Başlığı</p>
-              <div className="grid grid-cols-2 gap-4">
+              <LangTabs value={contentLang} onChange={setContentLang} />
+              {contentLang === "tr" && (
                 <div>
                   <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Üst Etiket (TR)</label>
                   <input type="text" value={overrides.tr?.["static.faqEyebrow"] ?? "Sık Sorulan Sorular"} onChange={(e) => updateText("tr", "static.faqEyebrow", e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                 </div>
+              )}
+              {contentLang === "en" && (
                 <div>
                   <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Eyebrow (EN)</label>
                   <input type="text" value={overrides.en?.["static.faqEyebrow"] ?? "Frequently Asked Questions"} onChange={(e) => updateText("en", "static.faqEyebrow", e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                 </div>
-              </div>
+              )}
+              {contentLang === "de" && (
+                <div>
+                  <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Eyebrow (DE)</label>
+                  <input type="text" value={overrides.de?.["static.faqEyebrow"] ?? "Häufig gestellte Fragen"} onChange={(e) => updateText("de", "static.faqEyebrow", e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                </div>
+              )}
             </div>
 
-            {/* Türkçe SSS */}
-            <SectionHeader>Türkçe</SectionHeader>
-            <div className="space-y-3 mb-6">
-              {(trFaqs.length ? trFaqs : translations.tr.static.faqs).map((faq, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-400">#{i + 1}</span>
-                    <input
-                      type="text"
-                      value={faq.q}
-                      onChange={(e) => {
-                        const next = [...(trFaqs.length ? trFaqs : translations.tr.static.faqs.map(f => ({...f})))];
-                        next[i] = { ...next[i], q: e.target.value };
-                        setTrFaqs(next);
-                      }}
-                      placeholder="Soru"
-                      className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
-                    />
-                    <button onClick={() => setTrFaqs((trFaqs.length ? trFaqs : translations.tr.static.faqs.map(f => ({...f}))).filter((_, j) => j !== i))}
-                      className="text-gray-300 hover:text-red-400 text-lg leading-none px-1">✕</button>
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={faq.a}
-                    onChange={(e) => {
-                      const next = [...(trFaqs.length ? trFaqs : translations.tr.static.faqs.map(f => ({...f})))];
-                      next[i] = { ...next[i], a: e.target.value };
-                      setTrFaqs(next);
-                    }}
-                    placeholder="Cevap"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
-                  />
+            {/* SSS — dil sekmeleri */}
+            <LangTabs value={contentLang} onChange={setContentLang} />
+            {contentLang !== "media" && (() => {
+              const cfg = {
+                tr: { faqs: trFaqs, setFaqs: setTrFaqs, def: translations.tr.static.faqs, addLabel: "+ Soru Ekle", qPlaceholder: "Soru", aPlaceholder: "Cevap" },
+                en: { faqs: enFaqs, setFaqs: setEnFaqs, def: translations.en.static.faqs, addLabel: "+ Add Question", qPlaceholder: "Question", aPlaceholder: "Answer" },
+                de: { faqs: deFaqs, setFaqs: setDeFaqs, def: [] as {q:string;a:string}[], addLabel: "+ Frage hinzufügen", qPlaceholder: "Frage", aPlaceholder: "Antwort" },
+              }[contentLang];
+              const active = cfg.faqs.length ? cfg.faqs : cfg.def;
+              return (
+                <div className="space-y-3 mb-6">
+                  {active.map((faq, i) => (
+                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-400">#{i + 1}</span>
+                        <input type="text" value={faq.q}
+                          onChange={(e) => { const next = [...(cfg.faqs.length ? cfg.faqs : cfg.def.map(f => ({...f})))]; next[i] = { ...next[i], q: e.target.value }; cfg.setFaqs(next); }}
+                          placeholder={cfg.qPlaceholder}
+                          className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
+                        />
+                        <button onClick={() => cfg.setFaqs((cfg.faqs.length ? cfg.faqs : cfg.def.map(f => ({...f}))).filter((_, j) => j !== i))}
+                          className="text-gray-300 hover:text-red-400 text-lg leading-none px-1">✕</button>
+                      </div>
+                      <textarea rows={2} value={faq.a}
+                        onChange={(e) => { const next = [...(cfg.faqs.length ? cfg.faqs : cfg.def.map(f => ({...f})))]; next[i] = { ...next[i], a: e.target.value }; cfg.setFaqs(next); }}
+                        placeholder={cfg.aPlaceholder}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
+                      />
+                    </div>
+                  ))}
+                  <button onClick={() => cfg.setFaqs([...(cfg.faqs.length ? cfg.faqs : cfg.def.map(f => ({...f}))), { q: "", a: "" }])}
+                    className="w-full border-2 border-dashed border-gray-200 hover:border-blue-300 rounded-xl py-3 text-sm text-gray-400 hover:text-blue-500 transition-colors">
+                    {cfg.addLabel}
+                  </button>
                 </div>
-              ))}
-              <button onClick={() => setTrFaqs([...(trFaqs.length ? trFaqs : translations.tr.static.faqs.map(f => ({...f}))), { q: "", a: "" }])}
-                className="w-full border-2 border-dashed border-gray-200 hover:border-blue-300 rounded-xl py-3 text-sm text-gray-400 hover:text-blue-500 transition-colors">
-                + Soru Ekle
-              </button>
-            </div>
-
-            {/* English SSS */}
-            <SectionHeader>English</SectionHeader>
-            <div className="space-y-3 mb-6">
-              {(enFaqs.length ? enFaqs : translations.en.static.faqs).map((faq, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-400">#{i + 1}</span>
-                    <input
-                      type="text"
-                      value={faq.q}
-                      onChange={(e) => {
-                        const next = [...(enFaqs.length ? enFaqs : translations.en.static.faqs.map(f => ({...f})))];
-                        next[i] = { ...next[i], q: e.target.value };
-                        setEnFaqs(next);
-                      }}
-                      placeholder="Question"
-                      className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
-                    />
-                    <button onClick={() => setEnFaqs((enFaqs.length ? enFaqs : translations.en.static.faqs.map(f => ({...f}))).filter((_, j) => j !== i))}
-                      className="text-gray-300 hover:text-red-400 text-lg leading-none px-1">✕</button>
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={faq.a}
-                    onChange={(e) => {
-                      const next = [...(enFaqs.length ? enFaqs : translations.en.static.faqs.map(f => ({...f})))];
-                      next[i] = { ...next[i], a: e.target.value };
-                      setEnFaqs(next);
-                    }}
-                    placeholder="Answer"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y"
-                  />
-                </div>
-              ))}
-              <button onClick={() => setEnFaqs([...(enFaqs.length ? enFaqs : translations.en.static.faqs.map(f => ({...f}))), { q: "", a: "" }])}
-                className="w-full border-2 border-dashed border-gray-200 hover:border-blue-300 rounded-xl py-3 text-sm text-gray-400 hover:text-blue-500 transition-colors">
-                + Add Question
-              </button>
-            </div>
+              );
+            })()}
 
             <div className="flex justify-end mb-6">
               <button onClick={() => {
                 const ov = loadOverrides();
                 ov.trFaqs = trFaqs.length ? trFaqs : undefined;
                 ov.enFaqs = enFaqs.length ? enFaqs : undefined;
+                ov.deFaqs = deFaqs.length ? deFaqs : undefined;
                 saveOverrides(ov);
                 setToast({ msg: "SSS kaydedildi", type: "success" });
               }} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl px-6 py-3">Kaydet</button>
@@ -3494,16 +3309,16 @@ export default function AdminPage() {
 
             {/* Blok İçerik — SSS */}
             <SectionHeader>Blok İçerik (Ek Alan)</SectionHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">Türkçe Bloklar</p>
-                <BlockEditor blocks={pagesContent.sss.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, sss: { ...pagesContent.sss, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
+            <LangTabs value={contentLang} onChange={setContentLang} />
+            {contentLang === "tr" && <BlockEditor blocks={pagesContent.sss.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, sss: { ...pagesContent.sss, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "en" && <BlockEditor blocks={pagesContent.sss.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, sss: { ...pagesContent.sss, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "de" && <BlockEditor blocks={(pagesContent.sss as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, sss: { ...pagesContent.sss, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "media" && (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
+                <p className="text-2xl mb-2">📋</p>
+                <p className="text-sm text-gray-400">SSS bölümünde medya içeriği bulunmamaktadır. Sorular metin tabanlıdır.</p>
               </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">English Blocks</p>
-                <BlockEditor blocks={pagesContent.sss.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, sss: { ...pagesContent.sss, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -3528,8 +3343,10 @@ export default function AdminPage() {
                 const ov = loadOverrides();
                 ov.trContactBlocks = trContactBlocks.length ? trContactBlocks : undefined;
                 ov.enContactBlocks = enContactBlocks.length ? enContactBlocks : undefined;
+                ov.deContactBlocks = deContactBlocks.length ? deContactBlocks : undefined;
                 ov.trCompanyInfo = trCompanyInfo || undefined;
                 ov.enCompanyInfo = enCompanyInfo || undefined;
+                ov.deCompanyInfo = deCompanyInfo || undefined;
                 saveOverrides(ov);
                 setToast({ msg: "İletişim bilgileri kaydedildi", type: "success" });
               }} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl px-5 py-2.5">Kaydet</button>
@@ -3539,138 +3356,94 @@ export default function AdminPage() {
             {/* Sayfa Başlıkları */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa Başlıkları</p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <LangTabs value={contentLang} onChange={setContentLang} />
+              <div className="space-y-3">
                 {([
-                  { key: "static.contactEyebrow", labelTr: "Üst Etiket (TR)", labelEn: "Eyebrow (EN)", defTr: "Bize Ulaşın", defEn: "Reach Us" },
-                  { key: "static.contactTitle",   labelTr: "Başlık (TR)",     labelEn: "Title (EN)",   defTr: "İletişime",  defEn: "Get in" },
-                  { key: "static.contactTitleAccent", labelTr: "Vurgulu Sözcük (TR)", labelEn: "Accent Word (EN)", defTr: "Geçin", defEn: "Touch" },
-                  { key: "static.contactSubtitle", labelTr: "Alt Yazı (TR)", labelEn: "Subtitle (EN)", defTr: "", defEn: "" },
-                ] as {key:string;labelTr:string;labelEn:string;defTr:string;defEn:string}[]).map(({ key, labelTr, labelEn, defTr, defEn }) => (
-                  <div key={key} className="contents">
-                    <div>
-                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelTr}</label>
-                      <input type="text" value={overrides.tr?.[key] ?? defTr} onChange={(e) => updateText("tr", key, e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelEn}</label>
-                      <input type="text" value={overrides.en?.[key] ?? defEn} onChange={(e) => updateText("en", key, e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-                    </div>
+                  { key: "static.contactEyebrow", labelTr: "Üst Etiket (TR)", labelEn: "Eyebrow (EN)", labelDe: "Eyebrow (DE)", defTr: "Bize Ulaşın", defEn: "Reach Us", defDe: "Kontaktieren Sie uns" },
+                  { key: "static.contactTitle",   labelTr: "Başlık (TR)",     labelEn: "Title (EN)",   labelDe: "Titel (DE)",  defTr: "İletişime",  defEn: "Get in",  defDe: "Kontakt" },
+                  { key: "static.contactTitleAccent", labelTr: "Vurgulu Sözcük (TR)", labelEn: "Accent Word (EN)", labelDe: "Akzentwort (DE)", defTr: "Geçin", defEn: "Touch", defDe: "aufnehmen" },
+                  { key: "static.contactSubtitle", labelTr: "Alt Yazı (TR)", labelEn: "Subtitle (EN)", labelDe: "Untertitel (DE)", defTr: "", defEn: "", defDe: "" },
+                ] as {key:string;labelTr:string;labelEn:string;labelDe:string;defTr:string;defEn:string;defDe:string}[]).map(({ key, labelTr, labelEn, labelDe, defTr, defEn, defDe }) => (
+                  <div key={key}>
+                    {contentLang === "tr" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelTr}</label>
+                        <input type="text" value={overrides.tr?.[key] ?? defTr} onChange={(e) => updateText("tr", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
+                    {contentLang === "en" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelEn}</label>
+                        <input type="text" value={overrides.en?.[key] ?? defEn} onChange={(e) => updateText("en", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
+                    {contentLang === "de" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelDe}</label>
+                        <input type="text" value={overrides.de?.[key] ?? defDe} onChange={(e) => updateText("de", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Türkçe */}
-            <SectionHeader>Türkçe</SectionHeader>
-            <div className="space-y-3 mb-4">
-              {(trContactBlocks.length ? trContactBlocks : translations.tr.static.contactBlocks).map((block, bi) => (
-                <div key={bi} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-                  <input
-                    type="text"
-                    value={block.label}
-                    onChange={(e) => {
-                      const next = [...(trContactBlocks.length ? trContactBlocks : translations.tr.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                      next[bi] = { ...next[bi], label: e.target.value };
-                      setTrContactBlocks(next);
-                    }}
-                    placeholder="Başlık (ör: Adres)"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 outline-none focus:border-blue-400"
-                  />
-                  {block.lines.map((line, li) => (
-                    <div key={li} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={line}
-                        onChange={(e) => {
-                          const next = [...(trContactBlocks.length ? trContactBlocks : translations.tr.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                          next[bi] = { ...next[bi], lines: next[bi].lines.map((l, j) => j === li ? e.target.value : l) };
-                          setTrContactBlocks(next);
-                        }}
-                        placeholder="Satır"
-                        className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
-                      />
-                      <button onClick={() => {
-                        const next = [...(trContactBlocks.length ? trContactBlocks : translations.tr.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                        next[bi] = { ...next[bi], lines: next[bi].lines.filter((_, j) => j !== li) };
-                        setTrContactBlocks(next);
-                      }} className="text-gray-300 hover:text-red-400 px-2">✕</button>
-                    </div>
-                  ))}
-                  <button onClick={() => {
-                    const next = [...(trContactBlocks.length ? trContactBlocks : translations.tr.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                    next[bi] = { ...next[bi], lines: [...next[bi].lines, ""] };
-                    setTrContactBlocks(next);
-                  }} className="text-xs text-blue-500 hover:text-blue-700">+ Satır ekle</button>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
-              <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Şirket Bilgisi (footer)</label>
-              <textarea rows={2} value={trCompanyInfo || translations.tr.static.companyInfo}
-                onChange={(e) => setTrCompanyInfo(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-            </div>
-
-            {/* English */}
-            <SectionHeader>English</SectionHeader>
-            <div className="space-y-3 mb-4">
-              {(enContactBlocks.length ? enContactBlocks : translations.en.static.contactBlocks).map((block, bi) => (
-                <div key={bi} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-                  <input
-                    type="text"
-                    value={block.label}
-                    onChange={(e) => {
-                      const next = [...(enContactBlocks.length ? enContactBlocks : translations.en.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                      next[bi] = { ...next[bi], label: e.target.value };
-                      setEnContactBlocks(next);
-                    }}
-                    placeholder="Label (e.g: Address)"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 outline-none focus:border-blue-400"
-                  />
-                  {block.lines.map((line, li) => (
-                    <div key={li} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={line}
-                        onChange={(e) => {
-                          const next = [...(enContactBlocks.length ? enContactBlocks : translations.en.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                          next[bi] = { ...next[bi], lines: next[bi].lines.map((l, j) => j === li ? e.target.value : l) };
-                          setEnContactBlocks(next);
-                        }}
-                        placeholder="Line"
-                        className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
-                      />
-                      <button onClick={() => {
-                        const next = [...(enContactBlocks.length ? enContactBlocks : translations.en.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                        next[bi] = { ...next[bi], lines: next[bi].lines.filter((_, j) => j !== li) };
-                        setEnContactBlocks(next);
-                      }} className="text-gray-300 hover:text-red-400 px-2">✕</button>
-                    </div>
-                  ))}
-                  <button onClick={() => {
-                    const next = [...(enContactBlocks.length ? enContactBlocks : translations.en.static.contactBlocks.map(b => ({...b, lines: [...b.lines]})))];
-                    next[bi] = { ...next[bi], lines: [...next[bi].lines, ""] };
-                    setEnContactBlocks(next);
-                  }} className="text-xs text-blue-500 hover:text-blue-700">+ Add line</button>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
-              <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Company Info (footer)</label>
-              <textarea rows={2} value={enCompanyInfo || translations.en.static.companyInfo}
-                onChange={(e) => setEnCompanyInfo(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-            </div>
+            {/* İletişim bilgileri — dil sekmeleri */}
+            <LangTabs value={contentLang} onChange={setContentLang} />
+            {contentLang !== "media" && (() => {
+              const cfg = {
+                tr: { blocks: trContactBlocks, setBlocks: setTrContactBlocks, def: translations.tr.static.contactBlocks, companyInfo: trCompanyInfo, setCompanyInfo: setTrCompanyInfo, defCompany: translations.tr.static.companyInfo, labelPlaceholder: "Başlık (ör: Adres)", linePlaceholder: "Satır", addLine: "+ Satır ekle", companyLabel: "Şirket Bilgisi (footer)" },
+                en: { blocks: enContactBlocks, setBlocks: setEnContactBlocks, def: translations.en.static.contactBlocks, companyInfo: enCompanyInfo, setCompanyInfo: setEnCompanyInfo, defCompany: translations.en.static.companyInfo, labelPlaceholder: "Label (e.g: Address)", linePlaceholder: "Line", addLine: "+ Add line", companyLabel: "Company Info (footer)" },
+                de: { blocks: deContactBlocks, setBlocks: setDeContactBlocks, def: [] as {label:string;lines:string[]}[], companyInfo: deCompanyInfo, setCompanyInfo: setDeCompanyInfo, defCompany: "", labelPlaceholder: "Bezeichnung (z.B.: Adresse)", linePlaceholder: "Zeile", addLine: "+ Zeile hinzufügen", companyLabel: "Firmeninfo (footer)" },
+              }[contentLang];
+              const activeBlocks = cfg.blocks.length ? cfg.blocks : cfg.def;
+              return (
+                <>
+                  <div className="space-y-3 mb-4">
+                    {activeBlocks.map((block, bi) => (
+                      <div key={bi} className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+                        <input type="text" value={block.label}
+                          onChange={(e) => { const next = [...(cfg.blocks.length ? cfg.blocks : cfg.def.map(b => ({...b, lines: [...b.lines]})))]; next[bi] = { ...next[bi], label: e.target.value }; cfg.setBlocks(next); }}
+                          placeholder={cfg.labelPlaceholder}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 outline-none focus:border-blue-400"
+                        />
+                        {block.lines.map((line, li) => (
+                          <div key={li} className="flex gap-2">
+                            <input type="text" value={line}
+                              onChange={(e) => { const next = [...(cfg.blocks.length ? cfg.blocks : cfg.def.map(b => ({...b, lines: [...b.lines]})))]; next[bi] = { ...next[bi], lines: next[bi].lines.map((l, j) => j === li ? e.target.value : l) }; cfg.setBlocks(next); }}
+                              placeholder={cfg.linePlaceholder}
+                              className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400"
+                            />
+                            <button onClick={() => { const next = [...(cfg.blocks.length ? cfg.blocks : cfg.def.map(b => ({...b, lines: [...b.lines]})))]; next[bi] = { ...next[bi], lines: next[bi].lines.filter((_, j) => j !== li) }; cfg.setBlocks(next); }}
+                              className="text-gray-300 hover:text-red-400 px-2">✕</button>
+                          </div>
+                        ))}
+                        <button onClick={() => { const next = [...(cfg.blocks.length ? cfg.blocks : cfg.def.map(b => ({...b, lines: [...b.lines]})))]; next[bi] = { ...next[bi], lines: [...next[bi].lines, ""] }; cfg.setBlocks(next); }}
+                          className="text-xs text-blue-500 hover:text-blue-700">{cfg.addLine}</button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">{cfg.companyLabel}</label>
+                    <textarea rows={2} value={cfg.companyInfo || cfg.defCompany} onChange={(e) => cfg.setCompanyInfo(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                  </div>
+                </>
+              );
+            })()}
 
             <div className="flex justify-end">
               <button onClick={() => {
                 const ov = loadOverrides();
                 ov.trContactBlocks = trContactBlocks.length ? trContactBlocks : undefined;
                 ov.enContactBlocks = enContactBlocks.length ? enContactBlocks : undefined;
+                ov.deContactBlocks = deContactBlocks.length ? deContactBlocks : undefined;
                 ov.trCompanyInfo = trCompanyInfo || undefined;
                 ov.enCompanyInfo = enCompanyInfo || undefined;
+                ov.deCompanyInfo = deCompanyInfo || undefined;
                 saveOverrides(ov);
                 setToast({ msg: "İletişim bilgileri kaydedildi", type: "success" });
               }} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl px-6 py-3">Kaydet</button>
@@ -3678,16 +3451,16 @@ export default function AdminPage() {
 
             {/* Blok İçerik — İletişim */}
             <SectionHeader>Blok İçerik (Ek Alan)</SectionHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">Türkçe Bloklar</p>
-                <BlockEditor blocks={pagesContent.iletisim.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, iletisim: { ...pagesContent.iletisim, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
+            <LangTabs value={contentLang} onChange={setContentLang} />
+            {contentLang === "tr" && <BlockEditor blocks={pagesContent.iletisim.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, iletisim: { ...pagesContent.iletisim, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "en" && <BlockEditor blocks={pagesContent.iletisim.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, iletisim: { ...pagesContent.iletisim, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "de" && <BlockEditor blocks={(pagesContent.iletisim as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, iletisim: { ...pagesContent.iletisim, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />}
+            {contentLang === "media" && (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
+                <p className="text-2xl mb-2">📞</p>
+                <p className="text-sm text-gray-400">İletişim bölümünde medya içeriği bulunmamaktadır. Adres ve iletişim bilgileri metin tabanlıdır.</p>
               </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase text-gray-400 mb-2">English Blocks</p>
-                <BlockEditor blocks={pagesContent.iletisim.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, iletisim: { ...pagesContent.iletisim, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -3714,24 +3487,36 @@ export default function AdminPage() {
             {/* Bölüm başlıkları */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Bölüm Başlıkları</p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <LangTabs value={contentLang} onChange={setContentLang} />
+              <div className="space-y-3">
                 {([
-                  { key: "static.aboutEyebrow",      labelTr: "Üst Etiket (TR)",    labelEn: "Eyebrow (EN)",       defTr: "Neden Axeron",    defEn: "Why Axeron" },
-                  { key: "static.aboutTitle",        labelTr: "Başlık (TR)",        labelEn: "Title (EN)",         defTr: "Rakamlarla",      defEn: "By the" },
-                  { key: "static.aboutTitleAccent",  labelTr: "Vurgulu Sözcük (TR)",labelEn: "Accent Word (EN)",   defTr: "Biz",             defEn: "Numbers" },
-                  { key: "static.aboutSubtitle",     labelTr: "Alt Yazı (TR)",      labelEn: "Subtitle (EN)",      defTr: "",                defEn: "" },
-                ] as {key:string;labelTr:string;labelEn:string;defTr:string;defEn:string}[]).map(({ key, labelTr, labelEn, defTr, defEn }) => (
-                  <div key={key} className="contents">
-                    <div>
-                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelTr}</label>
-                      <input type="text" value={overrides.tr?.[key] ?? defTr} onChange={(e) => updateText("tr", key, e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelEn}</label>
-                      <input type="text" value={overrides.en?.[key] ?? defEn} onChange={(e) => updateText("en", key, e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-                    </div>
+                  { key: "static.aboutEyebrow",     labelTr: "Üst Etiket (TR)",    labelEn: "Eyebrow (EN)",     labelDe: "Eyebrow (DE)",     defTr: "Neden Axeron", defEn: "Why Axeron", defDe: "Warum Axeron" },
+                  { key: "static.aboutTitle",        labelTr: "Başlık (TR)",        labelEn: "Title (EN)",       labelDe: "Titel (DE)",       defTr: "Rakamlarla",   defEn: "By the",     defDe: "In Zahlen" },
+                  { key: "static.aboutTitleAccent",  labelTr: "Vurgulu Sözcük (TR)",labelEn: "Accent Word (EN)", labelDe: "Akzentwort (DE)",  defTr: "Biz",          defEn: "Numbers",    defDe: "Wir" },
+                  { key: "static.aboutSubtitle",     labelTr: "Alt Yazı (TR)",      labelEn: "Subtitle (EN)",    labelDe: "Untertitel (DE)",  defTr: "",             defEn: "",           defDe: "" },
+                ] as {key:string;labelTr:string;labelEn:string;labelDe:string;defTr:string;defEn:string;defDe:string}[]).map(({ key, labelTr, labelEn, labelDe, defTr, defEn, defDe }) => (
+                  <div key={key}>
+                    {contentLang === "tr" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelTr}</label>
+                        <input type="text" value={overrides.tr?.[key] ?? defTr} onChange={(e) => updateText("tr", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
+                    {contentLang === "en" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelEn}</label>
+                        <input type="text" value={overrides.en?.[key] ?? defEn} onChange={(e) => updateText("en", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
+                    {contentLang === "de" && (
+                      <>
+                        <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">{labelDe}</label>
+                        <input type="text" value={overrides.de?.[key] ?? defDe} onChange={(e) => updateText("de", key, e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
@@ -3740,42 +3525,49 @@ export default function AdminPage() {
             {/* Misyon / Üretim Kalitesi / Sertifikasyon sütunları */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Alt Sütunlar (Misyon · Üretim · Sertifikasyon)</p>
+              <LangTabs value={contentLang} onChange={setContentLang} />
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Misyon (TR)</label>
-                    <textarea rows={3} value={trMission} onChange={(e) => setTrMission(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Mission (EN)</label>
-                    <textarea rows={3} value={enMission} onChange={(e) => setEnMission(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
+                <div className="pb-4 border-b border-gray-100">
+                  <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">
+                    {contentLang === "tr" ? "Misyon" : contentLang === "de" ? "Mission (DE)" : "Mission (EN)"}
+                  </label>
+                  {contentLang === "tr" && <textarea rows={3} value={trMission} onChange={(e) => setTrMission(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />}
+                  {contentLang === "en" && <textarea rows={3} value={enMission} onChange={(e) => setEnMission(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />}
+                  {contentLang === "de" && <textarea rows={3} value={deMission} onChange={(e) => setDeMission(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />}
                 </div>
-                <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Üretim Kalitesi (TR)</label>
-                    <textarea rows={3} value={trProductionQuality} onChange={(e) => setTrProductionQuality(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Production Quality (EN)</label>
-                    <textarea rows={3} value={enProductionQuality} onChange={(e) => setEnProductionQuality(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Sertifikasyon (TR)</label>
-                    <textarea rows={3} value={trCertification} onChange={(e) => setTrCertification(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Certification (EN)</label>
-                    <textarea rows={3} value={enCertification} onChange={(e) => setEnCertification(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-                  </div>
-                </div>
+                {contentLang === "tr" && (
+                  <>
+                    <div className="pb-4 border-b border-gray-100">
+                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Üretim Kalitesi (TR)</label>
+                      <textarea rows={3} value={trProductionQuality} onChange={(e) => setTrProductionQuality(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Sertifikasyon (TR)</label>
+                      <textarea rows={3} value={trCertification} onChange={(e) => setTrCertification(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                    </div>
+                  </>
+                )}
+                {contentLang === "en" && (
+                  <>
+                    <div className="pb-4 border-b border-gray-100">
+                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Production Quality (EN)</label>
+                      <textarea rows={3} value={enProductionQuality} onChange={(e) => setEnProductionQuality(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">Certification (EN)</label>
+                      <textarea rows={3} value={enCertification} onChange={(e) => setEnCertification(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                    </div>
+                  </>
+                )}
+                {contentLang === "de" && (
+                  <p className="text-xs text-gray-400 italic">DE çevirisi yok — TR/EN değerleri kullanılır.</p>
+                )}
               </div>
               <button onClick={() => {
                 const ov = loadOverrides();
                 ov.trMission = trMission || undefined;
                 ov.enMission = enMission || undefined;
+                ov.deMission = deMission || undefined;
                 ov.trProductionQuality = trProductionQuality || undefined;
                 ov.enProductionQuality = enProductionQuality || undefined;
                 ov.trCertification = trCertification || undefined;
@@ -3787,30 +3579,49 @@ export default function AdminPage() {
 
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa İçeriği</p>
-              <div className="space-y-5">
+              <LangTabs value={contentLang} onChange={setContentLang} />
+              {contentLang === "tr" && (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık TR <span className="text-gray-300 font-normal normal-case tracking-normal">(opsiyonel — boş bırakılırsa başlık gösterilmez)</span></label>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık <span className="text-gray-300 font-normal normal-case tracking-normal">(opsiyonel — boş bırakılırsa başlık gösterilmez)</span></label>
                     <input type="text" value={pagesContent.hakkimizda.trTitle || ""} onChange={(e) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} placeholder="Başlık girilmezse sayfada başlık çıkmaz" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                   </div>
-                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">İçerik TR</label>
+                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">İçerik</label>
                   <BlockEditor blocks={pagesContent.hakkimizda.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
                 </div>
-                <div className="space-y-3 pt-2 border-t border-gray-100">
+              )}
+              {contentLang === "en" && (
+                <div className="space-y-3">
                   <div>
-                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title EN <span className="text-gray-300 font-normal normal-case tracking-normal">(optional — hidden if empty)</span></label>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title <span className="text-gray-300 font-normal normal-case tracking-normal">(optional — hidden if empty)</span></label>
                     <input type="text" value={pagesContent.hakkimizda.enTitle || ""} onChange={(e) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} placeholder="No title shown if left empty" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
                   </div>
-                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Content EN</label>
+                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Content</label>
                   <BlockEditor blocks={pagesContent.hakkimizda.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
                 </div>
-              </div>
+              )}
+              {contentLang === "de" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Titel <span className="text-gray-300 font-normal normal-case tracking-normal">(optional — leer lassen = kein Titel)</span></label>
+                    <input type="text" value={(pagesContent.hakkimizda as any).deTitle || ""} onChange={(e) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, deTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} placeholder="Kein Titel wenn leer" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                  </div>
+                  <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Inhalt</label>
+                  <BlockEditor blocks={(pagesContent.hakkimizda as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, hakkimizda: { ...pagesContent.hakkimizda, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />
+                </div>
+              )}
+              {contentLang === "media" && (
+                <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
+                  <p className="text-2xl mb-2">📷</p>
+                  <p className="text-sm text-gray-400">Sayfa içeriği metin tabanlıdır. Sertifika görselleri aşağıdaki Medya bölümünden yönetilir.</p>
+                </div>
+              )}
             </div>
 
-            {/* Sertifika Görselleri */}
+            {/* Sertifika Görselleri — Medya Sekmesi */}
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-1">Sertifika Görselleri</p>
-              <p className="text-xs text-gray-400 mb-5">Footer'da logo yanında küçük yuvarlak olarak gösterilir.</p>
+              <p className="text-xs text-gray-400 mb-5">Footer'da logo yanında küçük yuvarlak olarak gösterilir. Tüm diller için ortaktır.</p>
               <div className="flex items-start gap-8 justify-center">
                 {[0, 1, 2].map((i) => {
                   const src = certImages[i] || null;
@@ -3888,6 +3699,7 @@ export default function AdminPage() {
             colorBg: themeColorBg, colorInk: themeColorInk,
             colorAccent: themeColorAccent, colorDark: themeColorDark,
             fontFamily: themeFontFamily, headingWeight: themeHeadingWeight,
+            defaultLang,
             navStyle: themeNavStyle, navBg: themeNavBg, buttonRadius: themeButtonRadius,
             cardRadius: themeCardRadius, glassBlur: themeGlassBlur,
             animationsEnabled: themeAnimations,
@@ -4101,6 +3913,25 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* ── VARSAYİLAN DİL ── */}
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 border-b border-gray-100 pb-3">Varsayılan Dil</p>
+                <p className="text-xs text-gray-500">Ziyaretçiler siteye ilk girdiğinde hangi dilde görünsün? Kullanıcı dil seçerse otomatik olarak değişir.</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    { id: "tr" as const, label: "Türkçe", flag: "🇹🇷" },
+                    { id: "en" as const, label: "English", flag: "🇬🇧" },
+                    { id: "de" as const, label: "Deutsch", flag: "🇩🇪" },
+                  ]).map((o) => (
+                    <button key={o.id} onClick={() => setDefaultLang(o.id)}
+                      className={`text-left p-4 rounded-xl border-2 transition-all ${defaultLang === o.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-400"}`}>
+                      <p className="text-2xl mb-2">{o.flag}</p>
+                      <p className={`text-sm font-semibold ${defaultLang === o.id ? "text-blue-700" : "text-gray-800"}`}>{o.label}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* ── ŞEKİL & FORM ── */}
               <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-5">
                 <p className="text-xs font-bold tracking-widest uppercase text-gray-400 border-b border-gray-100 pb-3">Şekil & Form</p>
@@ -4262,29 +4093,14 @@ export default function AdminPage() {
 
 
 
-              {/* Hero image */}
-
-              <div className="bg-white border border-gray-200 rounded-xl p-5">
-
-                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Kapak Görseli</p>
-
-                <HeroImageUpload
-                  value={pc.heroImage || ""}
-                  onChange={(url) => { const u = { ...pagesContent, [current.key]: { ...pc, heroImage: url } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-                />
-
-              </div>
-
-
-
-              {/* Content TR/EN */}
+              {/* Content + Media — LangTabs */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5">
 
                 <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa İçeriği</p>
+                <LangTabs value={contentLang} onChange={setContentLang} />
 
-                <div className="space-y-5">
-
+                {contentLang === "tr" && (
                   <div className="space-y-3">
                     <div>
                       <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık TR <span className="text-gray-300 font-normal normal-case tracking-normal">(opsiyonel — boş bırakılırsa başlık gösterilmez)</span></label>
@@ -4293,8 +4109,9 @@ export default function AdminPage() {
                     <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">İçerik TR</label>
                     <BlockEditor blocks={pc.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [current.key]: { ...pc, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
                   </div>
-
-                  <div className="space-y-3 pt-2 border-t border-gray-100">
+                )}
+                {contentLang === "en" && (
+                  <div className="space-y-3">
                     <div>
                       <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title EN <span className="text-gray-300 font-normal normal-case tracking-normal">(optional — hidden if empty)</span></label>
                       <input type="text" value={pc.enTitle || ""} onChange={(e) => { const u = { ...pagesContent, [current.key]: { ...pc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} placeholder="No title shown if left empty" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
@@ -4302,8 +4119,26 @@ export default function AdminPage() {
                     <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Content EN</label>
                     <BlockEditor blocks={pc.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [current.key]: { ...pc, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
                   </div>
-
-                </div>
+                )}
+                {contentLang === "de" && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Titel DE <span className="text-gray-300 font-normal normal-case tracking-normal">(optional — leer lassen = kein Titel)</span></label>
+                      <input type="text" value={(pc as any).deTitle || ""} onChange={(e) => { const u = { ...pagesContent, [current.key]: { ...pc, deTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} placeholder="Kein Titel wenn leer" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                    </div>
+                    <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Inhalt DE</label>
+                    <BlockEditor blocks={(pc as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [current.key]: { ...pc, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />
+                  </div>
+                )}
+                {contentLang === "media" && (
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2 block">Kapak Görseli <span className="text-gray-300 font-normal normal-case tracking-normal">(tüm diller için ortak)</span></p>
+                    <HeroImageUpload
+                      value={pc.heroImage || ""}
+                      onChange={(url) => { const u = { ...pagesContent, [current.key]: { ...pc, heroImage: url } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                    />
+                  </div>
+                )}
 
               </div>
 
@@ -4345,53 +4180,49 @@ export default function AdminPage() {
 
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 mb-3">
-
-                          <div>
-
-                            <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Başlık TR</label>
-
-                            <input type="text" value={spc.trTitle || ""}
-
-                              onChange={(e) => { const u = { ...pagesContent, [key]: { ...spc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                              className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400" />
-
-                          </div>
-
-                          <div>
-
-                            <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Title EN</label>
-
-                            <input type="text" value={spc.enTitle || ""}
-
-                              onChange={(e) => { const u = { ...pagesContent, [key]: { ...spc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                              className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400" />
-
-                          </div>
-
-                        </div>
-
-                        <div className="space-y-4">
-
-                          <div>
-
+                        <LangTabs value={contentLang} onChange={setContentLang} />
+                        {contentLang === "tr" && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Başlık TR</label>
+                              <input type="text" value={spc.trTitle || ""}
+                                onChange={(e) => { const u = { ...pagesContent, [key]: { ...spc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                            </div>
                             <label className="text-[10px] font-semibold uppercase text-gray-400 mb-2 block">İçerik TR</label>
-
                             <BlockEditor blocks={spc.trBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [key]: { ...spc, trBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-
                           </div>
-
-                          <div>
-
+                        )}
+                        {contentLang === "en" && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Title EN</label>
+                              <input type="text" value={spc.enTitle || ""}
+                                onChange={(e) => { const u = { ...pagesContent, [key]: { ...spc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                            </div>
                             <label className="text-[10px] font-semibold uppercase text-gray-400 mb-2 block">Content EN</label>
-
                             <BlockEditor blocks={spc.enBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [key]: { ...spc, enBlocks: blocks } }; setPagesContent(u); saveWithColors({ pages: u }); }} />
-
                           </div>
-
-                        </div>
+                        )}
+                        {contentLang === "de" && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1 block">Titel DE</label>
+                              <input type="text" value={(spc as any).deTitle || ""}
+                                onChange={(e) => { const u = { ...pagesContent, [key]: { ...spc, deTitle: e.target.value } as any }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                            </div>
+                            <label className="text-[10px] font-semibold uppercase text-gray-400 mb-2 block">Inhalt DE</label>
+                            <BlockEditor blocks={(spc as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => { const u = { ...pagesContent, [key]: { ...spc, deBlocks: blocks } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} />
+                          </div>
+                        )}
+                        {contentLang === "media" && (
+                          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-5 text-center">
+                            <p className="text-2xl mb-2">🖼️</p>
+                            <p className="text-xs text-gray-400">Bu alt sayfada ayrı kapak görseli bulunmamaktadır.</p>
+                          </div>
+                        )}
 
                       </div>
 
@@ -4549,76 +4380,59 @@ export default function AdminPage() {
 
               </div>
 
-              {/* Titles */}
+              {/* Titles — LangTabs */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5">
 
                 <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa Başlığı</p>
+                <LangTabs value={contentLang} onChange={setContentLang} />
 
-                <div className="grid grid-cols-2 gap-4">
-
+                {contentLang === "tr" && (
                   <div>
-
                     <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">TR</label>
-
                     <input type="text" value={cp.trTitle}
-
                       onChange={(e) => updateCp({ ...cp, trTitle: e.target.value })}
-
                       className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-
                   </div>
-
+                )}
+                {contentLang === "en" && (
                   <div>
-
                     <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">EN</label>
-
                     <input type="text" value={cp.enTitle}
-
                       onChange={(e) => updateCp({ ...cp, enTitle: e.target.value })}
-
                       className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
-
                   </div>
-
-                </div>
-
-              </div>
-
-              {/* Hero image */}
-
-              <div className="bg-white border border-gray-200 rounded-xl p-5">
-
-                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Kapak Görseli</p>
-
-                <HeroImageUpload
-                  value={cp.heroImage || ""}
-                  onChange={(url) => updateCp({ ...cp, heroImage: url })}
-                />
+                )}
+                {contentLang === "de" && (
+                  <div>
+                    <label className="text-[10px] font-semibold uppercase text-gray-400 mb-1.5 block">DE</label>
+                    <input type="text" value={(cp as any).deTitle || ""}
+                      onChange={(e) => updateCp({ ...cp, deTitle: e.target.value } as any)}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400" />
+                  </div>
+                )}
 
               </div>
 
-              {/* Content */}
+              {/* Content + Media — LangTabs */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5">
 
-                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa İçeriği — Türkçe</p>
+                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa İçeriği</p>
+                <LangTabs value={contentLang} onChange={setContentLang} />
 
-                <BlockEditor
-                  blocks={cp.trBlocks || []}
-                  onChange={(blocks: ContentBlock[]) => updateCp({ ...cp, trBlocks: blocks })}
-                />
-
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-xl p-5">
-
-                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Sayfa İçeriği — English</p>
-
-                <BlockEditor
-                  blocks={cp.enBlocks || []}
-                  onChange={(blocks: ContentBlock[]) => updateCp({ ...cp, enBlocks: blocks })}
-                />
+                {contentLang === "tr" && <BlockEditor blocks={cp.trBlocks || []} onChange={(blocks: ContentBlock[]) => updateCp({ ...cp, trBlocks: blocks })} />}
+                {contentLang === "en" && <BlockEditor blocks={cp.enBlocks || []} onChange={(blocks: ContentBlock[]) => updateCp({ ...cp, enBlocks: blocks })} />}
+                {contentLang === "de" && <BlockEditor blocks={(cp as any).deBlocks || []} onChange={(blocks: ContentBlock[]) => updateCp({ ...cp, deBlocks: blocks } as any)} />}
+                {contentLang === "media" && (
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2">Kapak Görseli <span className="text-gray-300 font-normal normal-case tracking-normal">(tüm diller için ortak)</span></p>
+                    <HeroImageUpload
+                      value={cp.heroImage || ""}
+                      onChange={(url) => updateCp({ ...cp, heroImage: url })}
+                    />
+                  </div>
+                )}
 
               </div>
 
@@ -4708,70 +4522,62 @@ export default function AdminPage() {
 
                   <div className="border-t border-gray-200 px-5 py-4 space-y-4">
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <LangTabs value={contentLang} onChange={setContentLang} />
 
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık (TR)</label>
-
-                        <input type="text" value={pc.trTitle || ""}
-
-                          onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                          placeholder={label}
-
-                          className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
-
+                    {contentLang === "tr" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık (TR)</label>
+                          <input type="text" value={pc.trTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">İçerik (TR)</label>
+                          <textarea rows={5} value={pc.trBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title (EN)</label>
-
-                        <input type="text" value={pc.enTitle || ""}
-
-                          onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                          placeholder={label}
-
-                          className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
-
+                    )}
+                    {contentLang === "en" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title (EN)</label>
+                          <input type="text" value={pc.enTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Content (EN)</label>
+                          <textarea rows={5} value={pc.enBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">İçerik (TR)</label>
-
-                        <textarea rows={5} value={pc.trBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-
+                    )}
+                    {contentLang === "de" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Titel (DE)</label>
+                          <input type="text" value={(pc as any).deTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, deTitle: e.target.value } as any }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Inhalt (DE)</label>
+                          <textarea rows={5} value={(pc as any).deBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, deBody: e.target.value } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Content (EN)</label>
-
-                        <textarea rows={5} value={pc.enBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-
+                    )}
+                    {contentLang === "media" && (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Kapak Görseli <span className="text-gray-300 font-normal normal-case tracking-normal">(tüm diller için ortak)</span></label>
+                        <HeroImageUpload
+                          value={pc.heroImage || ""}
+                          onChange={(url) => { const u = { ...pagesContent, [key]: { ...pc, heroImage: url } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                        />
                       </div>
-
-                    </div>
-
-                    {/* Hero image */}
-
-                    <div>
-
-                      <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Kapak Görseli</label>
-
-                      <HeroImageUpload
-                        value={pc.heroImage || ""}
-                        onChange={(url) => { const u = { ...pagesContent, [key]: { ...pc, heroImage: url } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-                      />
-
-                    </div>
+                    )}
 
                   </div>
 
@@ -4819,57 +4625,53 @@ export default function AdminPage() {
 
                   <div className="border-t border-gray-200 px-5 py-4 space-y-4">
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <LangTabs value={contentLang} onChange={setContentLang} />
 
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık (TR)</label>
-
-                        <input type="text" value={pc.trTitle || ""}
-
-                          onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                          placeholder={label}
-
-                          className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
-
+                    {contentLang === "tr" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Başlık (TR)</label>
+                          <input type="text" value={pc.trTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">İçerik (TR)</label>
+                          <textarea rows={5} value={pc.trBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title (EN)</label>
-
-                        <input type="text" value={pc.enTitle || ""}
-
-                          onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
-
-                          placeholder={label}
-
-                          className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
-
+                    )}
+                    {contentLang === "en" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Title (EN)</label>
+                          <input type="text" value={pc.enTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enTitle: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Content (EN)</label>
+                          <textarea rows={5} value={pc.enBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">İçerik (TR)</label>
-
-                        <textarea rows={5} value={pc.trBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, trBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-
+                    )}
+                    {contentLang === "de" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Titel (DE)</label>
+                          <input type="text" value={(pc as any).deTitle || ""}
+                            onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, deTitle: e.target.value } as any }; setPagesContent(u); saveWithColors({ pages: u }); }}
+                            placeholder={label}
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Inhalt (DE)</label>
+                          <textarea rows={5} value={(pc as any).deBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, deBody: e.target.value } as any }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
+                        </div>
                       </div>
-
-                      <div>
-
-                        <label className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-1.5 block">Content (EN)</label>
-
-                        <textarea rows={5} value={pc.enBody || ""} onChange={(e) => { const u = { ...pagesContent, [key]: { ...pc, enBody: e.target.value } }; setPagesContent(u); saveWithColors({ pages: u }); }} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-400 resize-y" />
-
-                      </div>
-
-                    </div>
+                    )}
 
                   </div>
 

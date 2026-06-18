@@ -6,10 +6,10 @@ import { loadOverrides, loadOverridesFromServer, saveOverrides, cacheLocally, ty
 interface ContentContextType {
   overrides: SiteOverrides;
   serverLoaded: boolean; // true once Blob fetch completes (or fails)
-  getText: (lang: "tr" | "en", key: string, fallback: string) => string;
+  getText: (lang: "tr" | "en" | "de", key: string, fallback: string) => string;
   getGallery: (defaults: GalleryItem[]) => GalleryItem[];
   getStats: (lang: "tr" | "en", defaults: StatItem[]) => StatItem[];
-  updateText: (lang: "tr" | "en", key: string, value: string) => void;
+  updateText: (lang: "tr" | "en" | "de", key: string, value: string) => void;
   updateGallery: (items: GalleryItem[]) => void;
   updateStats: (lang: "tr" | "en", items: StatItem[]) => void;
   updateEmailConfig: (config: import("@/lib/siteOverrides").EmailConfig | null) => void;
@@ -47,7 +47,8 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getText = useCallback(
-    (lang: "tr" | "en", key: string, fallback: string) => {
+    (lang: "tr" | "en" | "de", key: string, fallback: string) => {
+      if (lang === "de") return overrides.de?.[key] ?? fallback;
       return overrides[lang]?.[key] ?? fallback;
     },
     [overrides]
@@ -68,11 +69,12 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     [overrides]
   );
 
-  const updateText = useCallback((lang: "tr" | "en", key: string, value: string) => {
+  const updateText = useCallback((lang: "tr" | "en" | "de", key: string, value: string) => {
     setOverrides((prev) => {
+      const prevLang: Record<string, string> = lang === "de" ? (prev.de ?? {}) : prev[lang];
       const next = {
         ...prev,
-        [lang]: { ...prev[lang], [key]: value },
+        [lang]: { ...prevLang, [key]: value },
       };
       cacheLocally(next); // localStorage only — no blob POST on every keystroke
       return next;

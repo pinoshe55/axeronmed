@@ -74,12 +74,20 @@ export default function Header() {
   );
 
   const langToggle = (
-    <button type="button" onClick={() => setLang(lang === "tr" ? "en" : "tr")}
-      className="text-xs tracking-widest text-ink/35 hover:text-ink/70 transition-colors" aria-label="Switch language">
-      <span className={lang === "tr" ? "text-ink/70" : ""}>TR</span>
-      <span className="text-ink/15 mx-2">/</span>
-      <span className={lang === "en" ? "text-ink/70" : ""}>EN</span>
-    </button>
+    <div className="flex items-center gap-1 text-xs tracking-widest">
+      {(["TR", "EN", "DE"] as const).map((code, i) => {
+        const l = code.toLowerCase() as "tr" | "en" | "de";
+        return (
+          <span key={code} className="flex items-center gap-1">
+            {i > 0 && <span className="text-ink/15">/</span>}
+            <button type="button" onClick={() => setLang(l)}
+              className={`transition-colors ${lang === l ? "text-ink/80 font-semibold" : "text-ink/30 hover:text-ink/60"}`}>
+              {code}
+            </button>
+          </span>
+        );
+      })}
+    </div>
   );
 
   // Scroll olunca tüm nav stillerinde arka plan gelir

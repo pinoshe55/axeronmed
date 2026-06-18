@@ -256,8 +256,8 @@ export default function StaticSections() {
 
   // Hakkımızda section'ında gösterilecek içerik var mı? Yoksa section hiç render edilmez (boş alan önlenir)
   const hasHakkimizdaContent = showStats
-    || (showAboutText && (overrides?.trAbout || overrides?.enAbout))
-    || overrides?.trMission || overrides?.enMission
+    || (showAboutText && (overrides?.trAbout || overrides?.enAbout || overrides?.deAbout))
+    || overrides?.trMission || overrides?.enMission || overrides?.deMission
     || overrides?.trProductionQuality || overrides?.enProductionQuality
     || overrides?.trCertification || overrides?.enCertification
     || overrides?.pages?.hakkimizda?.trBlocks?.length
@@ -476,7 +476,7 @@ export default function StaticSections() {
         {/* İstatistikler */}
         {showStats && (
         <div className="rounded-2xl overflow-hidden grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8" style={{ backgroundColor: "var(--dark)" }}>
-          {getStats(lang, s.stats).map((st) => (
+          {getStats(lang === "de" ? "en" : lang, s.stats).map((st) => (
             <div key={st.label} className="p-7 lg:p-10">
               <AnimatedStat value={st.value} label={st.label} desc={st.desc} />
             </div>
@@ -485,10 +485,10 @@ export default function StaticSections() {
         )}
 
         {/* About description - Larger text with HTML support */}
-        {showAboutText && (overrides?.trAbout || overrides?.enAbout) && (
+        {showAboutText && (overrides?.trAbout || overrides?.enAbout || overrides?.deAbout) && (
           <div className="mt-12 pt-12 border-t border-ink/10">
             <div className="text-base text-ink/60 leading-relaxed prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trAbout : overrides.enAbout) || "" }} />
+              dangerouslySetInnerHTML={{ __html: (lang === "tr" ? overrides.trAbout : lang === "de" ? (overrides.deAbout || overrides.enAbout) : overrides.enAbout) || "" }} />
           </div>
         )}
 
@@ -496,17 +496,19 @@ export default function StaticSections() {
         {/* Alt sütunlar: Misyon · Üretim Kalitesi · Sertifikasyon */}
         {(overrides?.trMission || overrides?.enMission || overrides?.trProductionQuality || overrides?.enProductionQuality || overrides?.trCertification || overrides?.enCertification) && (() => {
           const cols = [
-            { labelTr: "Misyon", labelEn: "Mission", tr: overrides?.trMission, en: overrides?.enMission },
-            { labelTr: "Üretim Kalitesi", labelEn: "Production Quality", tr: overrides?.trProductionQuality, en: overrides?.enProductionQuality },
-            { labelTr: "Sertifikasyon", labelEn: "Certification", tr: overrides?.trCertification, en: overrides?.enCertification },
-          ].filter(c => c.tr || c.en);
+            { labelTr: "Misyon", labelEn: "Mission", labelDe: "Mission", tr: overrides?.trMission, en: overrides?.enMission, de: overrides?.deMission },
+            { labelTr: "Üretim Kalitesi", labelEn: "Production Quality", labelDe: "Produktionsqualität", tr: overrides?.trProductionQuality, en: overrides?.enProductionQuality, de: undefined },
+            { labelTr: "Sertifikasyon", labelEn: "Certification", labelDe: "Zertifizierung", tr: overrides?.trCertification, en: overrides?.enCertification, de: undefined },
+          ].filter(c => c.tr || c.en || c.de);
           const gridClass = cols.length === 1 ? "lg:grid-cols-1" : cols.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3";
+          const colLabel = (c: typeof cols[0]) => lang === "tr" ? c.labelTr : lang === "de" ? c.labelDe : c.labelEn;
+          const colText = (c: typeof cols[0]) => lang === "tr" ? c.tr : lang === "de" ? (c.de || c.en) : c.en;
           return (
             <div className={`grid grid-cols-1 md:grid-cols-2 ${gridClass} gap-10 mt-14`}>
               {cols.map((c) => (
                 <div key={c.labelTr} className="text-center">
-                  <p className="eyebrow mb-3">{lang === "tr" ? c.labelTr : c.labelEn}</p>
-                  <p className="text-sm text-ink/60 leading-relaxed">{lang === "tr" ? c.tr : c.en}</p>
+                  <p className="eyebrow mb-3">{colLabel(c)}</p>
+                  <p className="text-sm text-ink/60 leading-relaxed">{colText(c)}</p>
                 </div>
               ))}
             </div>
@@ -515,9 +517,9 @@ export default function StaticSections() {
 
         {/* Hakkımızda ek blok içeriği */}
         {(() => {
-          const hpc = overrides?.pages?.hakkimizda;
-          const blocks = lang === "tr" ? hpc?.trBlocks : hpc?.enBlocks;
-          const title = lang === "tr" ? hpc?.trTitle : hpc?.enTitle;
+          const hpc = overrides?.pages?.hakkimizda as any;
+          const blocks = lang === "tr" ? hpc?.trBlocks : lang === "de" ? (hpc?.deBlocks || hpc?.enBlocks) : hpc?.enBlocks;
+          const title = lang === "tr" ? hpc?.trTitle : lang === "de" ? (hpc?.deTitle || hpc?.enTitle) : hpc?.enTitle;
           if (!blocks || blocks.length === 0) return null;
           return (
             <div className="mt-14 pt-14 border-t border-ink/10">
@@ -569,6 +571,8 @@ export default function StaticSections() {
               {(() => {
                 const blocks = lang === "tr"
                   ? (overrides?.trContactBlocks?.length ? overrides.trContactBlocks : s.contactBlocks)
+                  : lang === "de"
+                  ? (overrides?.deContactBlocks?.length ? overrides.deContactBlocks : s.contactBlocks)
                   : (overrides?.enContactBlocks?.length ? overrides.enContactBlocks : s.contactBlocks);
                 return blocks.map((b) => (
                   <div key={b.label}>
@@ -585,7 +589,7 @@ export default function StaticSections() {
 
             {/* Alt: şirket bilgisi */}
             <div className="pt-5 border-t border-white/10">
-              <p className="text-[11px] text-white/25 leading-relaxed whitespace-pre-line">{lang === "tr" ? (overrides?.trCompanyInfo || s.companyInfo) : (overrides?.enCompanyInfo || s.companyInfo)}</p>
+              <p className="text-[11px] text-white/25 leading-relaxed whitespace-pre-line">{lang === "tr" ? (overrides?.trCompanyInfo || s.companyInfo) : lang === "de" ? (overrides?.deCompanyInfo || s.companyInfo) : (overrides?.enCompanyInfo || s.companyInfo)}</p>
             </div>
           </div>
 
@@ -719,7 +723,7 @@ export default function StaticSections() {
             <p className="eyebrow">{g("faqEyebrow", s.faqEyebrow)}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16">
-            {(lang === "tr" ? (overrides?.trFaqs || s.faqs) : (overrides?.enFaqs || s.faqs)).map((f) => (
+            {(lang === "tr" ? (overrides?.trFaqs || s.faqs) : lang === "de" ? (overrides?.deFaqs || s.faqs) : (overrides?.enFaqs || s.faqs)).map((f) => (
               <FaqItem key={f.q} q={f.q} a={f.a} />
             ))}
           </div>

@@ -160,12 +160,14 @@ export interface ThemeConfig {
   // Efektler
   glassBlur?: boolean;       // Header/kart blur efekti
   animationsEnabled?: boolean; // Geçiş animasyonları
+  defaultLang?: "tr" | "en" | "de"; // Varsayılan dil
 }
 
 export interface SiteOverrides {
   gallery: GalleryItem[];
   tr: Record<string, string>;
   en: Record<string, string>;
+  de?: Record<string, string>;
   trStats?: StatItem[];
   enStats?: StatItem[];
   adminUsers?: AdminUser[];
@@ -181,12 +183,15 @@ export interface SiteOverrides {
   lightPositionZ?: number; // Light Z coordinate
   trSEO?: SEOConfig; // Turkish SEO configuration
   enSEO?: SEOConfig; // English SEO configuration
+  deSEO?: SEOConfig; // German SEO configuration
 
   // About section fields
   trAbout?: string; // Turkish: Hakkımızda (description)
   enAbout?: string; // English: About Us (description)
+  deAbout?: string; // German: Über uns (description)
   trMission?: string; // Turkish: Misyon
   enMission?: string; // English: Mission
+  deMission?: string; // German: Mission
   trVision?: string; // Turkish: Vizyon
   enVision?: string; // English: Vision
   // Quality Values - 3 cards (value, label, description)
@@ -212,10 +217,13 @@ export interface SiteOverrides {
   activeSections?: ActiveSections;
   trFaqs?: { q: string; a: string }[];
   enFaqs?: { q: string; a: string }[];
+  deFaqs?: { q: string; a: string }[];
   trContactBlocks?: { label: string; lines: string[] }[];
   enContactBlocks?: { label: string; lines: string[] }[];
+  deContactBlocks?: { label: string; lines: string[] }[];
   trCompanyInfo?: string;
   enCompanyInfo?: string;
+  deCompanyInfo?: string;
   certImages?: (string | null)[]; // 3 circular certificate images for footer
   certLinks?: (string | null)[];  // optional link URLs for each certificate
   theme?: ThemeConfig;            // Tam tema ayarları

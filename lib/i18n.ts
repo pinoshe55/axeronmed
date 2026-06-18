@@ -1,4 +1,4 @@
-export type Lang = "tr" | "en";
+export type Lang = "tr" | "en" | "de";
 
 export const translations = {
   tr: {
@@ -320,6 +320,167 @@ export const translations = {
 
       footerCopy: "© Axeron Medical",
       footerLinks: "Privacy · Support · Contact",
+    },
+  },
+
+  de: {
+    loading: "Medical wird geladen",
+
+    nav: {
+      home: "Startseite",
+      about: "Über uns",
+      contact: "Kontakt",
+    },
+
+    scroll: {
+      heroEyebrow: "Axeron",
+      heroTitle: "Medical",
+      heroParagraph:
+        "Zur Senkung der Wartungskosten und für eine langlebige Nutzung werden bei der Herstellung hochwertige Aluminiumbleche und fortschrittliche Fertigungstechniken eingesetzt.",
+      scrollHint: "Scrollen zum Entdecken",
+
+      closeupEyebrow: "Für alle Lagerbedingungen",
+      closeupH2:
+        "Sterilisationsbehälter sind in verschiedenen Typen und Größen erhältlich, um alle Benutzeranforderungen vollständig zu erfüllen.",
+      closeupP:
+        "In verschiedenen Höhen-, Breiten- und Längenoptionen für alle Lager- und Aufbewahrungsbedingungen erhältlich. Darüber hinaus können die Behälter gestapelt werden.",
+
+      frontEyebrow: "Perforierte und nicht-perforierte Behälteroptionen",
+      frontH2: "Kompatibel mit jeder\nSterilisationsmethode",
+      frontP:
+        "Benutzer können zwischen perforierten Deckeln und nicht-perforierten Behältern für Vakuumsysteme oder perforierten Deckel- und Behältermodellen für Dampfsysteme wählen.",
+      frontStat1:
+        "Nach Schmieden, Pressen, Polieren und Eloxieren werden die Behälterteile zur Montagelinie gesendet.",
+      frontStat2:
+        "Ca. 30 Teile werden mit Zwischenkontrollen auf der Montagelinie zusammengesetzt.",
+      frontStat3:
+        "Auf Material- und Verarbeitungsfehler geprüft und Dichtigkeitstests durchgeführt.",
+      frontStat4:
+        "Behälter werden sicher gegen physische Stöße verpackt.",
+
+      topEyebrow: "Schutzsystem",
+      topHeading: "Voller Aufprallschutz",
+      topP:
+        "Der Schutzdeckel bietet Schutz vor Stößen und verhindert Kontaminationen während Transport und Lagerung.",
+
+      backEyebrow: "Filtrationstechnologie",
+      backHeading: "Einweg-\nPapierfilter",
+      backP:
+        "Einweg-Papierfilter bieten wirksamen Schutz, indem sie nach der Sterilisation das Eindringen von Mikroorganismen in den Behälter verhindern.\n\nFilterhalter werden aus ASIS / SAE 304 (1.4301) Edelstahl gefertigt.",
+
+      finalEyebrow: "Axeron Medical",
+      finalHeading: "Ihr zuverlässiger\nLieferpartner",
+      finalP: "Mit über 15 Jahren Erfahrung und mehr als 180 Referenzeinrichtungen sind wir der führende Anbieter von Sterilisationsbehältersystemen in der Türkei – für öffentliche Ausschreibungen und private Kliniken.",
+      finalCta: "Kontakt aufnehmen",
+    },
+
+    static: {
+      aboutEyebrow: "Warum Axeron",
+      aboutTitle: "In",
+      aboutTitleAccent: "Zahlen",
+      aboutSubtitle:
+        "Über 15 Jahre Erfahrung im medizinischen Versorgungssektor,\n180+ Referenzeinrichtungen, 48-Stunden-Lieferung ab Lager.",
+
+      stats: [
+        { value: "15+",  label: "Jahre Erfahrung",        desc: "Im medizinischen Versorgungssektor" },
+        { value: "200+", label: "Produktcodes",            desc: "Volles Sortiment in 5 Kategorien" },
+        { value: "180+", label: "Referenzeinrichtungen",   desc: "Krankenhäuser, Kliniken, CSSD-Zentren" },
+        { value: "48h",  label: "Lieferung",               desc: "Ab Lager in der Türkei" },
+      ],
+
+      columns: [
+        {
+          title: "Unsere Mission",
+          body: "Wir verbinden gesammeltes Wissen in chirurgischen Verfahrensprotokollen mit modernen Ingenieurtechniken und begegnen ihnen mit einer akademischen Denkweise, die die Betriebskultur kontinuierlich erforscht.",
+        },
+        {
+          title: "Produktionsqualität",
+          body: "Hochwertiges Aluminiumblech, 316L Edelstahl und fortschrittliche Fertigungstechniken werden zur Senkung der Wartungskosten und für eine langlebige Nutzung eingesetzt.",
+        },
+        {
+          title: "Zertifizierung",
+          body: "Unser nach ISO 13485 zertifiziertes Qualitätsmanagementsystem, Konformitätsnachweise des Gesundheitsministeriums und das CE-gekennzeichnete Produktsortiment gewährleisten volle Konformität bei öffentlichen Ausschreibungen.",
+        },
+      ],
+
+      contactEyebrow: "Kontakt",
+      contactTitle: "Sprechen Sie",
+      contactTitleAccent: "uns an",
+      contactSubtitle:
+        "Unser Vertriebsteam steht Ihnen während der Geschäftszeiten\nfür alle Sterilbehälterlösungen zur Verfügung.",
+
+      contactBlocks: [
+        {
+          label: "Adresse",
+          lines: ["Maslak Mah. AOS 55. Sokak", "Plaza No:2, Etage 7", "34398 Sarıyer / Istanbul"],
+        },
+        {
+          label: "Telefon",
+          lines: ["Vertrieb: +90 212 555 08 72", "Technischer Support: +90 212 555 08 74", "Fax: +90 212 555 08 75"],
+        },
+        { label: "E-Mail", lines: ["satis@axeronmed.com", "info@axeronmed.com"] },
+      ],
+
+      companyInfo:
+        "Axeron Surgical Technologies Medical GmbH\nSteuer-Nr: 1234567890 · Finanzamt: Maslak",
+
+      faqEyebrow: "Häufig gestellte Fragen",
+      faqs: [
+        {
+          q: "Gibt es eine Mindestbestellmenge?",
+          a: "Aluminiumbehälter, Edelstahlkästen und Drahtgittkörbe werden stückweise ohne Mindestbestellmenge verkauft. Bei Verbrauchsartikeln wie Silikonersatzdichtungssets gilt eine paketbasierte Mindestmenge.",
+        },
+        {
+          q: "Bieten Sie Ausschreibungsunterstützung für öffentliche Krankenhäuser an?",
+          a: "Ja. Alle unsere Sterilbehältersysteme verfügen über Konformitätszertifikate des Gesundheitsministeriums, ÜRÜNAS-Registrierungen und die erforderlichen CE / ISO 13485 Zertifizierungen. Unser Vertriebsteam unterstützt bei der Vorbereitung von Ausschreibungsunterlagen.",
+        },
+        {
+          q: "Wie schnell erhalte ich eine Antwort?",
+          a: "Anfragen während der Geschäftszeiten werden am selben Tag beantwortet; außerhalb der Geschäftszeiten am nächsten Geschäftsmorgen.",
+        },
+        {
+          q: "Wie ist die Garantieabdeckung für Produkte?",
+          a: "Alle unsere Sterilbehältersystemprodukte sind 24 Monate gegen Herstellungsfehler garantiert. Verbrauchsartikel wie Silikonersatzdichtungssets sind unter einer Integritätsgarantie abgedeckt.",
+        },
+        {
+          q: "Sind individuelle Maße oder Gravuren möglich?",
+          a: "Individuelle Maßanfertigungen und Laser-Gravuren mit Krankenhaus-/Kliniklogo sind ab bestimmten Bestellmengen möglich. Die Lieferzeit kann sich um 3–4 Wochen verlängern.",
+        },
+      ],
+
+      formEyebrow: "Kontaktformular",
+      formSubtitle: "Wir antworten innerhalb von 1 Werktag.",
+      formCompany: "Firma / Institution",
+      formCompanyPlaceholder: "z.B. Nordklinikum",
+      formPerson: "Ansprechpartner",
+      formPersonPlaceholder: "Vor- und Nachname",
+      formEmail: "E-Mail",
+      formEmailPlaceholder: "email@institution.de",
+      formPhone: "Telefon",
+      formPhonePlaceholder: "+49 XXX XXXX XXXX",
+      formSubject: "Betreff",
+      formSubjectPlaceholder: "— Betreff wählen —",
+      formSubjectOptions: [
+        "Allgemeine Informationen",
+        "Aluminium-Behältersystem",
+        "Edelstahlkasten",
+        "Silikongedichteter Behälter",
+        "Drahtgittkorb / Tablett",
+        "Großer Transportkasten",
+        "Technischer Support",
+      ],
+      formMessage: "Ihre Nachricht",
+      formMessagePlaceholder: "Geben Sie Ihre Anfrage, Produktcode oder Fragen an...",
+      formKvkkLink: "Datenschutzhinweis",
+      formKvkkSuffix: " – Ich habe ihn gelesen und stimme der Verarbeitung meiner persönlichen Daten zu.",
+      formPrivacy: "Ihre Daten werden nicht an Dritte weitergegeben.",
+      formSubmit: "Senden",
+
+      ctaEyebrow: "Lieferbereit",
+      ctaTitle: "Lassen Sie uns zusammenarbeiten",
+
+      footerCopy: "© Axeron Medical",
+      footerLinks: "Datenschutz · Support · Kontakt",
     },
   },
 };
