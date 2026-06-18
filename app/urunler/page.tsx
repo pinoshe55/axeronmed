@@ -2,6 +2,7 @@
 
 import { useContent } from "@/context/ContentContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/i18n";
 import PageLayout from "@/components/PageLayout";
 import BlockRenderer from "@/components/BlockRenderer";
 import Link from "next/link";
@@ -9,15 +10,16 @@ import Link from "next/link";
 export default function Page() {
   const { overrides, serverLoaded } = useContent();
   const { lang } = useLanguage();
+  const t = translations[lang]?.static ?? translations.tr.static;
 
   if (!serverLoaded) return null;
 
   if (overrides.activePages?.urunler === false) return null;
 
   const pageContent = overrides.pages?.["urunler"];
-  const title = lang === "tr" ? pageContent?.trTitle : pageContent?.enTitle;
-  const blocks = lang === "tr" ? pageContent?.trBlocks : pageContent?.enBlocks;
-  const body = lang === "tr" ? pageContent?.trBody : pageContent?.enBody;
+  const title = lang === "tr" ? pageContent?.trTitle : lang === "de" ? ((pageContent as any)?.deTitle || pageContent?.enTitle) : pageContent?.enTitle;
+  const blocks = lang === "tr" ? pageContent?.trBlocks : lang === "de" ? ((pageContent as any)?.deBlocks || pageContent?.enBlocks) : pageContent?.enBlocks;
+  const body = lang === "tr" ? pageContent?.trBody : lang === "de" ? ((pageContent as any)?.deBody || pageContent?.enBody) : pageContent?.enBody;
   const heroImage = pageContent?.heroImage;
 
   return (
@@ -38,7 +40,7 @@ export default function Page() {
 
       <div className="max-w-4xl mx-auto">
         <Link href="/" className="text-[11px] tracking-widest uppercase text-ink/30 hover:text-ink/60 transition-colors mb-8 inline-block">
-          ← Ana Sayfa
+          {t.backHome}
         </Link>
 
         {title && <h1 className="text-3xl md:text-4xl font-light tracking-tight text-ink/80 mb-8">{title}</h1>}
@@ -51,7 +53,7 @@ export default function Page() {
             dangerouslySetInnerHTML={{ __html: body }}
           />
         ) : (
-          <p className="text-ink/30 text-sm">İçerik henüz eklenmedi.</p>
+          <p className="text-ink/30 text-sm">{t.noContent}</p>
         )}
       </div>
     </PageLayout>

@@ -159,6 +159,10 @@ export const translations = {
 
       footerCopy: "© Axeron Medical",
       footerLinks: "Gizlilik · Destek · İletişim",
+
+      backHome: "← Ana Sayfa",
+      noContent: "İçerik henüz eklenmedi.",
+      pageNotFound: "Sayfa bulunamadı",
     },
   },
 
@@ -320,6 +324,10 @@ export const translations = {
 
       footerCopy: "© Axeron Medical",
       footerLinks: "Privacy · Support · Contact",
+
+      backHome: "← Home",
+      noContent: "No content added yet.",
+      pageNotFound: "Page not found",
     },
   },
 
@@ -481,6 +489,10 @@ export const translations = {
 
       footerCopy: "© Axeron Medical",
       footerLinks: "Datenschutz · Support · Kontakt",
+
+      backHome: "← Startseite",
+      noContent: "Noch kein Inhalt hinzugefügt.",
+      pageNotFound: "Seite nicht gefunden",
     },
   },
 };
