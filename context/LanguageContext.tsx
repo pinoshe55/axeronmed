@@ -21,18 +21,24 @@ const STORAGE_KEY = "axeron-lang";
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { overrides, serverLoaded } = useContent();
 
-  // İlk render: localStorage → yoksa "tr" (sunucudan gelene kadar geçici)
-  const [lang, setLangState] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "tr";
-    return (localStorage.getItem(STORAGE_KEY) as Lang) || "tr";
-  });
+  // SSR ile eşleşmesi için her zaman "tr" ile başla
+  const [lang, setLangState] = useState<Lang>("tr");
   const [userChose, setUserChose] = useState(false);
+
+  // Mount sonrası localStorage'dan dili oku (hydration hatası olmaz)
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY) as Lang | null;
+    if (stored) {
+      setLangState(stored);
+      setUserChose(true);
+    }
+  }, []);
 
   // Sunucu yüklenince: kullanıcı daha önce dil seçmediyse varsayılan dili uygula
   useEffect(() => {
     if (!serverLoaded || userChose) return;
-    const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-    if (stored) { setUserChose(true); return; } // localStorage'da varsa dokunma
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) { setUserChose(true); return; }
     const def = (overrides.theme?.defaultLang as Lang) || "tr";
     setLangState(def);
   }, [serverLoaded]);
