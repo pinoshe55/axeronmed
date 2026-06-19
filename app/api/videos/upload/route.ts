@@ -1,61 +1,31 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
-export const runtime = "edge"; // edge runtime has no body size limit issue
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
 
-export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: "Dosya seçilmedi" },
-        { status: 400 }
-      );
-    }
-
-    // Validate file type
-    const fileName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
-    if (!fileName.endsWith(".mp4") && !fileName.endsWith(".webm")) {
-      return NextResponse.json(
-        { success: false, error: "Sadece .mp4 veya .webm dosyaları kabul edilir" },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size (50 MB max)
-    const MAX_SIZE = 50 * 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json(
-        { success: false, error: "Dosya çok büyük (Max: 50 MB)" },
-        { status: 400 }
-      );
-    }
-
-    // Upload to Vercel Blob
-    const blob = await put(`videos/${fileName}`, file, {
-      access: "public",
-      contentType: file.type || "video/mp4",
-    });
-
-    const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-
-    return NextResponse.json({
-      success: true,
-      message: `${fileName} başarıyla yüklendi`,
-      file: {
-        name: fileName,
-        path: blob.url,
-        size: file.size,
-        sizeFormatted: `${sizeInMB} MB`,
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async (pathname) => {
+        const lower = pathname.toLowerCase();
+        if (!lower.endsWith(".mp4") && !lower.endsWith(".webm")) {
+          throw new Error("Sadece .mp4 veya .webm dosyaları kabul edilir");
+        }
+        return {
+          allowedContentTypes: ["video/mp4", "video/webm", "video/quicktime"],
+          maximumSizeInBytes: 200 * 1024 * 1024, // 200 MB
+          tokenPayload: JSON.stringify({ pathname }),
+        };
+      },
+      onUploadCompleted: async ({ blob }) => {
+        console.log("Video yüklendi:", blob.url);
       },
     });
+
+    return NextResponse.json(jsonResponse);
   } catch (error: any) {
-    console.error("Video upload error:", error);
-    return NextResponse.json(
-      { success: false, error: "Dosya yüklenemedi", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

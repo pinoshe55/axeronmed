@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { upload } from "@vercel/blob/client";
 
 const ModelPreviewCanvas = dynamic(() => import("@/components/ModelPreviewCanvas"), {
   ssr: false,
@@ -22,7 +23,7 @@ export interface MediaItem {
 }
 
 const MAX_PER_KIND = 3;
-const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_SIZE = 200 * 1024 * 1024; // 200MB (direct-to-Blob, no server limit)
 
 interface Props {
   heroMediaType: "3d" | "video";
@@ -104,19 +105,30 @@ export default function MediaManager({ heroMediaType, heroVideoPath, modelPath, 
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const endpoint = kind === "video" ? "/api/videos/upload" : "/api/models/upload";
-      const res = await fetch(endpoint, { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.success) {
-        notify(`${file.name} yüklendi (${data.file.sizeFormatted}) ✓ Yayınlamak için karttaki butonu kullanın`, "success");
+      if (kind === "video") {
+        // Direct client-to-Blob upload — bypasses server body size limit entirely
+        const cleanName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+        const blob = await upload(`videos/${cleanName}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/videos/upload",
+        });
+        const sizeFormatted = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+        notify(`${file.name} yüklendi (${sizeFormatted}) ✓ Yayınlamak için karttaki butonu kullanın`, "success");
         await refreshLists();
       } else {
-        notify(data.error || "Yükleme başarısız", "error");
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/models/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          notify(`${file.name} yüklendi (${data.file.sizeFormatted}) ✓ Yayınlamak için karttaki butonu kullanın`, "success");
+          await refreshLists();
+        } else {
+          notify(data.error || "Yükleme başarısız", "error");
+        }
       }
-    } catch {
-      notify("Yükleme başarısız", "error");
+    } catch (err: any) {
+      notify(err?.message || "Yükleme başarısız", "error");
     } finally {
       setUploading(false);
     }
