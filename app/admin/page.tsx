@@ -2263,6 +2263,15 @@ export default function AdminPage() {
 
             <div className="space-y-6">
 
+              {/* Seamless loop tip */}
+              <div className="flex gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/80 text-xs leading-relaxed">
+                <span className="text-lg shrink-0">💡</span>
+                <div>
+                  <p className="font-medium text-amber-100 mb-1">Video Kesintisiz Döngü (Seamless Loop)</p>
+                  <p>Bu video sitenin en üstünde (Hero Section) sürekli tekrar oynatılır. Videonun <strong>ilk ve son karesi birebir aynı</strong> olmalıdır; böylece geçişi fark edilmez. Video üretim aracınıza veya tasarımcınıza bunu belirtin.</p>
+                </div>
+              </div>
+
               {/* Unified media manager: upload, list, preview, publish */}
 
               <MediaManager
