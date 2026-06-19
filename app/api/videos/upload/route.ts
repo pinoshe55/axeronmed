@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
+
+export const runtime = "edge"; // edge runtime has no body size limit issue
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,28 +33,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save file to /public/videos/
-    const videosDir = path.join(process.cwd(), "public", "videos");
-    await fs.mkdir(videosDir, { recursive: true });
-
-    const buffer = await file.arrayBuffer();
-    await fs.writeFile(path.join(videosDir, fileName), Buffer.from(buffer));
+    // Upload to Vercel Blob
+    const blob = await put(`videos/${fileName}`, file, {
+      access: "public",
+      contentType: file.type || "video/mp4",
+    });
 
     const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: `${fileName} başarıyla yüklendi`,
-        file: {
-          name: fileName,
-          path: `/videos/${fileName}`,
-          size: file.size,
-          sizeFormatted: `${sizeInMB} MB`,
-        },
+    return NextResponse.json({
+      success: true,
+      message: `${fileName} başarıyla yüklendi`,
+      file: {
+        name: fileName,
+        path: blob.url,
+        size: file.size,
+        sizeFormatted: `${sizeInMB} MB`,
       },
-      { status: 200 }
-    );
+    });
   } catch (error: any) {
     console.error("Video upload error:", error);
     return NextResponse.json(

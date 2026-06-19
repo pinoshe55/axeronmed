@@ -1,56 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { del } from "@vercel/blob";
+
+export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fileName } = body;
+    const { url } = body; // Blob URL (e.g. https://xxxx.public.blob.vercel-storage.com/videos/foo.mp4)
 
-    if (!fileName) {
-      return NextResponse.json(
-        { success: false, error: "Dosya adı gerekli" },
-        { status: 400 }
-      );
+    if (!url) {
+      return NextResponse.json({ success: false, error: "Blob URL gerekli" }, { status: 400 });
     }
 
-    // Validate filename to prevent directory traversal
-    if (fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
-      return NextResponse.json(
-        { success: false, error: "Geçersiz dosya adı" },
-        { status: 400 }
-      );
-    }
+    await del(url);
 
-    // Validate file type
-    const fileNameLower = fileName.toLowerCase();
-    if (!fileNameLower.endsWith(".mp4") && !fileNameLower.endsWith(".webm")) {
-      return NextResponse.json(
-        { success: false, error: "Sadece .mp4 veya .webm dosyaları silinebilir" },
-        { status: 400 }
-      );
-    }
-
-    const filePath = path.join(process.cwd(), "public", "videos", fileName);
-
-    try {
-      await fs.unlink(filePath);
-    } catch {
-      return NextResponse.json(
-        { success: false, error: "Dosya bulunamadı" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, message: `${fileName} silindi` },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, message: "Video silindi" });
   } catch (error: any) {
     console.error("Video delete error:", error);
-    return NextResponse.json(
-      { success: false, error: "Dosya silinemedi", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Dosya silinemedi", details: error.message }, { status: 500 });
   }
 }
